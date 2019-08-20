@@ -1,0 +1,11 @@
+@import "_palette.scss";
+
+.search-sort {
+  .sort-ie {
+    display: none;
+    @include is-IE() {
+      display: block;
+      min-width: 4rem;
+    }
+  }
+}

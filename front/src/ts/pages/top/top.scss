@@ -1,0 +1,85 @@
+@import "_palette.scss";
+.top {
+  .logo {
+    /*@include shadow;*/
+    /*margin-bottom: 20px;*/
+    width: 120px;
+    padding: 10px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .content {
+    color: $text !important;
+  }
+
+  .title {
+    weight: 300 !important;
+  }
+
+  .title,
+  .subtitle {
+    white-space: nowrap;
+  }
+  .text-search-form {
+    // margin-top: 30px;
+    width: 50%;
+
+    margin-left: auto;
+    margin-right: auto;
+    .search-button {
+      width: 4rem;
+    }
+  }
+
+  .top-search-control {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+
+  .sample-query {
+    margin-left: 10px;
+    text-decoration: underline;
+  }
+
+  .info {
+    margin: {
+      bottom: 20px;
+      /*top:100px;*/
+      left: 120px;
+      right: 120px;
+    }
+    @include is-mobile() {
+      margin-left: 5px;
+      margin-right: 5px;
+    }
+    p {
+      text-indent: 1em;
+    }
+    .top-card {
+      padding: 0px;
+      border: $border;
+      border-radius: 3px;
+      /*background: $background-gray;*/
+      /*@include shadow;*/
+      .top-card-title {
+        padding: 8px;
+        margin: 0;
+        border-bottom: $border;
+        /*font-size: large;*/
+      }
+      .top-card-content {
+        padding: 1em;
+      }
+    }
+  }
+  .tile.is-ancestor:last-child {
+    /*margin-bottom: 20px;*/
+  }
+  padding-bottom: 20px;
+  /*    article{
+            margin:{
+                left:20px;
+                right:20px;
+            }
+        }*/
+}

@@ -1,0 +1,60 @@
+@import "_palette.scss";
+.page-search {
+  .page-search-form {
+  }
+
+  .book-title {
+    padding: 10px;
+    padding-bottom: 0;
+    font-weight: 600;
+  }
+
+  .page-search-query {
+    padding: 10px;
+  }
+
+  @include shadow;
+  background: white;
+
+  .stat {
+    padding: 10px;
+    padding-top: 0px;
+    border-bottom: $border-gray 1px solid;
+  }
+
+  .pages {
+    margin: 10px;
+    .page {
+      padding: 3px;
+      border: $border;
+      border-radius: 3px;
+      margin-bottom: 3px;
+
+      .page-page {
+        margin: 0;
+        border-bottom: $border;
+        align-items: center;
+        /*background: $primary;*/
+        a {
+          font-size: larger;
+          /*color: white;*/
+        }
+        .column {
+          padding: 0px;
+        }
+      }
+      .page-title {
+        border-bottom: $border;
+      }
+      .page-content {
+        padding: 0.5rem;
+        background: $background-gray;
+        font-size: small;
+        em {
+          font-style: normal;
+          background: $yellow;
+        }
+      }
+    }
+  }
+}

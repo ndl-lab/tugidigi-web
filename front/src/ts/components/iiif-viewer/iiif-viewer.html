@@ -1,0 +1,117 @@
+<div class="iiif-viewer" :class="{'is-full':full}">
+  <div class="viewer-contrast" :class="{'blackwhite':bwflag}">
+    <div class="viewer" ref="leaflet"></div>
+  </div>
+  <div class="iiif-control-group">
+    <div class="iiif-control-page" v-if="totalPage">
+      <div class="field has-addons has-addons-centered">
+        <p class="control">
+          <button class="button is-small iiif-prev" @click="next()">
+            <b-icon icon="chevron-left"></b-icon>
+            <span class="is-hidden-mobile">{{ $l("l-next") }}</span>
+          </button>
+        </p>
+        <p class="control">
+          <input
+            class="input is-small iiif-inputpage"
+            @input="inputPage"
+            v-model="inputPageModel"
+          />
+        </p>
+        <p class="control">
+          <a class="iiif-total button is-small is-static">{{
+            "/" + totalPage
+          }}</a>
+        </p>
+        <p class="control">
+          <button class="button is-small iiif-next" @click="previous()">
+            <span class="is-hidden-mobile">{{ $l("l-prev") }}</span>
+            <b-icon icon="chevron-right"></b-icon>
+          </button>
+        </p>
+      </div>
+    </div>
+    <div class="iiif-control-zoom buttons has-addons">
+      <button class="button is-small iiif-remove" @click="map.zoomOut()">
+        <b-icon icon="magnify-minus"></b-icon>
+      </button>
+      <button class="button is-small iiif-fit" @click="fitBounds()">
+        <b-icon icon="arrow-collapse-all"></b-icon>
+      </button>
+      <button class="button is-small iiif-zoom" @click="map.zoomIn()">
+        <b-icon icon="magnify-plus"></b-icon>
+      </button>
+      <button class="button is-small iiif-full" @click="changeFull()">
+        <b-icon :icon="full?'fullscreen-exit':'fullscreen'"></b-icon>
+      </button>
+      <button class="button is-small iiif-full" @click="changeDiv()">
+        <b-icon :icon="div?'locker':'locker-multiple'"></b-icon>
+      </button>
+    </div>
+    <div class="iiif-control-download buttons has-addons">
+      <button class="button is-small" @click="isModalActive=true">
+        <b-icon icon="download"></b-icon>
+      </button>
+    </div>
+    <nav class="panel">
+      <div class="panel-block">
+        <p class="control">
+          <label class="checkbox" @click="changethparam()">
+            <input type="checkbox" v-model="bwflag" />
+            {{ $l2("読みやすくする", "Improve Readability") }}
+          </label>
+          <button @click="showTh()" class="button is-small">
+            {{ $l2("調整する", "Adjust") }}
+          </button>
+        </p>
+      </div>
+      <div class="panel-block" v-show="showThParam">
+        <p class="control">
+          <vue-slider
+            v-model="th"
+            v-bind.optin="thSliderOption"
+            ref="slider"
+          ></vue-slider>
+        </p>
+      </div>
+      <div style="display: none">
+        <input v-model="table" />
+        <textarea rows="4" v-model="colors"></textarea>
+      </div>
+      <svg
+        style="position: absolute; top: -99999px"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <filter id="svgBlur">
+          <feComponentTransfer>
+            <feFuncR type="table" v-bind:tableValues="filterParams" />
+            <feFuncG type="table" v-bind:tableValues="filterParams" />
+            <feFuncB type="table" v-bind:tableValues="filterParams" />
+          </feComponentTransfer>
+          <feColorMatrix type="matrix" v-bind:values="colors" />
+        </filter>
+      </svg>
+    </nav>
+  </div>
+
+  <b-modal :active.sync="isModalActive">
+    <article class="message" v-if="book">
+      <div class="message-header">
+        <p>{{ $l2("画像のダウンロード", "Download Image") }}</p>
+      </div>
+      <div class="message-body">
+        {{
+          $l2(
+            "このページの画像を白色化してダウンロードします。",
+            "Download whitened image of this page."
+          )
+        }}
+        <div class="buttons">
+          <a :href="downloadLink" class="button">
+            {{ $l2("ダウンロード", "Start") }}
+          </a>
+        </div>
+      </div>
+    </article>
+  </b-modal>
+</div>

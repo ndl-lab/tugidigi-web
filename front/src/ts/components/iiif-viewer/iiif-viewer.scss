@@ -1,0 +1,96 @@
+@import "_palette.scss";
+
+.iiif-viewer {
+  .modal {
+    z-index: 999;
+  }
+  .buttons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  background: #f5f5f5;
+  .viewer {
+    height: calc(100vh - 120px);
+    margin: 0;
+  }
+  //Full Screen用
+  &.is-full {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    z-index: 900;
+    .viewer {
+      height: 100vh;
+    }
+    .iiif-control-group {
+      position: fixed;
+      bottom: 0;
+      z-index: 910;
+    }
+  }
+  
+  .leaflet-container {
+    background-color: $grey-darker;
+  }
+
+  .leaflet-fade-anim .leaflet-tile {
+    will-change: initial;
+  }
+
+  .iiif-control-group {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: {
+      top: 0.5rem;
+      bottom: 0.5rem;
+    }
+
+    > *:not(:first-child) {
+      margin-left: 1rem;
+    }
+
+    .buttons {
+      margin-bottom: 0;
+      .button {
+        margin-bottom: 0;
+      }
+    }
+
+    .iiif-control-page {
+      display: flex;
+      align-items: center;
+      input {
+        min-width: 1.5rem;
+        max-width: 3rem;
+        text-align: right;
+      }
+      .iiif-prev {
+        margin-right: 0.2rem;
+      }
+      .iiif-total {
+        background: #f5f5f5;
+        border: none;
+        color: $text;
+      }
+    }
+    button {
+      i {
+        font-size: 1rem;
+      }
+    }
+
+    @include is-IE() {
+      .iiif-full {
+        display: none;
+      }
+    }
+  }
+}

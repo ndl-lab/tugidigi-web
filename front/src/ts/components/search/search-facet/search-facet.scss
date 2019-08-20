@@ -1,0 +1,121 @@
+@import "_palette.scss";
+
+.search-facet {
+  // border:$basic-border;
+
+  .facet-title {
+    padding: 0;
+    border-bottom: $basic-border;
+    font-weight: bold;
+    overflow: hidden;
+    button {
+      float: right;
+      border: none;
+      background: none;
+      margin-right: 0.125rem;
+      display: flex;
+      width: 2rem;
+      height: 2rem;
+      line-height: 2rem;
+      align-items: center;
+      color: $grey-darker;
+    }
+    h3 {
+      float: left;
+      font-weight: 500;
+    }
+  }
+
+  .search-facet-facets {
+    .search-facet-facet {
+      width: 100%;
+      display: flex;
+      align-items: center;
+
+      .b-checkbox {
+        margin-left: 0;
+        width: 100%;
+        .control-label {
+          display: flex;
+          align-items: center;
+          line-height: 2.5rem;
+          width: 100%;
+          .value {
+            flex-basis: 70%;
+            line-height: 1.25rem;
+            padding: 0.5rem 0rem;
+            // padding-left: 0.5rem;
+            display: flex;
+            align-items: center;
+            i {
+              margin: 0;
+            }
+            i + span {
+              padding-left: 0.25rem;
+            }
+            span {
+              @include typo-list();
+            }
+          }
+          .count {
+            flex-basis: 30%;
+            text-align: center;
+            a {
+              float: right;
+            }
+          }
+        }
+      }
+
+      &:not(:last-child) {
+        border-bottom: $basic-border;
+      }
+      &.not-facet-selected {
+        background: $grey-lighter;
+        color: $grey-dark;
+        span {
+          opacity: 0.65;
+        }
+        a {
+          color: $grey-dark;
+        }
+      }
+
+      .not-facet {
+        i {
+          cursor: pointer;
+        }
+        display: flex;
+        width: 2rem;
+        height: 2rem;
+        align-items: center;
+      }
+    }
+  }
+
+  .show-remain-button {
+    padding-top: 0.5rem;
+    div {
+      cursor: pointer;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      i {
+        margin-right: 0.325rem;
+        color: $grey-darker;
+      }
+    }
+  }
+
+  .not-facet-selected {
+    &:nth-child(3) {
+      margin-top: 1rem;
+    }
+    &:not(:last-child) {
+      border-bottom: $basic-border;
+    }
+    span.control-label {
+      padding: 0.5rem;
+    }
+  }
+}

@@ -1,0 +1,9 @@
+server:
+  port: 9998
+  servlet:
+    contextPath: /dl/
+es:
+  port: 9200
+  host: localhost
+  path:
+ngt: http://localhost:8200/search

@@ -1,0 +1,18 @@
+<div class="search-pagesize is-size-7">
+  <!-- <label>{{$l("label-pagesize")}}</label> -->
+  <div v-if="manual" class="field has-addons">
+    <div class="control">
+      <input class="input" type="number" v-model="size" />
+    </div>
+    <div class="control">
+      <a class="button is-info" @click="go()">{{ $l("l-apply") }}</a>
+    </div>
+  </div>
+  <div v-else class="select">
+    <select :value="size" v-on:input="sizeChange">
+      <option v-for="v in values" :value="v">{{
+        $lt("l-num-of-rows", v)
+      }}</option>
+    </select>
+  </div>
+</div>

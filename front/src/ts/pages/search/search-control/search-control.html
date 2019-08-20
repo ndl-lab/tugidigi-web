@@ -1,0 +1,76 @@
+<div class="search-control section">
+  <div class="container">
+    <b-tabs v-model="activeTab" expanded>
+      <b-tab-item
+        :label="$l2('キーワードで探す', 'Keyword search')"
+        icon="text"
+      >
+        <p class="guide" :class="keyword?'is-invisible':''">
+          {{
+            $l2(
+              "キーワードを入れて下さい。本文にキーワードを含む資料を検索します。",
+              "Input keywords for full-text search"
+            )
+          }}
+        </p>
+        <form class="text-search-form" @submit.prevent="keywordSearch()">
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <input
+                v-model="keyword"
+                class="input"
+                v-on:keyup.prevent.esc="keyword=null"
+                type="text"
+              />
+            </div>
+            <div class="control">
+              <button class="button search-button is-primary">
+                <b-icon icon="magnify"></b-icon>
+              </button>
+            </div>
+          </div>
+        </form>
+      </b-tab-item>
+      <b-tab-item :label="$l2('絵で探す', 'Illustration search')" icon="image">
+        <p class="guide" :class="qillust?'is-invisible':''">
+          {{
+            $l2(
+              "探したい絵を選んで下さい。似たような絵を含む資料を検索します。",
+              "Select illustration to search books that contains similar illustrations"
+            )
+          }}
+        </p>
+        <template v-if="qillust">
+          <div class="query-illust">
+            <illust-image class="image is-128x128" :i="qillust" :cont="false">
+            </illust-image>
+          </div>
+        </template>
+        <template v-else>
+          <swiper :options="swiperOption">
+            <swiper-slide v-for="i in illusts">
+              <illust-image
+                class="image-search-query image is-128x128"
+                :i="i"
+                :cont="false"
+                @click="imageSearch($event)"
+              ></illust-image>
+            </swiper-slide>
+            <div class="swiper-button-prev" slot="button-prev"></div>
+            <div class="swiper-button-next" slot="button-next"></div>
+          </swiper>
+        </template>
+        <div class="reload-query">
+          <button class="button is-small" @click="reloadImage()">
+            {{ $l2("別の絵から検索する", "Show other illustrations") }}
+          </button>
+        </div>
+      </b-tab-item>
+      <!-- <b-tab-item label="絵で絵を探す(beta)" icon="image">
+        <p class="guide" :class="qillust?'is-invisible':''">
+          UNDER CONSTRUCTION
+        </p>
+      </b-tab-item> -->
+    </b-tabs>
+  </div>
+</div>

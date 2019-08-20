@@ -1,0 +1,20 @@
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <strong
+        >&copy; 2019
+        {{
+          $l2(
+            "国立国会図書館　次世代システム開発研究室",
+            "Research and Development for Next-Generation Systems Office, National Diet Library"
+          )
+        }}</strong
+      >
+    </div>
+    <div class="content has-text-centered">
+      <a class="sw-lang" @click="$state.switchLang()">
+        {{ $l2("EN", "JP") }}
+      </a>
+    </div>
+  </div>
+</footer>

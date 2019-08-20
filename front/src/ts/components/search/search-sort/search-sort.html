@@ -1,0 +1,21 @@
+<div class="search-sort is-size-7">
+  <!-- <label>{{$l("label-sort")}}</label> -->
+  <div class="select">
+    <select :value="ss.sort" v-on:input="changeSort">
+      <option value="">{{ $l("l-sort-default") }}</option>
+      <option
+        v-if="options"
+        v-for="opt in options"
+        :value="opt.index+':'+(opt.asccend?'asc':'desc')"
+        >{{ $ls(opt.name) }}</option
+      >
+    </select>
+  </div>
+  <button
+    type="button"
+    @click.stop.prevent="changeSortIE"
+    class="sort-ie button is-small"
+  >
+    {{ $l("label-sort") }}
+  </button>
+</div>

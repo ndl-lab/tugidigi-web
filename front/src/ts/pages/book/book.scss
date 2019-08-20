@@ -1,0 +1,75 @@
+@import "_palette.scss";
+
+.book-view {
+  .page-modal {
+    z-index: 1000;
+  }
+
+  .columns {
+    margin: 0 !important;
+    height: calc(100vh - 75px);
+  }
+
+  .map {
+    position: relative;
+    margin: 0;
+    padding: 0;
+  }
+
+  .blackwhite {
+    -webkit-filter: url("#svgBlur");
+    filter: url("#svgBlur");
+  }
+
+  @media print {
+    margin: 0px;
+  }
+
+  .title {
+    font-weight: 200;
+  }
+
+  .meta {
+    background: white;
+    padding: 0;
+    .dl-link {
+      margin-top: 1rem;
+      border-top: 1px solid $border-gray;
+      padding-top: 1rem;
+      font-size: small;
+    }
+    .meta-header {
+      padding: 1rem;
+    }
+    .tab-content {
+      height: calc(100vh - 175px);
+      overflow-y: scroll !important;
+    }
+    .index-table {
+      width: 100%;
+      /*table-layout: fixed;*/
+      word-break: break-all;
+      word-wrap: break-all;
+      .pg {
+        width: 5rem;
+      }
+    }
+  }
+
+  .content {
+    padding: 20px;
+    @include shadow;
+    background: white;
+
+    .query {
+      background: $yellow;
+    }
+
+    @media print {
+      color: black !important;
+      a {
+        color: black !important;
+      }
+    }
+  }
+}

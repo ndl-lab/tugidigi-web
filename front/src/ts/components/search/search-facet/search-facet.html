@@ -1,0 +1,85 @@
+<div class="search-facet" v-if="hasFacet">
+  <div class="facet-title">
+    <h3 class="is-size-7-touch">{{ $ls(facet.def.name) }}</h3>
+    <button
+      class="button is-small is-size-7-touch"
+      @click="showFacet=!showFacet"
+    >
+      <i class="material-icons notranslate" aria-hidden="true">
+        {{ showFacet ? "arrow_drop_up" : "arrow_drop_down" }}
+      </i>
+    </button>
+  </div>
+  <div class="search-facet-facets" v-show="showFacet">
+    <div
+      class="search-facet-facet"
+      :class="{'is-selected':isSelected(value)}"
+      v-for="(count,value,index) in sortedFacet"
+      :key="value"
+      v-show="isShown(index)"
+    >
+      <b-checkbox :value="isSelected(value)" @input="select(value)">
+        <span class="value is-size-7-touch">
+          <template v-if="isDb">
+            <db-span :id="value"></db-span>
+          </template>
+          <template v-else-if="isCode">
+            <span>{{ $c(code, value) }}</span>
+          </template>
+          <template v-else-if="facet.def.type==='organization'">
+            <span><org-span :id="value"></org-span></span>
+          </template>
+          <template v-else>
+            {{ value }}
+          </template>
+        </span>
+        <span class="count is-size-7-touch">{{ count }}</span>
+      </b-checkbox>
+      <div class="not-facet is-size-7-touch">
+        <i
+          v-if="!isSelected(value)"
+          class="material-icons notranslate"
+          v-on:click="exclude(value)"
+          >cancel</i
+        >
+      </div>
+    </div>
+  </div>
+  <div
+    class="search-facet-facet is-selected not-facet-selected"
+    v-for="value in notFacets"
+  >
+    <div class="value is-size-7-touch" v-on:click.prevent="exclude(value)">
+      <b-checkbox :indeterminate="true">
+        <template v-if="isDb">
+          <db-span :id="value"></db-span>
+        </template>
+        <template v-else-if="isCode">
+          {{ $c(code, value) }}
+        </template>
+        <template v-else>
+          {{ value }}
+        </template>
+      </b-checkbox>
+    </div>
+  </div>
+
+  <div
+    class="show-remain-button is-size-7-touch"
+    @click="showAll=!showAll"
+    v-if="isShowHideButton()"
+  >
+    <div v-if="!showAll">
+      <span>{{ $lt("l-show-remains", facetsRemains) }}</span
+      ><i class="material-icons notranslate" aria-hidden="true"
+        >arrow_drop_down</i
+      >
+    </div>
+    <div v-else>
+      <span>{{ $l("l-hide") }}</span
+      ><i class="material-icons notranslate" aria-hidden="true"
+        >arrow_drop_up</i
+      >
+    </div>
+  </div>
+</div>

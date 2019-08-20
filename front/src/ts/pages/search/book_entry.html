@@ -1,0 +1,42 @@
+<div class="book-entry media">
+  <figure class="media-left">
+    <p class="image is-128x128">
+      <img :src="thubmUrl" @error="thumbError=true" />
+    </p>
+  </figure>
+  <div class="media-content">
+    <div class="content">
+      <p>
+        <strong>
+          <router-link
+            :to='{ name: "book", params:{id:book.id }, query:{keyword:keywords}}'
+          >
+            {{ book.title }} {{ book.volume }}
+          </router-link>
+        </strong>
+        <br />
+        <small
+          >{{ book.responsibility }}{{ book.publisher }}
+          {{ book.published }}</small
+        ><br />
+      </p>
+    </div>
+    <div v-if="book.highlights && book.highlights.length>0" class="highlights">
+      <p v-for="hl in book.highlights " v-html="hl"></p>
+    </div>
+    <div class="illusts" v-if="book.illusts!=null">
+      <p>{{ $l2("この資料の中の図表", "Illustrations in this book") }}</p>
+      <swiper :options="swiperOption">
+        <swiper-slide v-for="i in book.illusts">
+          <illust-image
+            class="image is-64x64"
+            @search="search"
+            :i="i"
+          ></illust-image>
+        </swiper-slide>
+        <div class="swiper-button-prev" slot="button-prev"></div>
+        <div class="swiper-button-next" slot="button-next"></div>
+      </swiper>
+    </div>
+  </div>
+</div>

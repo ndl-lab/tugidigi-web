@@ -1,0 +1,11 @@
+<figure class="illust-image" @click.stop="click()">
+  <img :src="imgurl(i)" />
+  <div class="control" v-if="cont">
+    <a @click.stop="search()">
+      <b-icon icon="magnify"></b-icon>
+    </a>
+    <router-link :to="{name:'book',params:{id:i.pid}, query: { page: i.page }}">
+      <b-icon icon="book-open-variant"></b-icon>
+    </router-link>
+  </div>
+</figure>

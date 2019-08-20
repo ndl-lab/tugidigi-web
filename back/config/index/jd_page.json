@@ -1,0 +1,52 @@
+{
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "ngram_analyzer": {
+                    "tokenizer": "my_ngram_tokenizer",
+                    "char_filter": [
+                        "html_strip",
+                        "nfkc_normalizer",
+                        "normalize_char_filter"
+                    ]
+                }
+            },
+            "tokenizer": {
+                "my_ngram_tokenizer": {
+                    "type": "ngram",
+                    "min_gram": 1,
+                    "max_gram": 2,
+                    "token_chars": [
+                        "letter",
+                        "digit"
+                    ]
+                }
+            },
+            "char_filter": {
+                "normalize_char_filter": {
+                    "type": "mapping",
+                    "mappings_path": "normalize_mapping"
+                },
+                "nfkc_normalizer": {
+                    "type": "icu_normalizer"
+                }
+            }
+        }
+    },
+    "mappings": {
+        "_doc": {
+            "properties": {
+                "book": {
+                    "type": "keyword"
+                },
+                "page": {
+                    "type": "keyword"
+                },
+                "contents": {
+                    "type": "text",
+                    "analyzer": "ngram_analyzer"
+                }
+            }
+        }
+    }
+}

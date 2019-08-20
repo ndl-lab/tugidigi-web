@@ -1,0 +1,17 @@
+@import "_palette.scss";
+
+.illust-image {
+  .control {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    height: 1.5rem;
+    display: flex;
+    justify-content: center;
+    a {
+      display: block;
+      cursor: pointer;
+    }
+  }
+}

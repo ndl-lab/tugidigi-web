@@ -1,0 +1,24 @@
+<div class="illust-search">
+  <div class="illust-search-result" v-if="ss.result">
+    <div class="stat">
+      {{
+        $l2(
+          ss.hit + "枚の図表が抽出されています",
+          ss.hit + " illustrations are extracted"
+        )
+      }}
+    </div>
+    <search-pagination :ss="ss"></search-pagination>
+    <div class="illusts">
+      <div v-for="i in ss.result.list" class="illust" @click="show(i)">
+        <illust-image
+          :i="i"
+          @search="search(i)"
+          class="image is-128x128"
+        ></illust-image>
+        <p>{{ $l2(i.page + "コマ", i.page) }}</p>
+      </div>
+    </div>
+    <search-pagination :ss="ss"></search-pagination>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+@import "_palette.scss";
+
+.search-paginaition {
+  @include is-mobile() {
+    padding: 1rem;
+  }
+  @include is-tablet() {
+    margin: 1.75rem 2.75rem;
+  }
+  .is-current {
+    pointer-events: none;
+  }
+}

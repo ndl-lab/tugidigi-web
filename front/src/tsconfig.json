@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "lib": ["dom", "es6", "es2016", "scripthost"],
+    "sourceMap": false,
+    "declaration": false,
+    "noImplicitAny": false,
+    "preserveConstEnums": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "removeComments": true,
+    "allowSyntheticDefaultImports": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noImplicitThis": true,
+    "baseUrl": "./ts/",
+    "typeRoots": ["../node_modules/@types/"],
+    "importHelpers": true,
+    "noEmitHelpers": true
+  }
+}

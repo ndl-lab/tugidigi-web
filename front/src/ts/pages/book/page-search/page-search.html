@@ -1,0 +1,37 @@
+<div class="page-search">
+  <form class="page-search-form" @submit.prevent="keywordSearch()">
+    <div class="field has-addons">
+      <div class="control is-expanded">
+        <input v-model="keyword" class="input" type="text" />
+      </div>
+      <div class="control">
+        <button class="button search-button is-primary">
+          <b-icon icon="magnify"></b-icon>
+        </button>
+      </div>
+    </div>
+  </form>
+  <div class="page-search-result" v-if="ss.result">
+    <div class="stat">
+      {{ $l2(ss.hit + "コマ見つかりました。", ss.hit + " found") }}
+    </div>
+    <search-pagination :ss="ss"></search-pagination>
+    <div class="pages">
+      <div v-for="p in ss.result.list" class="page">
+        <div class="page-page">
+          <router-link
+            v-bind:to='{ name: "book", params:{id:book.id }, query:{keyword:keywords2,page:p.page}}'
+          >
+            {{ $l2(p.page + "コマ", p.page) }}
+          </router-link>
+        </div>
+        <div class="page-content">
+          <div v-if="p.highlights && p.highlights.length>0" class="highlights">
+            <p v-for="hl in p.highlights " v-html="hl"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <search-pagination :ss="ss"></search-pagination>
+  </div>
+</div>

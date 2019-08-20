@@ -1,0 +1,19 @@
+<header>
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <router-link class="navbar-item" :to="{name:'top'}" exact>
+        <img
+          :src="$url('images/logo.svg')"
+          width="28"
+          height="28"
+          alt="次世代デジタルライブラリー"
+        />
+        <img
+          class="svg-title"
+          :src="$url('images/'+$state.lang+'.svg')"
+          alt="次世代デジタルライブラリー"
+        />
+      </router-link>
+    </div>
+  </nav>
+</header>

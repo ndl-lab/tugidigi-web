@@ -1,0 +1,379 @@
+$base: #2e2963;
+
+$primary: #2e2963;
+$primary-lighter: lighten($primary, 20%);
+$primary-darker: darken($primary, 10%);
+
+$secondery: #ed4f33;
+$file-name-border-color: #f5f5f5;
+$footer-background-color: #dbdbdb;
+
+$background-gray: #f5f5f5;
+$border-gray: #dbdbdb;
+
+$border: $border-gray 1px solid;
+
+$black: #0a0a0a;
+$grey-darker: #363636;
+$grey-dark: #4a4a4a;
+$grey: #7a7a7a;
+$grey-light: #b5b5b5;
+$grey-lighter: #dbdbdb;
+$white: #fff;
+$blue: #add2d8;
+$green: #467139;
+$orange: #cb9638;
+$purple: #e0d0c0;
+$red: #a7202a;
+$turquoise: #517660;
+$yellow: #f5b12e;
+$info: $blue;
+$success: $green;
+$warning: $yellow;
+$danger: $red;
+$light: $grey-lighter;
+$dark: $grey-dark;
+$text: $grey-dark;
+
+$border: $light;
+
+@mixin icon($name, $size: 24px, $x: 0px, $y: 0px) {
+  background: {
+    /*image:url("../images/ico-#{$name}.png");*/
+    repeat: no-repeat;
+    size: $size $size;
+    position: $x $y;
+  }
+}
+
+@mixin shadow() {
+  box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+}
+
+@mixin padding-side($width) {
+  padding-left: $width;
+  padding-right: $width;
+}
+
+@mixin md-transition($dur: 0.4s) {
+  -webkit-transition: all $dur cubic-bezier(0.165, 0.84, 0.44, 1);
+  -moz-transition: all $dur cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition: all $dur cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+@mixin transform($args) {
+  -webkit-transform: $args;
+  transform: $args;
+}
+
+@mixin badge() {
+  padding: 0px 3px 0px 3px;
+  border: $lineGray solid 1px;
+  background: $headGray;
+  border-radius: 8px;
+}
+
+@mixin dialog-background-black {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 10001;
+}
+
+@mixin card {
+  background: white;
+  @include shadow2dp;
+}
+
+@mixin is-mobile() {
+  @media screen and (max-width: 768px) {
+    @content;
+  }
+}
+
+@mixin default-margin() {
+  margin: 40px;
+  @include is-mobile() {
+    margin: 5px;
+  }
+}
+
+@mixin leftPane {
+  padding: 10px;
+  border-left: $borderGray solid 1px;
+  width: 208px;
+  display: table-cell;
+  height: 100%;
+  background-color: $headGray;
+  button {
+    width: 100%;
+  }
+  box-sizing: border-box;
+
+  @media #{$small} {
+    display: block;
+    width: 100%;
+    border: none;
+  }
+}
+
+@mixin wizardTitle {
+  display: table;
+  width: 100%;
+  h4 {
+    display: table-cell;
+  }
+  .steps {
+    vertical-align: middle;
+    display: table-cell;
+    text-align: right;
+  }
+}
+
+/* utilities */
+@mixin no-user-select() {
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+@mixin loading($height, $width) {
+  animation: spinAround 600ms infinite linear;
+  border: 2px solid $primary;
+  border-radius: 290486px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  height: $height;
+  width: $width;
+  content: "";
+  left: calc(50% - ($height / 2));
+  top: calc(50% - ($width / 2));
+  position: absolute !important;
+}
+
+@mixin padding-side($width) {
+  padding-left: $width;
+  padding-right: $width;
+}
+
+/* animagtion */
+
+@mixin ease($duration: 300ms) {
+  -webkit-transition: all $duration 0s ease;
+  transition: all $duration 0s ease;
+}
+
+/* shadow */
+
+@mixin box-shadow($color: rgba(0, 0, 0, 0.1)) {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+@mixin popup-shadow($color: rgba(0, 0, 0, 0.25)) {
+  box-shadow: 0 1px 24px $color;
+}
+
+/* gradation */
+@mixin key-gradation-red {
+  background-image: linear-gradient(90deg, #d30d7d 30%, #de1049 70%);
+}
+@mixin key-gradation-blue {
+  background-image: linear-gradient(90deg, #0aba90 30%, #109cde 70%);
+}
+
+/* breakpoint */
+
+$mobile-width: 768px;
+$tablet-width: 769px;
+$desktop-width: 1024px;
+$widescreen-width: 1216px;
+
+@mixin is-mobile() {
+  @media screen and (max-width: $mobile-width) {
+    @content;
+  }
+}
+
+@mixin is-tablet() {
+  @media screen and (min-width: $tablet-width) {
+    @content;
+  }
+}
+
+@mixin is-desktop() {
+  @media screen and (min-width: $desktop-width) {
+    @content;
+  }
+}
+
+@mixin is-widescreen() {
+  @media screen and (min-width: $widescreen-width) {
+    @content;
+  }
+}
+
+@mixin is-IE() {
+  @media screen and (-ms-high-contrast: active),
+    screen and (-ms-high-contrast: none) {
+    @content;
+  }
+}
+
+/* typography */
+@import url("https://fonts.googleapis.com/css?family=Roboto");
+@import url("https://cdn.jsdelivr.net/npm/yakuhanjp@3.0.0/dist/css/yakuhanjp.min.css");
+
+@mixin typo-header($weight: bold, $color: $black) {
+  font-family: YakuHanJP, "Roboto", sans-serif;
+  font-weight: $weight;
+  color: $color;
+  text-indent: 0;
+}
+@mixin typo-list($weight: normal, $color: $black) {
+  font-family: YakuHanJP, "Roboto", sans-serif;
+  font-weight: $weight;
+  color: $color;
+  text-indent: 0;
+}
+@mixin typo-paragraph($weight: normal, $color: $black) {
+  font-family: YakuHanJP, "Roboto", sans-serif;
+  font-weight: $weight;
+  line-height: 175%;
+  color: $color;
+  text-indent: 0;
+  // margin-bottom: 1rem;
+}
+
+@mixin typo-figcaption($weight: normal, $color: $grey-darker) {
+  font-family: YakuHanJP, "Roboto", sans-serif;
+  font-weight: $weight;
+  line-height: 150%;
+  color: $color;
+  text-indent: 0;
+  margin-bottom: 0.5rem;
+}
+
+@mixin link-marker($color: rgba(21, 209, 151, 0.6), $weight: 85%) {
+  background: linear-gradient(transparent $weight, $color 20%);
+}
+
+/* list page header */
+@mixin list-header-is-dark() {
+  header.is-dark {
+    background-image: url(#{$back-img-path}BGpattern_02.svg);
+    @include is-mobile() {
+      padding: 5rem 1rem 1rem 1rem;
+    }
+    .header-description {
+      color: $white;
+    }
+  }
+}
+
+/* details page header */
+@mixin details-header-is-dark() {
+  overflow: hidden;
+  > header {
+    overflow: hidden;
+    position: relative;
+    background-color: $grey-darkest; /* カラーフィルタ効果の色を指定 */
+    background-image: url(#{$back-img-path}BGpattern_05.svg);
+    @include is-tablet() {
+      height: 10rem;
+    }
+    @include is-mobile() {
+      height: 10rem;
+      background-size: 15vw;
+    }
+    .header-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+
+      img {
+        width: 100%;
+        height: 10rem;
+        object-fit: cover;
+        // opacity: 0.8;
+      }
+    }
+    .header-information {
+      background-image: linear-gradient(
+        -180deg,
+        rgba(17, 17, 17, 0.03) 0%,
+        rgba(17, 17, 17, 0.5) 100%
+      );
+      position: absolute;
+      width: 100%;
+      top: 0;
+      left: 0;
+      box-sizing: border-box;
+
+      @include is-mobile() {
+        height: 13rem;
+        padding: 4.5rem 1rem 1rem 1rem;
+      }
+      @include is-tablet() {
+        padding: 4rem 2.75rem 4rem 2.75rem;
+      }
+
+      .title {
+        color: white;
+        @include is-mobile() {
+          margin-bottom: 0.5rem;
+        }
+        @include is-tablet() {
+        }
+        span {
+          vertical-align: middle;
+        }
+        .header-type-title {
+          line-height: 1rem;
+          @include typo-list(bold, $white);
+        }
+        .header-object-title,
+        .header-type-name {
+          display: block;
+          @include is-tablet() {
+            margin-top: 1rem;
+          }
+          @include is-mobile() {
+            margin-top: 0.5rem;
+          }
+        }
+      }
+      .header-description {
+        color: $white;
+      }
+
+      .interactions {
+        @include is-tablet() {
+          position: absolute;
+          bottom: 5rem;
+          right: 2rem;
+        }
+        @include is-mobile() {
+          justify-content: center;
+        }
+        display: flex;
+        justify-content: flex-end;
+        span.tag {
+          margin-right: 2rem;
+          margin-top: 0.5rem;
+        }
+        a {
+          color: $white;
+          display: inline-block;
+          padding: 0.5rem;
+        }
+      }
+    }
+  }
+}

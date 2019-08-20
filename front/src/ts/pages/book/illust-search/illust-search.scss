@@ -1,0 +1,23 @@
+@import "_palette.scss";
+.illust-search {
+  .stat {
+    padding: 10px;
+    padding-top: 0px;
+  }
+
+  .illusts {
+    margin: 10px;
+    .illust {
+      display: flex;
+      cursor: pointer;
+      align-items: flex-start;
+      padding: 3px;
+      border: 1px solid $border;
+      border-radius: 3px;
+      margin-bottom: 3px;
+      p {
+        margin-left: 1rem;
+      }
+    }
+  }
+}

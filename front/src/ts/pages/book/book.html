@@ -1,0 +1,107 @@
+<div class="book-view">
+  <div>
+    <div class="columns">
+      <div class="column is-3 meta">
+        <template v-if="b">
+          <div class="meta-header">
+            <h1 class="title is-4">{{ b.title }} {{ b.volume }}</h1>
+          </div>
+          <b-tabs v-model="activeTab" expanded>
+            <b-tab-item :label="$l2('書誌','Bib')">
+              <aside class="menu">
+                <p class="menu-label">
+                  {{ $l2("責任表示", "Responsibility") }}
+                </p>
+                <ul class="menu-list">
+                  <li>{{ b.responsibility }}</li>
+                </ul>
+                <p class="menu-label">
+                  {{ $l2("出版年", "Published") }}
+                </p>
+                <ul class="menu-list">
+                  <li>{{ b.published }}</li>
+                </ul>
+                <p class="menu-label">
+                  {{ $l2("出版者", "Publisher") }}
+                </p>
+                <ul class="menu-list">
+                  <li>{{ b.publisher }}</li>
+                </ul>
+                <p class="menu-label">
+                  {{ $l2("請求記号", "Call No") }}
+                </p>
+                <ul class="menu-list">
+                  <li>{{ b.callNo }}</li>
+                </ul>
+                <div class="dl-link">
+                  <a :href="'http://dl.ndl.go.jp/info:ndljp/pid/'+b.id">
+                    {{
+                      $l2(
+                        "デジタルコレクションで見る",
+                        "Check this on Digital Collection"
+                      )
+                    }}
+                  </a>
+                </div>
+              </aside>
+            </b-tab-item>
+            <b-tab-item :label="$l2('目次','TOC')">
+              <button @click="changeAutoTOC">{{ $l2("目次を切り替える", "Switch TOC") }}</button>
+              <div v-if="isMetadata">
+                <p>{{ $l2("デジタルコレクションの目次です", "TOC stored in a digital collection (NORMAL)") }}</p>
+                <table class="table index-table  is-fullwidth" v-if="index">
+                <tr v-for="(i,n) in index">
+                  <td>{{ i.name }}</td>
+                  <td class="pg">
+                    <router-link
+                      v-if="i.pg"
+                      :to='{ name: "book", params:{id:b.id }, query:{page:i.pg,keyword:keywords}}'
+                      >{{ $l2(i.pg + "コマ", i.pg) }}
+                    </router-link>
+                  </td>
+                </tr>
+                </table>
+
+                <p v-else>
+                  {{ $l2(" 目次無し", "No Index") }}
+                </p>
+                </div>
+              <div v-else>
+                <p>{{ $l2("自動生成された目次です(実験中)", "automatically generated TOC (EXPERIMENTAL)") }}</p>
+                <table class="table index-table  is-fullwidth" v-if="autoTOCindex">
+                <tr v-for="(i,n) in autoTOCindex">
+                  <td>{{ i.name }}</td>
+                  <td class="pg">
+                    <router-link
+                      v-if="i.pg"
+                      :to='{ name: "book", params:{id:b.id }, query:{page:i.pg,keyword:keywords}}'
+                      >{{ $l2(i.pg + "コマ", i.pg) }}
+                    </router-link>
+                  </td>
+                </tr>
+                </table>
+                <p v-else>
+                  {{ $l2(" 自動生成目次無し", "No Automatically Generated Index") }}
+                </p>
+              </div>
+              
+            </b-tab-item>
+            <b-tab-item :label="$l2('本文','Text')">
+              <page-search :keywords="keywords" :book="b"></page-search>
+            </b-tab-item>
+            <b-tab-item :label="$l2('図表','Illustrations')">
+              <illust-search :book="b"></illust-search>
+            </b-tab-item>
+          </b-tabs>
+        </template>
+      </div>
+      <div class="column map">
+        <iiif-viewer
+          :class="{'blackwhite':bwflag}"
+          :book="b"
+          ref="viewer"
+        ></iiif-viewer>
+      </div>
+    </div>
+  </div>
+</div>

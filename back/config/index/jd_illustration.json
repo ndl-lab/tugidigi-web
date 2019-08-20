@@ -1,0 +1,15 @@
+{
+    "mappings": {
+        "_doc": {
+            "dynamic": false,
+            "properties": {
+                "pid": {
+                    "type": "keyword"
+                },
+                "page":{
+                     "type": "integer"
+                }
+            }
+        }
+    }
+}
