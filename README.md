@@ -33,7 +33,7 @@ To register book data, you need:
 - TOC data
 - Page Divide Location
 
-  java -jar tugidigi-back-0.1.jar batch index-book sample/
+See jp.go.ndl.lab.dl.back.batch.IndexBookBatch and IndexIllustrationBatch
 
 #### 2. NGT
 
