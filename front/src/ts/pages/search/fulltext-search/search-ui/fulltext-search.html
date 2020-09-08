@@ -1,0 +1,34 @@
+<div class="fulltext-search section">
+  <div class="container">
+    <nav class="level">
+      <p class="level-item has-text-centered">
+        <a class="title">{{$l2('全文から検索する', 'Keyword fulltext search')}}</a>
+      </p>
+    </nav>
+        <p class="guide" :class="keyword?'is-invisible':''">
+          {{
+            $l2(
+              "キーワードを入れて下さい。本文にキーワードを含む資料を検索します。",
+              "Input keywords for full-text search"
+            )
+          }}
+        </p>
+        <form class="text-search-form" @submit.prevent="keywordSearch()">
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <input
+                v-model="keyword"
+                class="input"
+                v-on:keyup.prevent.esc="keyword=null"
+                type="text"
+              />
+            </div>
+            <div class="control">
+              <button class="button search-button is-primary">
+                <b-icon icon="magnify"></b-icon>
+              </button>
+            </div>
+          </div>
+        </form>
+  </div>
+</div>

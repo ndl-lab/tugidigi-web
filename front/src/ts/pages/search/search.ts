@@ -14,7 +14,9 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import BookEntry from "./book_entry";
 import IllustImage from "./illust-image/illust-image";
-import SearchControl from "./search-control/search-control";
+//import SearchControl from "./search-control/search-control";
+import FulltextSearch from "pages/search/fulltext-search/search-ui/fulltext-search";
+import IllustSearch from "pages/search/illust-search/search-ui/illust-search";
 import "./search.scss";
 
 var VueScrollTo = require("vue-scrollto");
@@ -22,7 +24,8 @@ var VueScrollTo = require("vue-scrollto");
 @Component({
   template: require("./search.html"),
   components: {
-    SearchControl,
+    FulltextSearch,
+    IllustSearch,
     BookEntry,
     IllustImage,
     SearchPagination,
@@ -95,6 +98,7 @@ export default class SearchPage extends Vue {
   }
 
   keywordSearch(keywords: string[]) {
+    console.log(keywords);
     this.ss.image = [];
     this.ss.keywords = keywords;
     this.ss.execute();

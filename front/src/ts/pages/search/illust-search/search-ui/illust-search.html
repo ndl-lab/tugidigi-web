@@ -1,0 +1,166 @@
+<div class="illust-search section">
+  <div class="container">
+    <nav class="level">
+      <p class="level-item has-text-centered">
+        <a class="title">{{$l2('画像から検索する', 'Illustration search')}}</a>
+      </p>
+    </nav>
+      
+    <b-tabs v-model="activeTab" expanded>
+      <b-tab-item :label="$l2('サンプル画像から', 'Illustration search from sample')" icon="image" @click="tabchange(0)">
+        <p class="guide" :class="qillust?'is-invisible':''">
+          {{
+            $l2(
+              "サンプルの中から探したい絵を選んで下さい。似たような絵を含む資料を検索します。",
+              "Select illustration to search books that contains similar illustrations"
+            )
+          }}
+        </p>
+        <template v-if="qillust">
+          <div class="query-illust">
+            <illust-image  :i="qillust" :cont="false">
+            </illust-image>
+          </div>
+        </template>
+        <template v-else>
+          <swiper :options="swiperOption">
+            <swiper-slide v-for="i in illusts"  :key="illusts.key">
+              <illust-image
+                v-if="i"
+                :i="i"
+                :cont="false"
+                @click="imageSearch($event)"
+              ></illust-image>
+            </swiper-slide>
+            <div class="swiper-button-prev" slot="button-prev"></div>
+            <div class="swiper-button-next" slot="button-next"></div>
+          </swiper>
+        </template>
+        <div class="reload-query">
+          <b-button class="button is-small" size="is-medium" type="is-primary" @click="reloadImage('graphic')">
+            {{ $l2("絵のサンプルを表示する", "Show other illustrations") }}
+          </b-button>
+          <b-button class="button is-small" size="is-medium" type="is-primary" @click="reloadImage('picture')">
+            {{ $l2("写真のサンプルを表示する", "Show other pictures") }}
+          </b-button>
+        </div>
+      </b-tab-item>
+
+      <b-tab-item :label="$l2('資料のタイトルや目次から', 'Illustration search from the metadata')" icon="image" @click="tabchange(1)">
+        <p class="guide" :class="qillust?'is-invisible':''">
+          {{
+            $l2(
+              "探したいキーワードを入力してください。表示された関連する資料の画像から検索できます。",
+              "Select illustration to search books that contains similar illustrations"
+            )
+          }}
+        </p>
+        <form class="text-search-form" @submit.prevent="keywordSearch()">
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <input
+                v-model="keyword"
+                class="input"
+                v-on:keyup.prevent.esc="keyword=null"
+                type="text"
+              />
+            </div>
+            <div class="control">
+              <button class="button search-button is-primary">
+                <b-icon icon="magnify"></b-icon>
+              </button>
+            </div>
+          </div>
+          <div>
+            <span>キーワード例:</span>
+            <a @click.stop="keywordSearch(['楽面'])">楽面</a>
+            <a @click.stop="keywordSearch(['友禅'])">友禅</a>
+            <a @click.stop="keywordSearch(['造船'])">造船</a>
+            <a @click.stop="keywordSearch(['下絵'])">下絵</a>
+            <a @click.stop="keywordSearch(['十姉妹'])">十姉妹</a>
+          </div>
+        </form>
+      </b-tab-item>
+      <b-tab-item :label="$l2('手元の画像から', 'Illustration search from local image')" icon="image" @click="tabchange(2)">
+        <section class="upload-modal-content">
+          <div class="model-loading" v-if="loadingModel">
+            <p>{{ $l("m-loading-model") }}</p>
+            <b-progress :value="loadingProgress*100" show-value format="percent"></b-progress>
+          </div>
+          <div v-else>
+            <b-field v-show="!queryImage">
+              <b-upload drag-drop accept="image/*" @input="selectFile($event)">
+                <section class="section">
+                  <div class="content has-text-centered">
+                    <p>{{ $l("m-drop-file") }}</p>
+                  </div>
+                </section>
+              </b-upload>
+            </b-field>
+            <div v-show="queryImage">
+              <div class="selected-query-image">
+                <img :src="queryImage" />
+              </div>
+              <div class="control">
+                <button
+                  class="button is-info is-fullwidth"
+                  type="button"
+                  @click="analyze()"
+                >{{ $l("l-analyze") }}</button>
+              </div>
+            </div>
+          </div>
+        </section> 
+        <masonry
+          class="masonry"
+          :cols="{default: 5, 1000: 4, 700: 3, 400: 2}"
+          :gutter="{default: '30px', 700: '15px'}">
+          <illust-image
+            v-for="(i, index) in illustresarray"
+            @click="show(i)"
+            @search="imageSearch"
+            :width="150"
+            :key="index"
+            :i="i"></illust-image>
+        </masonry>
+      </b-tab-item>
+      <b-tab-item :label="$l2('おえかきから', 'Illustration search from  your illustration')" icon="image" @click="tabchange(3)">
+        <p class="guide">{{
+            $l2(
+              "太枠内にイラストを描いてください。あなたのイラストから検索できます。",
+              "Draw an illustration. You can search from your illustrations."
+            )
+            }}</p>
+        <div class="model-loading" v-if="loadingModel">
+          <p>{{ $l("m-loading-model") }}</p>
+          <b-progress :value="loadingProgress*100" show-value format="percent"></b-progress>
+        </div>
+        <div v-else>
+            <sketch-canvas v-on:canvas-img="searchByFeature"></sketch-canvas>
+        </div>
+
+        <masonry
+          class="masonry"
+          :cols="{default: 5, 1000: 4, 700: 3, 400: 2}"
+          :gutter="{default: '30px', 700: '15px'}"
+        >
+          <illust-image
+            v-for="(i, index) in illustresarray"
+            @click="show(i)"
+            @search="imageSearch"
+            :width="150"
+            :key="index"
+            :i="i"
+          ></illust-image>
+        </masonry>
+      </b-tab-item>
+    </b-tabs>
+    <div class="has-text-centered" v-if="loadingResultsFlag|flagAnalyzing">
+      {{$l2(
+              "検索中……お待ちください……",
+              "Now searching... Please wait..."
+            )
+            }}
+    </div>
+  </div>
+</div>

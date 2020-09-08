@@ -30,7 +30,7 @@ export default class BookView extends Vue {
 
   bwflag: boolean = false;
   menuflag: boolean = true;
-  isMetadata: boolean = true;
+  isMetadata:boolean =true;
   mono: boolean = true;
 
   async mounted() {
@@ -99,51 +99,47 @@ export default class BookView extends Vue {
     return [];
   }
   changeAutoTOC() {
-    this.isMetadata = !this.isMetadata;
+    this.isMetadata=!this.isMetadata;
   }
   get index() {
     if (!this.b.index) return null;
-    return this.b.index
-      .map(i => {
-        let is = i.split("/");
-        let k = null;
-        try {
-          k = Number(/\(0*(\d+)\./.exec(is[1])[1]);
-        } catch (e) {
-          k = null;
-        }
-        return {
-          name: is[0].trim(),
-          pg: k
-        };
-      })
-      .sort(function(a, b) {
-        if (Number(a.pg) <= Number(b.pg)) return -1;
-        if (Number(a.pg) > Number(b.pg)) return 1;
+    return this.b.index.map(i => {
+      let is = i.split("/");
+      let k = null;
+      try {
+        k = Number(/\(0*(\d+)\./.exec(is[1])[1]);
+      } catch (e) {
+        k = null;
+      }
+      return {
+        name: is[0].trim(),
+        pg: k
+      };
+    }).sort(function(a,b){
+        if( Number(a.pg) <= Number(b.pg) ) return -1;
+        if(Number(a.pg) > Number(b.pg)) return 1;
         return 0;
-      });
+    });
   }
   get autoTOCindex() {
     if (!this.b.autoTOCindex) return null;
-    return this.b.autoTOCindex
-      .map(i => {
-        let is = i.split("/");
-        let k = null;
-        try {
-          k = Number(/\(0*(\d+)\./.exec(is[1])[1]);
-        } catch (e) {
-          k = null;
-        }
-        return {
-          name: is[0].trim(),
-          pg: k
-        };
-      })
-      .sort(function(a, b) {
-        if (Number(a.pg) <= Number(b.pg)) return -1;
-        if (Number(a.pg) > Number(b.pg)) return 1;
+    return this.b.autoTOCindex.map(i => {
+      let is = i.split("/");
+      let k = null;
+      try {
+        k = Number(/\(0*(\d+)\./.exec(is[1])[1]);
+      } catch (e) {
+        k = null;
+      }
+      return {
+        name: is[0].trim(),
+        pg: k
+      };
+    }).sort(function(a,b){
+        if( Number(a.pg) <= Number(b.pg) ) return -1;
+        if(Number(a.pg) > Number(b.pg)) return 1;
         return 0;
-      });
+    });
   }
 
   pageSelected(newPage: number) {

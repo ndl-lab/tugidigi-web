@@ -8,13 +8,13 @@
         )
       }}
     </div>
+    <search-facet v-for="facet in ss.result.facets" :facet="facet" :key="facet.key" :ss="ss"></search-facet>
     <search-pagination :ss="ss"></search-pagination>
     <div class="illusts">
       <div v-for="i in ss.result.list" class="illust" @click="show(i)">
         <illust-image
           :i="i"
           @search="search(i)"
-          class="image is-128x128"
         ></illust-image>
         <p>{{ $l2(i.page + "コマ", i.page) }}</p>
       </div>

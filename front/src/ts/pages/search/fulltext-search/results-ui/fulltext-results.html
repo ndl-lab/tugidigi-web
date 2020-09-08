@@ -1,0 +1,93 @@
+<div class="search">
+  <!--search-control
+    :keyword="keyword"
+    :qillust="qillust"
+    @image-search="imageSearch($event)"
+    @keyword-search="keywordSearch($event)"
+  >
+  </search-control-->
+  <fulltext-search :keyword="keyword" @keyword-search="keywordSearch($event)" v-if="keyword"></fulltext-search>
+  
+  <div class="section item-search-result" v-if="ss.result">
+    <div class="container">
+      <template v-if="ss.result.hit==0">
+        <div
+          class="item-search-nohit is-size-6-desktop is-size-7-touch has-text-centered"
+        >
+          {{ $l("zero-hit") }}
+        </div>
+      </template>
+      <template v-else>
+        <nav class="search-nav level">
+          <div class="level-left">
+            <!-- ヒット件数 -->
+            <div class="level-item is-size-7-touch">
+              {{ $lt("l-num-found", $num(ss.result.hit)) }}
+            </div>
+            <search-pagination :ss="ss"></search-pagination>
+          </div>
+          <div class="level-right">
+            {{ $l2("表示件数", "Number of records shown") }}
+            <div class="search-pagesize-listbox">
+              <search-pagesize :ss="ss"></search-pagesize>
+            </div>
+            <b-switch class="img-toggle" v-model="imageOnly">
+              {{ $l2("図表だけ表示", "Show illustrations only") }}
+            </b-switch>
+          </div>
+        </nav>
+        <div class="columns">
+          <!-- ファセット -->
+          <div class="column is-3 left-side is-open-facet" v-if="showFacet">
+            <div class="facets">
+              <div>{{ $l("l-facet") }}</div>
+              <search-facet
+                v-for="facet in ss.result.facets"
+                :facet="facet"
+                :key="facet.key"
+                :ss="ss"
+              ></search-facet>
+            </div>
+          </div>
+          <!-- 検索結果 -->
+          <div
+            class="column search-result-body"
+            :class="showFacet?'is-9':'is-12'"
+          >
+            <div class="result-list">
+              <!-- 図表だけ -->
+              <div v-if="imageOnly">
+                <masonry
+                  class="masonry"
+                  :cols="{default: 5,1200: 4, 1000: 3, 800: 2, 500: 1}"
+                  :gutter="{default: '30px', 700: '15px'}">
+                  <illust-image
+                    v-for="(i, index) in illusts"
+                    @click="show(i)"
+                    @search="imageSearch"
+                    :height="180"
+                    :key="index"
+                    :i="i"
+                  ></illust-image>
+                </masonry>
+              </div>
+              <!-- 本表示 -->
+              <div v-else class="books">
+                <book-entry
+                  v-for="(b,index) in ss.result.list"
+                  @search="imageSearch"
+                  :keywords="ss.keywords"
+                  :book="b"
+                  :key="b.id"
+                ></book-entry>
+              </div>
+            </div>
+          </div>
+        </div>
+        <nav class="bottom-pagination">
+          <search-pagination :ss="ss"></search-pagination>
+        </nav>
+      </template>
+    </div>
+  </div>
+</div>

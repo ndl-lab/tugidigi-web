@@ -22,7 +22,7 @@ export default class BookEntry extends Vue {
 
   swiperOption: any = {
     slidesPerView: 5,
-    spaceBetween: 30,
+    spaceBetween: 10,
     freeMode: true,
     preventClicks: false,
     navigation: {
@@ -30,7 +30,11 @@ export default class BookEntry extends Vue {
       prevEl: ".swiper-button-prev"
     },
     breakpoints: {
-      768: {
+      1200: {
+        slidesPerView: 3,
+        spaceBetween: 10
+      },
+      800: {
         slidesPerView: 1,
         spaceBetween: 10
       }
@@ -46,10 +50,21 @@ export default class BookEntry extends Vue {
   }
 
   get thubmUrl() {
-    if (this.thumbError)
+    return `https://www.dl.ndl.go.jp/api/iiif/${
+        this.book.id
+      }/R0000001/full/256,/0/default.jpg`;
+    /*if (this.thumbError)
       return `https://www.dl.ndl.go.jp/api/iiif/${
         this.book.id
       }/R0000001/full/256,/0/default.jpg`;
-    return "https://dl.ndl.go.jp/titleThumb/info:ndljp/pid/" + this.book.id;
+    return "https://dl.ndl.go.jp/titleThumb/info:ndljp/pid/" + this.book.id;*/
+  }
+  show(i: Illustration) {
+    let routeData = this.$router.resolve({
+        name: "book",
+      params: { id: i.pid },
+      query: { page: String(i.page) }
+    });
+    window.open(routeData.href, '_blank');
   }
 }

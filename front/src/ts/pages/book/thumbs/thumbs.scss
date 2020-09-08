@@ -1,0 +1,56 @@
+@import "_palette.scss";
+
+.thumbs{
+    .checkbox{
+        color: white;
+    }
+    display:flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    max-height: calc(100vh - 40px);
+    .thumbs-list{
+        -webkit-overflow-scrolling: touch;
+        -webkit-box-flex: 1;
+        -ms-flex-positive: 1;
+        flex-grow: 1;
+        -ms-flex-negative: 1;
+        flex-shrink: 1;
+        overflow: auto;
+        display: flex;
+        flex-wrap: wrap;
+        .thumbs-img{
+            margin:{
+                left:5px;
+                top:5px;
+            }
+            img{
+                cursor: pointer;
+            }
+            .check{
+                margin-top: -8px;
+                text-align: center;
+            }
+        }
+
+    }
+    .thumbs-control{
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        -ms-flex-negative: 0;
+        flex-shrink: 0;
+        -webkit-box-pack: start;
+        -ms-flex-pack: start;
+        justify-content: flex-start;
+        position: relative;
+        margin-top: 15px;
+        .checkbox{
+            padding-top: 7px;
+        }
+    }
+}

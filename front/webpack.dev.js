@@ -14,7 +14,8 @@ module.exports = merge(common, {
     proxy: [
       {
         context: ["/dl/api/**"],
-        target: "http://localhost:9998/"
+        target:"http://172.31.168.1/",
+        changeOrigin: true
       }
     ],
     historyApiFallback: {

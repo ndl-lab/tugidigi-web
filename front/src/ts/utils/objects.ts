@@ -2,6 +2,11 @@ export function equals(o1: any, o2: any) {
   return JSON.stringify(o1) === JSON.stringify(o2);
 }
 
+// export function equalsIgnoreNull(o1: any, o2: any) {
+//     const e1 = normalizeEmpty(o1), e2 = normalizeEmpty(o2);
+//     return equals(e1, e2);
+// }
+
 export function equalsIgnoreNull(o1: any, o2: any): boolean {
   if (o1 == null || o2 == null) return false;
   if (o1 instanceof Date && o2 instanceof Date) {
@@ -59,6 +64,23 @@ export function normalizeEmpty(v: any) {
   }
   return v;
 }
+
+// if (process.env.NODE_ENV === "development") {
+//   console.assert(isEmpty(null) == true, "null");
+//   console.assert(isEmpty(undefined) == true, "undefined");
+//   console.assert(isEmpty("") == true, "str");
+//   console.assert(isEmpty(0) == false, "0");
+//   console.assert(isEmpty(new Date()) == false, "new date");
+//   console.assert(isEmpty({}) == true, "empty obj");
+//   console.assert(isEmpty({ a: "", c: {}, d: { a: [] } }) == true, "empty obj2");
+
+//   console.assert(normalizeEmpty(null) == null, "null");
+//   console.assert(normalizeEmpty("") == null, "str");
+//   console.assert(
+//     normalizeEmpty({ a: { a: "", b: [{ y: [] }, { x: "" }] }, k: "" }) == null,
+//     "object"
+//   );
+// }
 
 export function deepFind(obj: any, path: string, def?: any): any {
   for (let p of path.split(".")) {

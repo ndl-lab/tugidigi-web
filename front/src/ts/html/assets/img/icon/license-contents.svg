@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.5 (67469) - http://www.bohemiancoding.com/sketch -->
+    <title>icon/license-contents</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Top" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="fullhd/search/database" transform="translate(-562.000000, -972.000000)">
+            <g id="Group-3" transform="translate(562.000000, 972.000000)">
+                <g id="icon/license-contents">
+                    <polygon id="Path" points="0 0 48 0 48 48 0 48"></polygon>
+                    <g id="Elements/Icons/baseline-curation-24px" transform="translate(4.000000, 4.000000)" fill="#9F9F9F">
+                        <path d="M2,0 L38,0 C39.1045695,-2.02906125e-16 40,0.8954305 40,2 L40,38 C40,39.1045695 39.1045695,40 38,40 L2,40 C0.8954305,40 1.3527075e-16,39.1045695 0,38 L0,2 C-1.3527075e-16,0.8954305 0.8954305,2.02906125e-16 2,0 Z M5,4 C4.44771525,4 4,4.44771525 4,5 L4,35 C4,35.5522847 4.44771525,36 5,36 L35,36 C35.5522847,36 36,35.5522847 36,35 L36,5 C36,4.44771525 35.5522847,4 35,4 L5,4 Z" id="Combined-Shape"></path>
+                    </g>
+                    <circle id="Oval" fill="#9F9F9F" cx="29" cy="19" r="5"></circle>
+                    <polyline id="Path-2" stroke="#9F9F9F" stroke-linecap="round" stroke-linejoin="round" points="12 36 20 28 28 36"></polyline>
+                    <path d="M17,31 L22,36" id="Path-2" stroke="#9F9F9F" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <polyline id="Path-2" stroke="#9F9F9F" stroke-linecap="round" stroke-linejoin="round" points="25 33 28 29.9587402 34 36"></polyline>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

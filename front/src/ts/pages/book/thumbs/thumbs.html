@@ -1,0 +1,17 @@
+<div class="thumbs">
+    <div class="thumbs-list">
+        <div class="thumbs-img"
+             v-for="page in pages">
+            <div><img v-bind:src="iiifUrl(page.page)" @click="clickPage(page)"></div>
+            <div class="check"><label class="checkbox"><input type="checkbox" v-model="page.selected">&nbsp;p.{{page.page}}</label></div>
+        </div>
+    </div>
+    <div class="thumbs-control">
+        <div class="field is-grouped is-grouped-centered">
+            <div class="control">
+                <a class="button is-link" v-bind:href="downloadlink" v-bind:disabled="!pageSelected">選択したファイルをダウンロード</a>
+                <label class="checkbox"><input type="checkbox" v-model="white">白色化する</label>
+            </div>
+        </div>
+    </div>
+</div>

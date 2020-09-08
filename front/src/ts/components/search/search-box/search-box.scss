@@ -1,0 +1,111 @@
+@import "_palette.scss";
+.search-box {
+  border-bottom: 1px solid $grey-light;
+  .detail-button-search {
+    border: solid 1px #391b64;
+  }
+  .search-title {
+    font-size: x-large;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  p.description {
+    margin-bottom: 1rem;
+  }
+  &:not(.simple) {
+    .keyword {
+      @include is-mobile() {
+        padding: 0.5rem 0.5rem 0.5rem 1rem;
+      }
+      @include is-tablet() {
+        padding-bottom: 0.5rem;
+      }
+    }
+  }
+  &.simple {
+    padding: 0;
+  }
+  .keyword {
+    input {
+      box-shadow: none;
+      background: none;
+      border: none;
+    }
+    .has-icons-left.not {
+      .not-input {
+        width: 11em;
+        border-left: 1px solid $grey-light;
+      }
+      .material-icons {
+        color: $black;
+      }
+    }
+    .keyword-input {
+      padding-left: 0;
+    }
+    .select.and-or {
+      @include is-mobile() {
+        display: none;
+      }
+      margin: 0 0.75rem;
+      select {
+        border-radius: 1.125rem;
+        border: 1px solid $grey-light;
+      }
+    }
+    button.is-search {
+      background: none;
+      border: none;
+      i {
+        font-size: 2rem;
+      }
+      @include is-mobile {
+        padding: 0.25rem;
+      }
+    }
+    a.button.details {
+      border: 1px solid $grey-light;
+    }
+    input:placeholder-shown,
+    input::-webkit-input-placeholder {
+      color: $grey-dark;
+    }
+  }
+  .search-fields {
+    padding: 1rem;
+    @include is-mobile {
+      padding: 0.5rem;
+    }
+    max-width: 64rem;
+    margin: 0 auto;
+    .search-field {
+      margin: 0.5rem calc(0.75em - 1px) 1rem;
+    }
+    label.b-checkbox {
+      padding: 0.5rem;
+    }
+    .b-checkbox.checkbox + .checkbox {
+      margin-left: 0;
+    }
+    select {
+      border: $basic-border;
+    }
+    input {
+      box-shadow: none;
+      margin: 0 0 0.5rem;
+      background: $white;
+      border: $basic-border;
+    }
+    .search-field-name {
+    }
+  }
+  .not {
+    @include is-mobile() {
+      display: none;
+    }
+  }
+  .field.has-addons .control.is-expanded {
+    display: flex;
+    align-items: center;
+  }
+}

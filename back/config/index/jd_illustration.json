@@ -1,13 +1,27 @@
 {
     "mappings": {
         "_doc": {
-            "dynamic": false,
             "properties": {
                 "pid": {
                     "type": "keyword"
                 },
+                "title": {
+                    "type": "keyword"
+                },
                 "page":{
                      "type": "integer"
+                },
+                "graphictag":{
+                     "type" : "nested",
+                     "include_in_parent": true,
+                     "properties": {
+                          "tagname":{
+                               "type":"keyword"
+                          },
+                          "confidence":{
+                               "type":"float"
+                          }
+                      }
                 }
             }
         }

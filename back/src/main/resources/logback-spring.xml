@@ -8,9 +8,9 @@
             </encoder>
         </appender>
         <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <file>logs/web.log</file>
+            <file>logs/app.log</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>logs/web.%d{yyyy-MM-dd}.log.tar.gz</fileNamePattern>
+                <fileNamePattern>logs/app.%d{yyyy-MM-dd}.log.tar.gz</fileNamePattern>
                 <maxHistory>999</maxHistory>
             </rollingPolicy>
             <encoder>

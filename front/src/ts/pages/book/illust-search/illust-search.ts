@@ -1,5 +1,7 @@
 import SearchPagination from "components/search/search-pagination/search-pagination";
 import SearchStore from "components/search/search-store/search-store";
+import SearchFacet from "components/search/search-facet/search-facet";
+import { ItemFacet } from "service/search-utils";
 import { Book } from "domain/book";
 import { Illustration } from "domain/illustration";
 import IllustImage from "pages/search/illust-image/illust-image";
@@ -13,6 +15,7 @@ import "./illust-search.scss";
   template: require("./illust-search.html"),
   components: {
     SearchPagination,
+    SearchFacet,
     IllustImage
   }
 })
@@ -21,12 +24,17 @@ export default class IllustSearch extends Vue {
   book: Book;
 
   ss: SearchStore<Illustration> = null;
+  
 
   search(i) {
-    this.$router.push({
+     this.$router.push({
+      name: "illustsearchres",
+      query: { image: [String(i.id)] }
+    });
+    /*this.$router.push({
       name: "search",
       query: { image: String(i.id) }
-    });
+    });*/
   }
 
   show(i) {
@@ -41,7 +49,7 @@ export default class IllustSearch extends Vue {
     this.ss = new SearchStore(searchIllustration, false);
     this.ss.filter = { pid: [this.book.id] };
     this.ss.sort = ["page:ASC"];
-    this.ss.size = 10;
+    this.ss.size = 20;
     this.ss.execute();
   }
 }

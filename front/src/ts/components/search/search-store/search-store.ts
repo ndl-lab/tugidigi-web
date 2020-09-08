@@ -3,16 +3,25 @@ import { HEADER_KEY } from "config";
 import { state } from "model/state";
 import { ssGet, ssSet } from "service/local-storage-service";
 import {
+  APICallType,
   fromQueryString,
+  GeoDistance,
+  Range,
   SearchQuery,
   SearchResult,
   toSearchQueryString,
   toSeqrchQueryUrlMap
 } from "service/search-utils";
+import { setLoading } from "types";
 import { clone, equalsIgnoreNull, isEmpty } from "utils/objects";
 import * as URL from "utils/url";
 
-const SSKEY_SEARCH_CACHE = "search-cache";
+interface SearchMemory {
+  q: string;
+  r: SearchResult<any>;
+}
+
+const SSKEY_SEARCH_CACHE = "jps-search-cache";
 
 export default class SearchStore<T> {
   public result: SearchResult<T> = null;
@@ -36,18 +45,26 @@ export default class SearchStore<T> {
 
   query: { [key: string]: string[] } = {};
   image: string[] = [];
+  range: { [key: string]: Range[] } = {};
+  geoDistance: {
+    [key: string]: GeoDistance[];
+  } = {};
   filter: { [key: string]: string[] } = {};
   facet: { [key: string]: string[] } = {};
   from: number = 0;
-  size: number = 10;
+  size: number = 20;
   sort: string[] = [""];
   exists: string[] = [];
+
+  permission: APICallType = null;
 
   clearQuery() {
     this.keywords = [];
     this.keywordType = "AND";
     this.query = {};
     this.image = [];
+    this.range = {};
+    this.geoDistance = {};
     this.filter = {};
     this.facet = {};
     this.from = 0;
@@ -153,14 +170,17 @@ export default class SearchStore<T> {
     if (this.from != null) q.from = this.from;
     if (this.size != null) q.size = this.size;
     if (!isEmpty(this.sort)) q.sort = this.sort;
+    if (this.permission != null) q.permission = this.permission;
     if (this.keywordType === "OR") q.keywordOR = true;
 
     if (!isEmpty(this.keywords)) q.keyword = clone(this.keywords);
     if (!isEmpty(this.query)) q.query = clone(this.query);
+    if (!isEmpty(this.range)) q.range = clone(this.range);
     if (!isEmpty(this.facet)) q.facet = clone(this.facet);
     if (!isEmpty(this.image)) q.image = clone(this.image);
     if (!isEmpty(this.filter)) q.filter = clone(this.filter);
     if (!isEmpty(this.exists)) q.exists = clone(this.exists);
+    if (!isEmpty(this.geoDistance)) q.geoDistance = clone(this.geoDistance);
 
     this.executeSearch(q, errorCallback);
   }
@@ -171,13 +191,16 @@ export default class SearchStore<T> {
     if (this.from != null) q.from = this.from;
     if (this.size != null) q.size = this.size;
     q.sort = this.sort;
+    q.permission = this.permission;
     if (this.keywordType === "OR") q.keywordOR = true;
 
     q.keyword = clone(this.keywords);
     q.query = clone(this.query);
+    q.range = clone(this.range);
     q.facet = clone(this.facet);
     q.filter = clone(this.filter);
     q.exists = clone(this.exists);
+    q.geoDistance = clone(this.geoDistance);
     return q;
   }
 
@@ -266,6 +289,7 @@ export default class SearchStore<T> {
     let qstr = toSearchQueryString(q);
     if (equalsIgnoreNull(this.currentQueryStr, qstr)) return;
     this.searching = true;
+    setLoading(true);
     this.searchService(q)
       .then(result => {
         // console.info("ss", result);
@@ -273,12 +297,19 @@ export default class SearchStore<T> {
         this.currentQuery = q;
         this.setSearchResult(result.data, withIntent);
         this.searching = false;
+        setLoading(false);
       })
       .catch(result => {
         // console.info("ss", result);
         this.setSearchResult(null);
         this.searching = false;
         errorCallback(result);
+        setLoading(false);
       });
+  }
+
+  checkNewSEarch(qstr: string) {
+    let qstrWithoutPage = qstr.replace(/&?from=\d+|&?size=\d+/g, "");
+    console.info("check new search", qstrWithoutPage);
   }
 }

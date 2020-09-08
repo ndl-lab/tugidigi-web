@@ -10,8 +10,9 @@ import "./iiif-viewer.scss";
 import { Book } from "domain/book";
 import { getPage } from "service/page-service";
 import { iiifUrl, iiifUrlRaw } from "service/illust-utils";
-
+import VueShortkey from 'vue-shortkey';
 require("./leaflet-iiif.js");
+import TinyYoloV3 from '../../3rdparty/tfjs-tiny-yolov3/index.js';
 
 export default interface IiifViewer extends MyVue {}
 
@@ -24,12 +25,15 @@ export default interface IiifViewer extends MyVue {}
 export default class IiifViewer extends Vue {
   full: boolean = false;
   div: boolean = false;
-
+  leftOpen: boolean =false;
   isModalActive: boolean = false;
-
+  isestDirection: boolean=null;
+  yolomodel:any=null;
+  modelLoadingFlag:boolean=false;
+  modelLoadedFlag:boolean=false;
+  
   @Prop()
   book: Book;
-
   changeFull() {
     this.full = !this.full;
     if (this.full) {
@@ -41,6 +45,10 @@ export default class IiifViewer extends Vue {
       this.map.invalidateSize();
       this.fitBounds();
     });
+  }
+  changeLR(){
+    this.leftOpen=! this.leftOpen;
+    this.isestDirection=false;
   }
 
   changeDiv() {
@@ -60,6 +68,16 @@ export default class IiifViewer extends Vue {
     } else {
       this.currentPage = n * 2 - 1;
     }
+  }
+  async loadModel(){
+    this.modelLoadingFlag=true;
+    this.yolomodel = new TinyYoloV3();
+    await this.yolomodel.load("/dl/assets/yolomodeloverall/model.json");
+    this.setIIIFPage(this.currentPage);
+  }
+  async detachModel(){
+    this.modelLoadedFlag=false;
+    this.setIIIFPage(this.currentPage);
   }
 
   get downloadLink() {
@@ -84,7 +102,7 @@ export default class IiifViewer extends Vue {
       crs: L.CRS.Simple,
       zoom: 0
     };
-
+    //this.loadModel();
     this.map = L.map(<HTMLElement>this.$refs["leaflet"], leafletParam);
 
     //EscでFull Screenをやめる
@@ -144,7 +162,12 @@ export default class IiifViewer extends Vue {
       img.src = src;
     }
   }
-
+  async setLR(){
+    if(this.isestDirection===null&&this.book.leftopen!==null){
+      this.leftOpen=this.book.leftopen;
+      this.isestDirection=true;
+    }
+  }
   async setDivPage(i: number) {
     let page = await getPage(this.book.id + "_" + Math.round(i / 2));
 
@@ -199,6 +222,7 @@ export default class IiifViewer extends Vue {
   getInfo() {
     return this.infoUrl;
   }
+  
 
   ///Manifest
 
@@ -219,14 +243,48 @@ export default class IiifViewer extends Vue {
     };
     xhr.send();
   }
-
+  async predict(imageData) {
+    return await this.yolomodel.detectAndBox(imageData, false);
+  }
+  async setthumbnail(url){
+    const image:any = new Image();
+    image.src = url;
+    image.height=320;
+    image.width=320;
+    image.crossOrigin = 'anonymous';
+    let height = (<Element>this.$refs["leaflet"]).clientHeight * 2;
+    image.onload = () => {
+      this.predict(image).then((values)=>{
+        if(values.length>0&&values[0]["width"]*values[0]["height"]>=320*320*0.1){
+          this.setUrl(
+          iiifUrlRaw(
+            this.book.id,
+            this.currentPage,
+            values[0]["left"]/320*100.0,
+            values[0]["top"]/320*100.0,
+            values[0]["width"]/320*100.0,
+            values[0]["height"]/320*100.0,
+            height
+          ));
+        }
+        this.modelLoadingFlag=false;
+        this.modelLoadedFlag=true;
+      });
+    };
+  }
   setIIIFPage(n: number) {
     if (this.manifest && n > 0) {
       const infoUrl =
         this.manifest.sequences[0].canvases[n - 1].images[0].resource.service[
           "@id"
-        ] + "/info.json";
+        ] + "/info.json";//https://www.dl.ndl.go.jp/api/iiif/1235428/R0000025/info.json
+      const thumbUrl =
+        this.manifest.sequences[0].canvases[n - 1].thumbnail["@id"];
+        //https://www.dl.ndl.go.jp/api/iiif/1235428/F0000025/full/full/0/default.jpg
+      if(this.modelLoadingFlag||this.modelLoadedFlag)this.setthumbnail(thumbUrl);
       this.setInfo(infoUrl);
+      this.setLR();
+      console.log(this.leftOpen);
     }
   }
 

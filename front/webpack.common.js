@@ -1,7 +1,7 @@
 var webpack = require("webpack");
 
 module.exports = {
-  context: __dirname + "/src",
+  context: __dirname + "/src", // `__dirname` is root of project and `src` is source
   entry: {
     app: "./ts/main.ts"
   },
@@ -33,6 +33,10 @@ module.exports = {
             }
           }
         ]
+      },
+      {
+        test: /\.worker\.ts$/,
+        use: ['worker-loader']
       },
       {
         test: /\.(sass|scss)$/, //Check for sass or scss file names

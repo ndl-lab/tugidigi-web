@@ -52,3 +52,45 @@ export function addPopStateListener(f: (ev: PopStateEvent) => void) {
 }
 
 export function pushState() {}
+
+const HASH_LISTENERS: HashRouterMixin[] = [];
+
+window.onhashchange = ev => {
+  HASH_LISTENERS.forEach(hl => {
+    hl.setState();
+  });
+};
+
+@Component({})
+export class HashRouterMixin extends Vue {
+  created() {
+    HASH_LISTENERS.push(this);
+  }
+
+  beforeMount() {
+    this.setState();
+  }
+
+  destoryed() {
+    removeFromArray(HASH_LISTENERS, this);
+  }
+
+  public setHash(hash: string) {
+    window.history.pushState(null, null, "#" + hash);
+    this.onHashChange(hash);
+  }
+
+  public setState() {
+    let hash = window.location.hash;
+    hash = hash.substring(1);
+    this.onHashChange(hash);
+  }
+
+  onHashChange(hash: string) {}
+}
+
+export interface IHashRouterMixin {
+  setHash(hash: string);
+  setState();
+  onHashChange(hash: string);
+}

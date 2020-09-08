@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="32px" viewBox="0 0 48 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.5 (67469) - http://www.bohemiancoding.com/sketch -->
+    <title>icon/license-metadata</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Top" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="fullhd/search/database" transform="translate(-562.000000, -750.000000)">
+            <g id="icon/license-metadata" transform="translate(562.000000, 742.000000)">
+                <polygon id="Path" points="0 0 48 0 48 48 0 48"></polygon>
+                <path d="M40,36 C42.2,36 43.98,34.2 43.98,32 L44,12 C44,9.8 42.2,8 40,8 L8,8 C5.8,8 4,9.8 4,12 L4,32 C4,34.2 5.8,36 8,36 L0,36 L0,40 L48,40 L48,36 L40,36 Z M8,12 L40,12 L40,32 L8,32 L8,12 Z M16,24 L17,24 L17,31 L16,31 L16,24 Z M19,21 L20,21 L20,31 L19,31 L19,21 Z M22,19 L23,19 L23,31 L22,31 L22,19 Z M25,15 L26,15 L26,31 L25,31 L25,15 Z M28,22 L29,22 L29,31 L28,31 L28,22 Z M31,27 L32,27 L32,31 L31,31 L31,27 Z M34,25 L35,25 L35,31 L34,31 L34,25 Z M37,29 L38,29 L38,31 L37,31 L37,29 Z M13,29 L14,29 L14,31 L13,31 L13,29 Z" id="Shape" fill="#9F9F9F" fill-rule="nonzero"></path>
+            </g>
+        </g>
+    </g>
+</svg>

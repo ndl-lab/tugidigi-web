@@ -3,9 +3,10 @@ var common = require("./webpack.common.js"); // 汎用設定をインポート
 var CleanWebpackPlugin = require("clean-webpack-plugin");
 
 module.exports = merge(common, {
+  // mode: 'development',
   mode: "production",
   output: {
-    filename: "[name].bundle.[hash].js"
+    filename: "[name].bundle.js"
   },
   plugins: [new CleanWebpackPlugin(["./src/dl/js/*"])]
 });

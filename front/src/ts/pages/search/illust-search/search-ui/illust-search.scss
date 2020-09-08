@@ -1,0 +1,68 @@
+@import "_palette.scss";
+.illust-search {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+  .guide {
+    text-align: center;
+    font-size: smaller;
+    margin-bottom: 1rem;
+  }
+
+  .query-illust {
+    display: flex;
+    justify-content: center;
+    .illust-image {
+      background: white;
+    }
+  }
+
+  .image-search-query {
+    cursor: pointer;
+  }
+
+  .reload-query {
+    text-align: center;
+    margin-top: 1rem;
+  }
+
+  .text-search-form {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+
+    @include is-mobile() {
+      width: 100%;
+    }
+
+    .search-button {
+      width: 4rem;
+    }
+  }
+  .text-search-form {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+
+    @include is-mobile() {
+      width: 100%;
+    }
+
+    .search-button {
+      width: 4rem;
+    }
+  }
+  .upload-modal-content{
+      margin-left: auto;
+      margin-right: auto;
+  }
+  .preview {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    .remove-image-query-icon {
+      margin-left: 3rem;
+      cursor: pointer;
+    }
+  }
+  
+}

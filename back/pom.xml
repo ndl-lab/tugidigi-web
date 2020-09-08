@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>jp.go.ndl.lab.dl</groupId>
-    <artifactId>tugidigi-back</artifactId>
+    <groupId>jp.go.ndl.jisedigi</groupId>
+    <artifactId>jisedigi-back</artifactId>
     <version>0.1</version>
     <packaging>jar</packaging>
     <properties>
@@ -44,6 +44,7 @@
             <artifactId>guava</artifactId>
             <version>27.1-jre</version>
         </dependency>
+
 
         <!--Spring-->
         <dependency>
@@ -89,7 +90,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.18</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -103,7 +103,12 @@
             <artifactId>spring-boot-devtools</artifactId>
             <optional>true</optional>
         </dependency>
-
+        <!-- https://mvnrepository.com/artifact/org.json/json -->
+		<dependency>
+		    <groupId>org.json</groupId>
+		    <artifactId>json</artifactId>
+		    <version>20200518</version>
+		</dependency>
     </dependencies>
 
 
@@ -115,7 +120,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>jp.go.ndl.lab.dl.back.Application</mainClass>
+                            <mainClass>jp.go.ndl.lab.back.Application</mainClass>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
                         </manifest>

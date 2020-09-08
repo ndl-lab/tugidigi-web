@@ -7,6 +7,7 @@ export interface Book {
   index: string[];
   autoTOCindex:string[];
   contrastparam: number;
+  leftopen:boolean;
   autoTOCflag: boolean;
   illustrations: string[];
   illusts: Illustration[];

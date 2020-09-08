@@ -1,5 +1,5 @@
 import { Illustration } from "domain/illustration";
-import { iiifUrlWithHeight } from "service/illust-utils";
+import { iiifUrlWithHeight,iiifUrl } from "service/illust-utils";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop } from "vue-property-decorator";
@@ -10,7 +10,7 @@ import "./illust-image.scss";
   components: {}
 })
 export default class IllustImage extends Vue {
-  @Prop()
+  @Prop({ default: null })
   i: Illustration;
 
   @Prop({ default: 128 })
@@ -18,13 +18,38 @@ export default class IllustImage extends Vue {
 
   @Prop({ default: true })
   cont: boolean;
-
+  
+  @Prop({ default: true })
+  hastitle: boolean;
+  
   imgurl(i: Illustration) {
-    return iiifUrlWithHeight(i, this.width);
+    if(i)return iiifUrlWithHeight(i, this.width);
   }
-
+  fullimgurl(i: Illustration) {
+    if(i)return iiifUrl(i);
+  }
+  get sortofConfidence(){
+    var keys=this.i.graphictags.slice().sort((a, b) => {
+         return (a.confidence < b.confidence) ? 1 : (a.confidence > b.confidence) ? -1 : 0; })
+         .filter(k => k.tagname !== "graphic").filter(k => k.tagname !== "graphic_nishikie").filter(k => k.tagname !== "picture").slice(0,3);
+    return keys;
+  }
+  
   search() {
-    this.$emit("search", this.i);
+    //this.$emit("search", this.i);
+    this.$router.push({
+      name: "illustsearchres",
+      query: { image: [this.i.id] }
+    });
+    this.$router.go(0);
+  }
+  searchwithtag(tagname:string) {
+    //this.$emit("search", this.i);
+    this.$router.push({
+      name: "illustsearchres",
+      query: { image: [this.i.id],"f-graphictags.tagname":[tagname] }
+    });
+    this.$router.go(0);
   }
 
   click() {

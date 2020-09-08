@@ -1,0 +1,104 @@
+    article {
+        text-align: justify;
+        overflow-wrap: break-word;
+    }
+
+    article h1 {
+        margin-top: 0.5em;
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    article h2 {
+        margin-top: 0.5em;
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+        margin-bottom: 0rem;
+        padding-right: 0.5rem;
+        padding-left: 0.5rem; 
+        font-size: 1.5rem;
+        font-weight: 600
+    }
+
+    article h3 {
+        margin-top: 0.5em;
+        margin-left: 0rem;
+        margin-bottom: 0rem;
+        font-size: 1.2rem;
+        font-weight: 500
+    }
+
+    article table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        border-width: 1px;
+        border-style: solid;
+    }
+
+    article dl>dt {
+        font-weight: 500
+    }
+
+    article dl>dt:before {
+        content: "≫ "
+    }
+
+    article dl>dd {
+        margin-left: 2em;
+        width: initial
+    }
+
+    article tr>th {
+        width: 27%;
+        text-align: right;
+        padding-right: 3%
+    }
+
+    article tr>td {
+        width: 75%;
+        padding-right: 0.5rem;
+        text-align: justify
+    }
+
+    article tr>th, article tr>td {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        vertical-align: top;
+    }
+
+    article tr:nth-child(odd) {
+        background-color: #FFFFFF
+    }
+
+    article tr:nth-child(even) {
+        background-color: #F5F5F5
+    }
+
+    article ul {
+        list-style-type: disc;
+        padding-left: 2em;
+    }
+
+    article code, pre {
+        
+        font-family: 'Consolas', 'Courier New', 'Courier', monospace;
+    }
+
+    article code {
+        background: none;
+        padding: 0.25em;
+        margin: 0 0.25rem;
+    }
+
+    article pre {
+        background-color: #f0f0f0;
+        padding: 1rem;
+        overflow-x: scroll
+    }
+
+    article section:target>h2, article section:target>h3, article span:target, article p:target {
+        background-color: #AFEEEE
+    }

@@ -36,6 +36,18 @@
     "mappings": {
         "_doc": {
             "properties": {
+                 "graphictagmetrics":{
+                     "type" : "nested",
+                     "include_in_parent": true,
+                     "properties": {
+                          "tagname":{
+                               "type":"keyword"
+                          },
+                          "count":{
+                               "type":"integer"
+                          }
+                      }
+                },
                 "title": {
                     "type": "text",
                     "analyzer": "ngram_analyzer"
@@ -57,6 +69,9 @@
                 "bibId": {
                     "type": "keyword"
                 },
+				"contrastParam": {
+                    "type": "keyword"
+                },
                 "callNo": {
                     "type": "keyword"
                 },
@@ -64,6 +79,10 @@
                     "type": "boolean"
                 },
                 "index": {
+                    "type": "text",
+                    "analyzer": "ngram_analyzer"
+                },
+                "autoTOCindex": {
                     "type": "text",
                     "analyzer": "ngram_analyzer"
                 },

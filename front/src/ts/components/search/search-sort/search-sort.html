@@ -3,6 +3,7 @@
   <div class="select">
     <select :value="ss.sort" v-on:input="changeSort">
       <option value="">{{ $l("l-sort-default") }}</option>
+      <option value="confidence">{{ $l("l-sort-confidence") }}</option>
       <option
         v-if="options"
         v-for="opt in options"

@@ -1,0 +1,82 @@
+<div class="search-box" :class="{'simple':simple}">
+  <div v-if="!noheader&&!simple" class="jps-searchdef">
+    <h4 class="search-title title is-size-7-touch is-size-5-desktop has-text-centered">
+      {{ $ls(searchdef.name) }}
+    </h4>
+    <p class="description has-text-centered">
+      {{ $ls(searchdef.description) }}
+    </p>
+  </div>
+  <form v-on:submit.prevent="doSearch()" action="/">
+    <div class="keyword" v-if="hasKeywordField">
+      <div class="field has-addons">
+        <p class="control is-expanded">
+          <input
+            class="input keyword-input is-size-6-touch"
+            :placeholder="placeholder"
+            type="search"
+            v-model="keyword"
+            v-on:keyup.prevent.esc="keyword=''"
+          />
+        </p>
+        <template v-if="!simple">
+          <p class="control">
+            <span class="select and-or">
+              <select v-model="keywordType">
+                <option value="AND">{{ $l("l-keyword-and") }}</option>
+                <option value="OR">{{ $l("l-keyword-or") }}</option>
+              </select>
+            </span>
+          </p>
+          <p class="control has-icons-left not">
+            <input
+              class="input not-input"
+              :placeholder="$l('l-placeholder-not-keyword')"
+              type="search"
+              v-model="notKeyword"
+              v-on:keyup.prevent.esc="notKeyword=''"
+            />
+            <span class="icon is-small is-left">
+              <i class="material-icons notranslate" aria-hidden="true"> cancel </i>
+            </span>
+          </p>
+        </template>
+        <p class="control">
+          <button type="submit" class="search-button button is-search">
+            <span><i class="material-icons notranslate">search</i></span>
+          </button>
+        </p>
+        <p class="control" v-if="hasSearchFields">
+          <a class="button details" v-on:click="showDetail = !showDetail"
+            >{{ $l("l-detail")
+            }}<i class="material-icons notranslate">{{
+              showDetail ? "arrow_drop_up" : "arrow_drop_down"
+            }}</i></a
+          >
+        </p>
+      </div>
+    </div>
+    <div class="search-fields" v-show="detailed || showDetail">
+      <div class="search-field" v-for="(f,ind) in searchdef.searchFields">
+        <div class="search-field-name is-size-7 ">{{ $ls(f.name) }}</div>
+        <component
+          :is="searchFieldComponent(f)"
+          :field="f"
+          :ss="ss"
+        ></component>
+      </div>
+      <div class="detailed-search" v-if="detailed">
+        <button
+          type="submit"
+          class="search-button button is-search is-fullwidth"
+        >
+          <span><i class="material-icons notranslate">search</i></span>
+        </button>
+      </div>
+      <div class="has-text-centered detail-buttons">
+        <a class="button is-rounded detail-button-close" v-on:click="showDetail = !showDetail">検索条件を閉じる</a>
+        <button type="submit" class="button is-info is-rounded search-button detail-button-search">検索する</button>
+      </div>
+    </div>
+  </form>
+</div>

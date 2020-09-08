@@ -17,7 +17,7 @@ export default class SearchPagesize extends Vue {
   ss: SearchStore<any>;
 
   innnerSize = 0;
-  values = ["10", "20", "50"];
+  values = ["20", "50", "100"];
 
   sizeChange(event) {
     this.ss.setSize(event.target.value);

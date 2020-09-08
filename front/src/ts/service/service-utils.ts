@@ -18,3 +18,7 @@ export function getAll<T>(
 ): Promise<T[]> {
   return Promise.all(ids.map(id => getter(id)));
 }
+
+//export function getErrorCode(result:any):string{
+//
+//}

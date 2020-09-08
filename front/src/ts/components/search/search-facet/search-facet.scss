@@ -5,7 +5,7 @@
 
   .facet-title {
     padding: 0;
-    border-bottom: $basic-border;
+    //border-bottom: $basic-border;
     font-weight: bold;
     overflow: hidden;
     button {
@@ -18,7 +18,7 @@
       height: 2rem;
       line-height: 2rem;
       align-items: center;
-      color: $grey-darker;
+      //color: $grey-darker;
     }
     h3 {
       float: left;
@@ -68,8 +68,15 @@
       }
 
       &:not(:last-child) {
-        border-bottom: $basic-border;
+      //  border-bottom: $basic-border;
       }
+      // &.is-selected {
+      //   background: $jps-key-blue;
+      //   color: $white;
+      //   a {
+      //     color: $white;
+      //   }
+      // }
       &.not-facet-selected {
         background: $grey-lighter;
         color: $grey-dark;
@@ -106,13 +113,13 @@
       }
     }
   }
-
+  
   .not-facet-selected {
     &:nth-child(3) {
       margin-top: 1rem;
     }
     &:not(:last-child) {
-      border-bottom: $basic-border;
+      //border-bottom: $basic-border;
     }
     span.control-label {
       padding: 0.5rem;

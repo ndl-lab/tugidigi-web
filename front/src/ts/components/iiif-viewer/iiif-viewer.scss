@@ -1,6 +1,32 @@
 @import "_palette.scss";
 
 .iiif-viewer {
+  .iiif-viewer-group{
+    display: inline;
+    .leftbutton {
+      z-index: 800;
+      position:absolute;
+      top: 40%;
+      height:20%;
+      left: 0%;
+      opacity: 0.5;
+    }
+    .rightbutton {
+      z-index: 800;
+      position:absolute;
+      top: 40%;
+      height:20%;
+      right: 0%;
+      opacity: 0.5;
+    }
+    .iiif-control-zoom{
+      opacity: 0.8;
+      z-index: 800;
+      position:absolute;
+      top: 0%;
+      right: 0%;
+    }
+  }
   .modal {
     z-index: 999;
   }

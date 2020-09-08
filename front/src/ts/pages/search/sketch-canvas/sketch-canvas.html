@@ -1,0 +1,19 @@
+<div class="sketch-canvas">
+    <div class="columns is-multiline">
+        <b-field>
+            <b-select placeholder="ペン" v-model="sketchmode" name="sketchmode" id="sketchmode">
+                <option value="brush">ペン</option>
+                <option value="eraser">消しゴム</option>
+            </b-select>
+        </b-field>
+        <button class="button is-primary" @click="onClearCanvas()">Clear</button>
+        <button class="button is-primary" @click="submitParent()">Search</button>
+    </div>
+    <div ref="container">  
+        <canvas
+          :width="configKonva.width"
+          :height="configKonva.height"
+          ref="canvas">
+        </canvas>
+    </div>
+</div>

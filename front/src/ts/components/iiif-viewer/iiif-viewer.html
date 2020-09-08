@@ -1,58 +1,156 @@
 <div class="iiif-viewer" :class="{'is-full':full}">
-  <div class="viewer-contrast" :class="{'blackwhite':bwflag}">
-    <div class="viewer" ref="leaflet"></div>
+  <div class="iiif-viewer-group">
+    <div v-if="leftOpen">
+      <button class="button is-small iiif-next leftbutton" @click="previous()" v-shortkey="['arrowleft']" @shortkey="previous()">
+        <b-icon icon="chevron-left" size="is-large"></b-icon>
+        <b-icon icon="chevron-left" size="is-large"></b-icon>
+      </button>
+      <div class="viewer-contrast" :class="{'blackwhite':bwflag}">
+        <div class="viewer" ref="leaflet"></div>
+      </div>
+      <button class="button is-small iiif-next rightbutton" @click="next()"  v-shortkey="['arrowright']" @shortkey="next()">
+        <b-icon icon="chevron-right" size="is-large"></b-icon>
+        <b-icon icon="chevron-right" size="is-large"></b-icon>
+      </button>
+    </div>
+    <div v-else>
+      <button class="button is-small iiif-next leftbutton" @click="next()" v-shortkey="['arrowleft']" @shortkey="next()">
+        <b-icon icon="chevron-left" size="is-large"></b-icon>
+        <b-icon icon="chevron-left" size="is-large"></b-icon>
+      </button>
+      <div class="viewer-contrast" :class="{'blackwhite':bwflag}">
+        <div class="viewer" ref="leaflet"></div>
+      </div>
+      <button class="button is-small iiif-next rightbutton" @click="previous()" v-shortkey="['arrowright']" @shortkey="previous()">
+        <b-icon icon="chevron-right" size="is-large"></b-icon>
+        <b-icon icon="chevron-right" size="is-large"></b-icon>
+      </button>
+    </div>
+    <div class="iiif-control-zoom buttons has-addons">
+        
+        <div v-show="modelLoadingFlag&!modelLoadedFlag">
+          <b-button class="button is-large iiif-autocrop" loading>
+          </b-button>
+        </div>
+        <div v-show="!modelLoadingFlag&modelLoadedFlag">
+          <b-button class="button is-large iiif-autocrop" type="is-success" @click="detachModel()">
+            <span>AI</span><b-icon icon="crop"></b-icon>
+          </b-button>
+        </div>
+        <div v-show="!modelLoadingFlag&!modelLoadedFlag">
+          <button class="button is-large iiif-autocrop" @click="loadModel()" >
+            <span>AI</span><b-icon icon="crop"></b-icon>
+          </button>
+        </div>
+        <button class="button is-large iiif-remove" @click="map.zoomOut()">
+          <b-icon icon="magnify-minus"></b-icon>
+        </button>
+        <button class="button is-large iiif-fit" @click="fitBounds()">
+          <b-icon icon="arrow-collapse-all"></b-icon>
+        </button>
+        <button class="button is-large iiif-zoom" @click="map.zoomIn()">
+          <b-icon icon="magnify-plus"></b-icon>
+        </button>
+        <button class="button is-large iiif-full" @click="changeFull()">
+          <b-icon :icon="full?'fullscreen-exit':'fullscreen'"></b-icon>
+        </button>
+    </div>
   </div>
   <div class="iiif-control-group">
     <div class="iiif-control-page" v-if="totalPage">
-      <div class="field has-addons has-addons-centered">
-        <p class="control">
-          <button class="button is-small iiif-prev" @click="next()">
-            <b-icon icon="chevron-left"></b-icon>
-            <span class="is-hidden-mobile">{{ $l("l-next") }}</span>
-          </button>
-        </p>
-        <p class="control">
+      <div v-if="leftOpen">
+        <div class="field has-addons has-addons-centered">
+          <p class="control">
+            <button class="button is-small iiif-next" @click="previous()">
+              <b-icon icon="chevron-left"></b-icon>
+              <span class="is-hidden-mobile">{{ $l("l-prev") }}</span>
+            </button>
+          </p>
+          <p class="control">
           <input
-            class="input is-small iiif-inputpage"
-            @input="inputPage"
-            v-model="inputPageModel"
-          />
-        </p>
-        <p class="control">
-          <a class="iiif-total button is-small is-static">{{
-            "/" + totalPage
-          }}</a>
-        </p>
-        <p class="control">
-          <button class="button is-small iiif-next" @click="previous()">
-            <span class="is-hidden-mobile">{{ $l("l-prev") }}</span>
-            <b-icon icon="chevron-right"></b-icon>
-          </button>
-        </p>
+              class="input is-small iiif-inputpage"
+              @input="inputPage"
+              v-model="inputPageModel"
+            />
+          </p>
+          <p class="control">
+            <a class="iiif-total button is-small is-static">{{
+              "/" + totalPage
+            }}</a>
+          </p>
+          <p class="control">
+            <button class="button is-small iiif-prev" @click="next()">
+              <span class="is-hidden-mobile">{{ $l("l-next") }}</span>
+              <b-icon icon="chevron-right"></b-icon>
+            </button>
+          </p>
+        </div>
+      </div>
+      <div v-else>
+        <div class="field has-addons has-addons-centered">
+          <p class="control">
+            <button class="button is-small iiif-prev" @click="next()">
+              <b-icon icon="chevron-left"></b-icon>
+              <span class="is-hidden-mobile">{{ $l("l-next") }}</span>
+            </button>
+          </p>
+          <p class="control">
+          <input
+              class="input is-small iiif-inputpage"
+              @input="inputPage"
+              v-model="inputPageModel"
+            />
+          </p>
+          <p class="control">
+            <a class="iiif-total button is-small is-static">{{
+              "/" + totalPage
+            }}</a>
+          </p>
+          <p class="control">
+            <button class="button is-small iiif-next" @click="previous()">
+              <span class="is-hidden-mobile">{{ $l("l-prev") }}</span>
+              <b-icon icon="chevron-right"></b-icon>
+            </button>
+          </p>
+        </div>        
       </div>
     </div>
-    <div class="iiif-control-zoom buttons has-addons">
-      <button class="button is-small iiif-remove" @click="map.zoomOut()">
-        <b-icon icon="magnify-minus"></b-icon>
-      </button>
-      <button class="button is-small iiif-fit" @click="fitBounds()">
-        <b-icon icon="arrow-collapse-all"></b-icon>
-      </button>
-      <button class="button is-small iiif-zoom" @click="map.zoomIn()">
-        <b-icon icon="magnify-plus"></b-icon>
-      </button>
-      <button class="button is-small iiif-full" @click="changeFull()">
-        <b-icon :icon="full?'fullscreen-exit':'fullscreen'"></b-icon>
-      </button>
+    <div class="has-addons">
+        <div v-if="isestDirection==null">
+          <span>{{ $l2("進行方向(情報なし)", "Page direction(no info)") }}</span>
+        </div>
+        <div v-else-if="isestDirection">
+          <span>{{ $l2("進行方向(自動推定)", "Page direction(auto estimated)") }}</span>
+        </div>
+        <div v-else>
+          <span>{{ $l2("進行方向", "Page direction") }}</span>
+        </div>
+        <div v-if="leftOpen">
+          <span>→→</span>
+        </div>
+        <div v-else>
+          <span>←←</span>
+        </div>
+        <button @click="changeLR()" class="button is-small">
+              {{ $l2("入れ替える", "Change LR") }}
+        </button>
+    </div>
+    
+    
+    <div class="iiif-control-divide buttons has-addons">
       <button class="button is-small iiif-full" @click="changeDiv()">
         <b-icon :icon="div?'locker':'locker-multiple'"></b-icon>
+        <span class="is-hidden-mobile">{{ $l("l-divide") }}</span>
       </button>
     </div>
     <div class="iiif-control-download buttons has-addons">
       <button class="button is-small" @click="isModalActive=true">
         <b-icon icon="download"></b-icon>
+        <span class="is-hidden-mobile">{{ $l("l-whiten") }}</span>
       </button>
+      
     </div>
+    
     <nav class="panel">
       <div class="panel-block">
         <p class="control">

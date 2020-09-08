@@ -18,3 +18,11 @@ export function searchBook(
     BASE_URL + "search" + toSearchQueryString(q)
   );
 }
+
+export function searchmetaBook(
+  q: SearchQuery
+): Axios.AxiosPromise<SearchResult<Book>> {
+  return Axios.default.get<SearchResult<Book>>(
+    BASE_URL + "searchmeta" + toSearchQueryString(q)
+  );
+}

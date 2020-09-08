@@ -1,11 +1,24 @@
-<figure class="illust-image" @click.stop="click()">
-  <img :src="imgurl(i)" />
-  <div class="control" v-if="cont">
+<figure class="illust-image" >
+  <div class="container" v-if="hastitle">
+    <span>{{i.title}}</span>
+  </div>
+  <div class="container has-text-centered" @click.stop="click()">
+    <img :src="imgurl(i)" />
+  </div>
+  <div class="container buttons control">
+        <div v-for="item in sortofConfidence" :key="item.tagname">
+            <b-button type="is-info" size="is-small" @click="searchwithtag(item.tagname)">{{ $l("tag-"+item.tagname) }}</b-button>
+        </div>
+  </div>
+  <div class="container control" v-if="cont">
     <a @click.stop="search()">
       <b-icon icon="magnify"></b-icon>
+      <span>Search</span>
     </a>
     <router-link :to="{name:'book',params:{id:i.pid}, query: { page: i.page }}">
       <b-icon icon="book-open-variant"></b-icon>
+      <span>Book</span>
     </router-link>
+    <a :href="fullimgurl(i)" target="_blank"><b-icon icon="download"></b-icon><span>Get</span></a>
   </div>
 </figure>

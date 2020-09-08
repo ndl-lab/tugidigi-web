@@ -1,0 +1,29 @@
+@import "_palette.scss";
+.fulltext-search {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+  .guide {
+    text-align: center;
+    font-size: smaller;
+    margin-bottom: 1rem;
+  }
+
+  .reload-query {
+    text-align: right;
+    margin-top: 1rem;
+  }
+
+  .text-search-form {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+
+    @include is-mobile() {
+      width: 100%;
+    }
+
+    .search-button {
+      width: 4rem;
+    }
+  }
+}
