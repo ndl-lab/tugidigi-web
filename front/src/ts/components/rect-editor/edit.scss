@@ -1,0 +1,19 @@
+@import "_palette.scss";
+.edit {
+  .drawing {
+    border: solid 1px;
+  }
+
+  .size-canvas {
+    position: relative;
+    .size-change {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 20px;
+      height: 20px;
+      z-index: 1000;
+      border: 1px solid blue;
+    }
+  }
+}

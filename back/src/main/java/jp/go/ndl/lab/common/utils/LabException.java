@@ -2,6 +2,7 @@ package jp.go.ndl.lab.common.utils;
 
 import org.springframework.http.HttpStatus;
 
+
 /**
  * 例外クラス
  */
@@ -28,7 +29,7 @@ public class LabException extends RuntimeException {
     public static LabException systemErrorException() {
         return new LabException("system-error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
+    
     private String code;
     private HttpStatus status;
     private String detail;
@@ -68,5 +69,7 @@ public class LabException extends RuntimeException {
     public LabException withInfo(String detail, Object... infos) {
         return new LabException(this.getCode(), this.getHttpStatus(), detail, infos);
     }
-
+    public static LabException idDuplicateException() {
+        return new LabException("id-duplicate", HttpStatus.BAD_REQUEST);
+    }
 }

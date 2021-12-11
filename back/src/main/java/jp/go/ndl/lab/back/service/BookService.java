@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,8 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.primitives.Floats;
+
 @Service
 @Slf4j
 public class BookService {
@@ -53,83 +56,37 @@ public class BookService {
     @Autowired
     private IllustService illustService;
 
-    public EsSearchResult<Book> searchwithhighlights(SearchSourceBuilder ssb) {
-        /*for (String field : new String[]{"published", "publisher"}) {
-            TermsAggregationBuilder termFacetAgg = AggregationBuilders.terms(field);
-            termFacetAgg.size(10);
-            termFacetAgg.field(field);
-            ssb.aggregation(termFacetAgg);
-        }*/
-
+    public EsSearchResult<Book> searchwithhighlights(SearchSourceBuilder ssb,List<String>highlightTargets) {
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         highlightBuilder.encoder("html");
-        highlightBuilder.field(new HighlightBuilder.Field("contents"));
+        for(String highlight:highlightTargets)highlightBuilder.field(new HighlightBuilder.Field(highlight));
         highlightBuilder.fragmentSize(100);
         highlightBuilder.boundaryScannerLocale("ja-JP");
         highlightBuilder.numOfFragments(3);
         ssb.highlighter(highlightBuilder);
-
         EsSearchResult<Book> result = bookStore.search(ssb);
-
         //ハイライト処理
         int index = 0;
         for (SearchHit hit : result.searchResponse.getHits()) {
         	if(index>=result.list.size())break;//中身が無いのに参照しない
             Map<String, HighlightField> highlightFields = hit.getHighlightFields();
-            HighlightField hf = highlightFields.get("contents");
-            Book book = result.list.get(index++);
-            if (hf == null) {
-                book.highlights = Collections.EMPTY_LIST;
-            } else {
-                log.info("{}", hf);
-                book.highlights = Arrays.stream(hf.fragments()).map(text -> text.string()).collect(Collectors.toList());
+            for(String highlight:highlightTargets) {
+	            HighlightField hf = highlightFields.get(highlight);
+	            Book book = result.list.get(index);
+	            if (hf == null) {
+	                if(book.highlights==null)book.highlights = Collections.EMPTY_LIST;
+	            } else {
+	                log.info("{}", hf);
+	                book.highlights = Arrays.stream(hf.fragments()).map(text -> text.string()).collect(Collectors.toList());
+	            }
             }
-        }
-        //ファセット処理
-        //ファセットのマージ
-//        result.searchResponse.getAggregations().forEach(agg -> {
-//            Terms terms = (Terms) agg;
-//            String field = agg.getName();
-//            Map<String, Long> facet = new LinkedHashMap<>();
-//
-//            for (Terms.Bucket b : terms.getBuckets()) {
-//                String key = b.getKeyAsString();
-//                long count = b.getDocCount();
-//                facet.put(key, count);
-//            }
-//            result.facets.put(field, facet);
-//        });
-        return result;
-    }
-    public EsSearchResult<Book> searchmetawithhighlights(SearchSourceBuilder ssb) {
-        HighlightBuilder highlightBuilder = new HighlightBuilder();
-        highlightBuilder.encoder("html");
-        highlightBuilder.field(new HighlightBuilder.Field("title"));
-        highlightBuilder.field(new HighlightBuilder.Field("index"));
-        highlightBuilder.fragmentSize(50);
-        highlightBuilder.boundaryScannerLocale("ja-JP");
-        highlightBuilder.numOfFragments(3);
-        ssb.highlighter(highlightBuilder);
-        EsSearchResult<Book> result = bookStore.search(ssb);
-        //ハイライト処理
-        int index = 0;
-        for (SearchHit hit : result.searchResponse.getHits()) {
-        	if(index>=result.list.size())break;
-            Map<String, HighlightField> highlightFields = hit.getHighlightFields();
-            HighlightField hf = highlightFields.get("index");
-            Book book = result.list.get(index++);
-            if (hf == null) {
-                book.highlights = Collections.EMPTY_LIST;
-            } else {
-                log.info("{}", hf);
-                book.highlights = Arrays.stream(hf.fragments()).map(text -> text.string()).collect(Collectors.toList());
-            }
+            index++;
         }
         return result;
     }
 
     @Autowired
-    private VectorSearchService vss;
+    private VectorSearchServiceValdImpl vss;
 
     @Autowired
     private IllustService is;
@@ -150,7 +107,7 @@ public class BookService {
         }
 
     }
-    public EsSearchResult<Book> search(EsSearchQuery q,Boolean metaonly) {
+    public EsSearchResult<Book> search(EsSearchQuery q) {
         SearchSourceBuilder ssb = new SearchSourceBuilder();
         ssb.from(q.from == null ? 0 : q.from);
         ssb.size(q.size == null ? 20 : q.size);
@@ -204,9 +161,10 @@ public class BookService {
         EsSearchResult<Book> baseResult;
         //画像検索
         if (!CollectionUtils.isEmpty(q.image)) {
-
+        	VectorSearchRequest req=new VectorSearchRequest();
             Illustration i = is.get(q.image.get(0));
-            Map<String, Double> map = vss.searchbyfeature(i.feature, 1000);
+            req.vector=Floats.asList(i.feature);req.size=200;
+            Map<String, Float> map = vss.search(req);
             List<String> pids = map.keySet().stream().map(key -> key.split("_")[0]).distinct().collect(Collectors.toList());
             IdsQueryBuilder idq = QueryBuilders.idsQuery();
 
@@ -218,7 +176,7 @@ public class BookService {
             ssb.from(0);
             ssb.size(1000);
 
-            baseResult = searchwithhighlights(ssb);
+            baseResult = searchwithhighlights(ssb, Arrays.asList("contents"));
             Map<String, Book> bookMap = baseResult.list.stream().collect(Collectors.toMap(b -> b.id, b -> b));
 
             Map<String, Score> scores = new HashMap<>();
@@ -252,27 +210,27 @@ public class BookService {
 	                base.filter(bq);
 	            }
 	        }
-	        if(!metaonly) {
-		        //コンテンツも含めたキーワード検索
-		        if (!CollectionUtils.isEmpty(q.keyword)) {
-		            BoolQueryBuilder kwq = EsSearchQuery.createKeywordBoolQuery(q.keyword, Arrays.asList("title", "contents", "responsibility","index"), q.keywordOR);
+	        if(Objects.equals(q.searchfield,"contentonly")) {
+	        	log.info("contentonly");
+	        	if (!CollectionUtils.isEmpty(q.keyword)) {
+		            BoolQueryBuilder kwq = EsSearchQuery.createKeywordBoolQuery(q.keyword, Arrays.asList("contents"), q.keywordOR);
 		            IdsQueryBuilder idq = QueryBuilders.idsQuery();//IDクエリー
 		            idq.boost(10);
 		            for (String value : q.keyword) {
 		                idq.addIds(value);
 		            }
-		
 		            BoolQueryBuilder keywordsOrId = QueryBuilders.boolQuery();
 		            if (kwq.hasClauses()) {
 		                keywordsOrId.should(kwq);
 		            }
 		            keywordsOrId.should(idq);
-		
 		            base.must(keywordsOrId);
 		        }
 		        ssb.query(base);
-		        baseResult =searchwithhighlights(ssb);
-	        }else {
+		        baseResult =searchwithhighlights(ssb, Arrays.asList("contents"));
+	        }else if(Objects.equals(q.searchfield,"metaonly")){
+	        	//メタデータに対するキーワード検索
+	        	log.info("metaonly");
 	        	if (!CollectionUtils.isEmpty(q.keyword)) {
 		            BoolQueryBuilder kwq = EsSearchQuery.createKeywordBoolQuery(q.keyword, Arrays.asList("title", "index", "responsibility"), q.keywordOR);
 		
@@ -290,7 +248,28 @@ public class BookService {
 		            base.must(keywordsOrId);
 		        }
 		        ssb.query(base);
-		        baseResult =searchmetawithhighlights(ssb);
+		        baseResult =searchwithhighlights(ssb, Arrays.asList("index"));
+	        }else {
+	        	log.info("content and meta");
+	        	//本文+メタデータに対するキーワード検索
+		        if (!CollectionUtils.isEmpty(q.keyword)) {
+		            BoolQueryBuilder kwq = EsSearchQuery.createKeywordBoolQuery(q.keyword, Arrays.asList("title", "contents", "responsibility","index"), q.keywordOR);
+		            IdsQueryBuilder idq = QueryBuilders.idsQuery();//IDクエリー
+		            idq.boost(10);
+		            for (String value : q.keyword) {
+		                idq.addIds(value);
+		            }
+		
+		            BoolQueryBuilder keywordsOrId = QueryBuilders.boolQuery();
+		            if (kwq.hasClauses()) {
+		                keywordsOrId.should(kwq);
+		            }
+		            keywordsOrId.should(idq);
+		
+		            base.must(keywordsOrId);
+		        }
+		        ssb.query(base);
+		        baseResult =searchwithhighlights(ssb, Arrays.asList("contents","index"));
 	        }
         }
         Map<String,ItemFacet> facets = new LinkedHashMap<>();

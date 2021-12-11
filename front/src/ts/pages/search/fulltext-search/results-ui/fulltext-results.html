@@ -1,12 +1,5 @@
 <div class="search">
-  <!--search-control
-    :keyword="keyword"
-    :qillust="qillust"
-    @image-search="imageSearch($event)"
-    @keyword-search="keywordSearch($event)"
-  >
-  </search-control-->
-  <fulltext-search :keyword="keyword" @keyword-search="keywordSearch($event)" v-if="keyword"></fulltext-search>
+  <fulltext-search :keyword="keyword" :fulltextflag="fulltextflag" @keyword-search="keywordSearch($event)" v-if="keyword"></fulltext-search>
   
   <div class="section item-search-result" v-if="ss.result">
     <div class="container">

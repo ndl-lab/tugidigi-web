@@ -1,0 +1,18 @@
+{
+    "mappings": {
+            "properties": {
+                "graphictagmetrics":{
+                     "type" : "nested",
+                     "include_in_parent": true,
+                     "properties": {
+                          "tagname":{
+                               "type":"keyword"
+                          },
+                          "count":{
+                               "type":"integer"
+                          }
+                      }
+                }
+            }
+    }
+}

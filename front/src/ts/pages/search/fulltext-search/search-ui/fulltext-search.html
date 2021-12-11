@@ -27,6 +27,10 @@
               <button class="button search-button is-primary">
                 <b-icon icon="magnify"></b-icon>
               </button>
+              <label>
+                <input type="checkbox" v-model="fulltextflag" />
+                {{ $l2("本文のみを検索する", "Searching for the body only") }}
+              </label>
             </div>
           </div>
         </form>

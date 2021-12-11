@@ -11,11 +11,20 @@ export default class FulltextSearch extends Vue {
 
   @Prop({ default: "" })
   keyword: string;
+  @Prop({ default: false })
+  fulltextflag: boolean;
   keywordSearch() {
-    this.$router.push({
-      name: "fulltextsearchres",
-      query: { keyword: this.keyword.split(/[\s　]+/) }
-    });
+    if(!this.fulltextflag){
+      this.$router.push({
+        name: "fulltextsearchres",
+        query: { keyword: this.keyword.split(/[\s　]+/),searchfield:""}
+      });
+    }else{//searchfield
+      this.$router.push({
+        name: "fulltextsearchres",
+        query: { keyword: this.keyword.split(/[\s　]+/),searchfield:"contentonly"}
+      });
+    }
     this.$router.go(0);//強制リロード
   }
 }

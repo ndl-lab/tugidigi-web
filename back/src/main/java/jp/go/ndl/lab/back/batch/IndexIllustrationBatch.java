@@ -1,6 +1,8 @@
 package jp.go.ndl.lab.back.batch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Floats;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import java.io.BufferedReader;
@@ -101,21 +103,16 @@ public class IndexIllustrationBatch extends AbstractBatch {
 		                        ii.y = json.getDouble("y");
 		                        ii.w = json.getDouble("w");
 		                        ii.h = json.getDouble("h");
-		                        ii.feature = Arrays.stream(json.getString("feature").replaceAll("\\[|\\]", "").split(",")).mapToDouble(s -> Double.parseDouble(s)).toArray();
+		                        double dfeatures[] = Arrays.stream(json.getString("feature").replaceAll("\\[|\\]", "").split(",")).mapToDouble(s -> Double.parseDouble(s)).toArray();
+		                        ii.feature=Floats.toArray(Doubles.asList(dfeatures));
 		                        JSONArray graphictagArray=(JSONArray) json.get("graphictags");
-		                        /*ArrayList<taginfo>graphictagobj=(ArrayList<taginfo>) json.get("graphictags");
-		                        for(taginfo tagobj : graphictagobj) {
-		                        	ii.graphictags.add(tagobj);
-		                        }
-		                        for(JSONObject tagobj : graphictagobj) {
-		                        	ii.graphictags.add(tagobj);
-		                        }*/
-		                        //ii.graphictags=new ArrayList<taginfo>();
 		                        for(int ai=0; ai < graphictagArray.length(); ai++) {
 		                        	String tag=graphictagArray.getJSONObject(ai).getString("tag");
 		                        	double confidence=graphictagArray.getJSONObject(ai).getDouble("confidence");
-		                        	ii.graphictags.add(new taginfo(tag,confidence));
-		                        	graphictagsummary.add(tag);
+		                        	if(confidence>0.9) {
+			                        	ii.graphictags.add(new taginfo(tag,confidence));
+			                        	graphictagsummary.add(tag);
+		                        	}
 		                        }
 		                        System.out.println(illustid);
 		                        indexer.add(illustid, om.writeValueAsString(ii));

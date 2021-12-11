@@ -27,9 +27,10 @@ export default class IllustSearch extends Vue {
   
 
   search(i) {
+    console.log(i);
      this.$router.push({
       name: "illustsearchres",
-      query: { image: [String(i.id)] }
+      query: { image: [String(i.id)]}
     });
     /*this.$router.push({
       name: "search",

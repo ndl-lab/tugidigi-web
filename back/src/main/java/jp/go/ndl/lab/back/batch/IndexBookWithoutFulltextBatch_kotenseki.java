@@ -96,7 +96,7 @@ public class IndexBookWithoutFulltextBatch_kotenseki extends AbstractBatch {
                 settings.setMaxCharsPerColumn(1000000);
                 settings.getFormat().setLineSeparator("\n");  // 改行コードは CR+LF
                 settings.setHeaderExtractionEnabled(true);      // 1行目はヘッダ行としてスキップする
-                settings.setInputBufferSize(1000000000);
+                settings.setInputBufferSize(100000000);
                 settings.setNullValue("");
 //                        settings.setNumberOfRecordsToRead(1);
                 CsvParser parser = new CsvParser(settings);
@@ -187,11 +187,6 @@ public class IndexBookWithoutFulltextBatch_kotenseki extends AbstractBatch {
 		                            });
 		                            if(!cleanindexflag)pageIndexer.flush();
 		                            book.contents = bookText.toString().replaceAll("[\r\t\n\ufeff]", "");
-		                            if(book.autoTOCFlag) {
-			                        	CreateTOC createTOC=new CreateTOC();
-			                        	book.autoTOCindex=createTOC.MakeTOC(book, tocCandList,pageContentMap);
-			                            //book.contrastparam=contrastList.get(0);
-		                            }
 		                            bookIndexer.add(pid, om.writeValueAsString(book));
 		                            if(!cleanindexflag)bookIndexer.flush();
 	                            }

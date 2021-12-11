@@ -1,3 +1,4 @@
+import RectEditor from "components/rect-editor/edit";
 import { Illustration } from "domain/illustration";
 import SearchSort from "components/search/search-sort/search-sort";
 import SearchStore from "components/search/search-store/search-store";
@@ -44,7 +45,8 @@ import * as tf from '@tensorflow/tfjs';
     SearchPagesize,
     SearchPagination,
     SearchFacet,
-    SearchSort
+    SearchSort,
+    RectEditor
   }
 })
 export default class IllustSearch extends Vue {
@@ -115,7 +117,7 @@ export default class IllustSearch extends Vue {
     this.loadingResultsFlag=true;
     this.$router.push({
       name: "illustsearchres",
-      query: { image: [i.id] }
+      query: { image: [i.id],'fc-graphictags.tagname':i.graphictags.map(function( value ) {return value.tagname;})}
     });
     this.$router.go(0);//強制リロード
   }
@@ -153,22 +155,33 @@ export default class IllustSearch extends Vue {
   selectImageActiveTab: number = 0;
   imfid: string = null
   flagAnalyzing: boolean = false;
-  analyze() {
+  analyze(rect:{x,y,width,height}) {
     //this.isUploadModalActive = false;
     this.flagAnalyzing = true;
+    this.illustresarray=[];
     this.$nextTick(() => {
       setTimeout(() => {
         var img = new Image();
         img.crossOrigin = "Anonymous";
+        img.src = this.queryImage;
         img.onload = async () => {
           tf.tidy(() => {
             try {
               // let tensor: tf.Tensor = tf.browser
-              let tensor: any = tf.browser.fromPixels(img, 3);
-              tensor = tf.image.resizeBilinear(tensor, [
+              let tensor: any= tf.browser.fromPixels(img, 3).toFloat();
+              if(rect!=null){
+                tensor=tf.image.cropAndResize(tensor.expandDims(),
+                 [[rect.y/img.height, rect.x/img.width,(rect.y+rect.height)/img.height, (rect.x+rect.width)/img.width]],
+                  [0], [150, 150], 'nearest');
+                console.log(img.height,img.width);
+              }else{
+                tensor= tensor.resizeNearestNeighbor([150,150]);
+              }
+              tensor=tensor.resizeNearestNeighbor([MODEL_IMAGE_SIZE,MODEL_IMAGE_SIZE]);
+              /*tensor = tf.image.resizeBilinear(tensor, [
                 MODEL_IMAGE_SIZE,
                 MODEL_IMAGE_SIZE
-              ]);
+              ]);*/
               tensor = tensor.reshape([
                 1,
                 MODEL_IMAGE_SIZE,
@@ -176,9 +189,12 @@ export default class IllustSearch extends Vue {
                 3
               ]);
               tensor = tf.cast(tensor, "float32").div(tf.scalar(255.0));
+              //tensor = tf.sub(tf.scalar(255.0),tf.cast(tensor, "float32")).div(tf.scalar(255.0));
+              
               let output: any = this.model.predict(tensor);
-              let vecsize: any=output.square().sum().sqrt();
-              let feature: number[] = Array.from(output.dataSync());
+              let vecsize: any= output.square().sum().sqrt();
+              //let feature: number[] = Array.from(output.dataSync());
+              let feature: number[] = Array.from(output.div(vecsize).dataSync());
               //特徴量登録
               putImageFeature(feature)
                 .then(result => {
@@ -193,13 +209,13 @@ export default class IllustSearch extends Vue {
             }
           });
         };
-        img.src = this.queryImage;
       }, 100);
     });
   }
   removeFeature() {
     this.imfid = null;
     this.queryImage = null;
+    this.flagAnalyzing=false;
   }
   showUploadModel() {
     this.removeFeature();
@@ -271,6 +287,22 @@ export default class IllustSearch extends Vue {
   sketchmode:string= '';
   async mounted() {
     this.sketchmode = 'brush';
+  }
+  ///////////////////////切り抜いて検索
+  isRectModalActive: boolean = false;
+  crop() {
+    //this.$refs.recteditor=new RectEditor();
+    this.isRectModalActive = true;
+    this.$nextTick(() => {
+      (<RectEditor>this.$refs.recteditor).setImage(<HTMLImageElement>this.$refs.queryrawimg);
+    });
+  }
+  cropSearch(rect:{x,y,width,height}){
+    //Do somehitng with rect
+    if(rect){
+      this.analyze(rect);
+    }
+    this.isRectModalActive = false;
   }
   
 }

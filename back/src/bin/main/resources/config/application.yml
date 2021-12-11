@@ -1,0 +1,26 @@
+es:
+  endPoint: https://vpc-tvaws-lab-service-prod-y5wsml6xvrrh3irlhithnm7xpa.ap-northeast-1.es.amazonaws.com
+ngtEndPoint: http://10.2.93.101/ngt
+valdEndPoint: vald-gateway.jisedigi-vald-prod:8081
+whiteshell: /work/
+
+server:
+  port: 9998
+  servlet:
+    contextPath: /dl/
+  max-http-header-size : 80000
+  compression:
+    enabled: true
+    mime-types: application/json,text/html
+spring:
+  http:
+    encoding:
+      enable: false
+  servlet:
+    multipart:
+        max-file-size: 2000MB
+        max-request-size: 2001MB
+  main:
+    banner-mode: "off"
+management:
+    add-application-context-header: false

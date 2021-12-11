@@ -84,11 +84,12 @@ public class EsSearchQuery {
 
     public Integer from;
     public Integer size;
+    public String searchfield;
 
     public List<String> keyword;
     public List<String> image;
     
-    public double[] imagefeature;
+    public float[] imagefeature;
     public boolean keywordOR = false;
 
     public Map<String, List<String>> query;
@@ -145,6 +146,7 @@ public class EsSearchQuery {
         if (esq.size == 0) esq.size = 20;
         esq.sort = query.get("sort");
         esq.keyword = query.get("keyword");
+        esq.searchfield = query.getFirst("searchfield");
         esq.image = query.get("image");
         esq.exists = query.get("exists");
 

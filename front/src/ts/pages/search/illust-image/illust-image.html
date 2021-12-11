@@ -11,10 +11,16 @@
         </div>
   </div>
   <div class="container control" v-if="cont">
-    <a @click.stop="search()">
+    <!--a @click.stop="search()">
       <b-icon icon="magnify"></b-icon>
       <span>Search</span>
-    </a>
+    </a-->
+    <router-link :to="{name:'illustsearchres',query: { image: i.id,'fc-graphictags.tagname':i.graphictags.map(function( value ) {return value.tagname;}) }}">
+      <a @click.stop="search()">
+        <b-icon icon="magnify"></b-icon>
+        <span>Search</span>
+      </a>
+    </router-link>
     <router-link :to="{name:'book',params:{id:i.pid}, query: { page: i.page }}">
       <b-icon icon="book-open-variant"></b-icon>
       <span>Book</span>

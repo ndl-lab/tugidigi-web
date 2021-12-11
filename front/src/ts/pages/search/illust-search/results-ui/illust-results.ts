@@ -101,7 +101,9 @@ export default class IllustSearchResultsPage extends Vue {
     }else if(this.ssBook.keywords){
       this.activetab=1;
     }
-    this.$refs.searchtab.changeTab(this.activetab);
+    // ↓　さしあたりの対応
+    var searchtab_temp : any = this.$refs.searchtab; 
+    searchtab_temp.changeTab(this.activetab);
   }
   keywordSearch(keywords: string[]) {
     this.ssBook.image = [];
@@ -113,6 +115,7 @@ export default class IllustSearchResultsPage extends Vue {
   imageSearch(i: Illustration) {
     this.ss.keywords = [];
     this.ss.image = [i.id];
+    this.ss.facet ={"fc-graphictags.tagname":i.graphictags.map(function( value ) {return value.tagname;})};
     this.ss.from = 0;//ページネーションをリセット
     this.ss.execute();
     this.qillust = i;

@@ -30,9 +30,10 @@ export default class SketchCanvas extends Vue {
     
     async mounted() {
         this.localPos={x:0,y:0};
-        var container = this.$refs.container;
+        // ↓　さしあたりの対応
+        var container : any = this.$refs.container;
         this.stage = new Konva.Stage({
-          container,
+          container: container,
           width: this.width,
           height: this.height
         })

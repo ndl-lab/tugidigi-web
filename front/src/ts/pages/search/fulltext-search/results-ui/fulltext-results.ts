@@ -4,7 +4,7 @@ import SearchSort from "components/search/search-sort/search-sort";
 import SearchStore from "components/search/search-store/search-store";
 import { Book } from "domain/book";
 import { Illustration } from "domain/illustration";
-import { searchBook } from "service/book-service";
+import { searchBook} from "service/book-service";
 import {
   getIllustrationsByBook,
   getIllustration,
@@ -39,7 +39,6 @@ export default class FullTextSearchResultsPage extends Vue {
   activeTab: number = 0;
   showFacet: boolean = false;
   imageOnly: boolean = false;
-
   imageSelect: string = null;
 
   show(i: Illustration) {
@@ -75,6 +74,10 @@ export default class FullTextSearchResultsPage extends Vue {
   get keyword() {
     return this.ss.keywords.join(" ");
   }
+  get fulltextflag(){
+    if(this.ss.searchfield.includes("contentonly"))return true;
+    else false;
+  }
 
   qillust: Illustration = null;
 
@@ -98,10 +101,11 @@ export default class FullTextSearchResultsPage extends Vue {
     this.qillust = i;
   }
 
-  keywordSearch(keywords: string[]) {
+  keywordSearch(keywords: string[],searchfield:string) {
     console.log(keywords);
     this.ss.image = [];
     this.ss.keywords = keywords;
+    this.ss.searchfield = [searchfield];
     this.ss.execute();
   }
 }

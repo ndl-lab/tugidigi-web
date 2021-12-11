@@ -1,26 +1,28 @@
-var merge = require("webpack-merge"); // webpack-merge
+const { merge } = require("webpack-merge"); // webpack-merge
 var common = require("./webpack.common.js"); // 汎用設定をインポート
+var webpack = require("webpack");
 
 module.exports = merge(common, {
   mode: "development",
   output: {
-    filename: "[name].bundle.js"
+    publicPath: "/dl/assets/js/",
+	filename:"[name].bundle.js"
   },
-  plugins: [],
   devServer: {
-    contentBase: __dirname + "/src/",
+    contentBase: __dirname + "/public",
+	inline: true,
+    hot: true,
     host: "0.0.0.0",
     disableHostCheck: true,
     proxy: [
       {
         context: ["/dl/api/**"],
-        target:"http://172.31.168.1/",
-        changeOrigin: true
-      }
+        target: "http://localhost:19998/",
+      },
     ],
     historyApiFallback: {
-      index: "dl/index.html"
-    }
+      index: "/dl/index.html",
+    },
   },
-  devtool: "inline-source-map"
+  devtool: "inline-source-map",
 });

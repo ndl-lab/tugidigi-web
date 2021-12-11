@@ -11,7 +11,7 @@
         <p class="guide" :class="qillust?'is-invisible':''">
           {{
             $l2(
-              "サンプルの中から探したい絵を選んで下さい。似たような絵を含む資料を検索します。",
+              "サンプルの中から探したい画像を選んで下さい。似た画像を含む資料を検索します。",
               "Select illustration to search books that contains similar illustrations"
             )
           }}
@@ -37,6 +37,9 @@
           </swiper>
         </template>
         <div class="reload-query">
+          <b-button class="button is-small" size="is-medium" type="is-primary" @click="reloadImage('picture_landmark')">
+            {{ $l2("建造物のサンプルを表示する", "Show other landmark") }}
+          </b-button>
           <b-button class="button is-small" size="is-medium" type="is-primary" @click="reloadImage('graphic')">
             {{ $l2("絵のサンプルを表示する", "Show other illustrations") }}
           </b-button>
@@ -98,8 +101,9 @@
               </b-upload>
             </b-field>
             <div v-show="queryImage">
+              <img ref="queryrawimg" :src="queryImage" style="display:none"/>
               <div class="selected-query-image">
-                <img :src="queryImage" />
+                <img :src="queryImage" style="height:300px"/>
               </div>
               <div class="control">
                 <button
@@ -107,6 +111,18 @@
                   type="button"
                   @click="analyze()"
                 >{{ $l("l-analyze") }}</button>
+                <button
+                  class="button is-info is-fullwidth"
+                  type="button"
+                  @click="removeFeature()"
+                ><b-icon icon="delete"></b-icon></button>
+               </div>
+              <div class="control">
+                <button
+                    class="button is-info is-fullwidth"
+                    type="button"
+                    @click="crop()"
+                >画像の一部から検索</button>
               </div>
             </div>
           </div>
@@ -123,6 +139,9 @@
             :key="index"
             :i="i"></illust-image>
         </masonry>
+        <b-modal :active.sync="isRectModalActive">
+          <rect-editor ref="recteditor" @close="cropSearch"></rect-editor>
+        </b-modal>
       </b-tab-item>
       <b-tab-item :label="$l2('おえかきから', 'Illustration search from  your illustration')" icon="image" @click="tabchange(3)">
         <p class="guide">{{

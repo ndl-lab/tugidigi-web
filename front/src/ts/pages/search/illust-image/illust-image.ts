@@ -30,8 +30,7 @@ export default class IllustImage extends Vue {
   }
   get sortofConfidence(){
     var keys=this.i.graphictags.slice().sort((a, b) => {
-         return (a.confidence < b.confidence) ? 1 : (a.confidence > b.confidence) ? -1 : 0; })
-         .filter(k => k.tagname !== "graphic").filter(k => k.tagname !== "graphic_nishikie").filter(k => k.tagname !== "picture").slice(0,3);
+         return (a.confidence < b.confidence) ? 1 : (a.confidence > b.confidence) ? -1 : 0; }).slice(0,3);
     return keys;
   }
   
@@ -39,7 +38,8 @@ export default class IllustImage extends Vue {
     //this.$emit("search", this.i);
     this.$router.push({
       name: "illustsearchres",
-      query: { image: [this.i.id] }
+      query: { image: [this.i.id],
+                'fc-graphictags.tagname':this.i.graphictags.map(function( value ) {return value.tagname}) }
     });
     this.$router.go(0);
   }

@@ -35,8 +35,7 @@ export default class SearchFacet extends Vue {
 
   get sortedFacet(): { [key: string]: number } {
     let obj = {};
-    var keys = Object.keys(this.facet.counts).filter(k => k !== "graphic")
-    .filter(k => k !== "picture").filter(k => k !== "graphic_nishikie");
+    var keys = Object.keys(this.facet.counts).filter(k => k !== "graphic_nishikie");
     keys = keys.sort((a, b) => this.facet.counts[b] - this.facet.counts[a]);
     keys.forEach(key => {
       obj[key] = this.facet.counts[key];

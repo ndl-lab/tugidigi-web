@@ -34,7 +34,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 @CrossOrigin
 @RestController
-@RequestMapping("api/book")
+@RequestMapping("/api/book")
 @Slf4j
 @Profile(Application.MODE_WEB)
 public class BookController {
@@ -52,13 +52,8 @@ public class BookController {
 
     @GetMapping("/search")
     public EsSearchResult<Book> search(@RequestParam MultiValueMap<String, String> query) {
-        return bookService.search(EsSearchQuery.readQuery(query),false);//第二引数がfalseだと全部を使った全文検索
+        return bookService.search(EsSearchQuery.readQuery(query));
     }
-    @GetMapping("/searchmeta")
-    public EsSearchResult<Book> searchmeta(@RequestParam MultiValueMap<String, String> query) {
-        return bookService.search(EsSearchQuery.readQuery(query),true);//第二引数がtrueだとメタに絞った検索
-    }
-    
 
     boolean running;
 
@@ -91,15 +86,15 @@ public class BookController {
                     String url = "https://dl.ndl.go.jp/view/jpegOutput?itemId=info%3Andljp%2Fpid%2F" + id + "&contentNo=" + page + "&outputScale=2";
                     File whiteFile = FileUtils.getFile(tempDir, id + "_" + page + ".jpg");
                     log.info("path {}", whiteFile.getAbsolutePath());
-                    RunOuterProcess.Result r = RunOuterProcess.run(new File(whiteShellPath), "bash", "whitening.sh", url, whiteFile.getAbsolutePath());
+                    RunOuterProcess.Result r = RunOuterProcess.run(new File(whiteShellPath), "bash", "./whitening/whitening.sh", url, whiteFile.getAbsolutePath());
                     log.info("{}\n{}", r.outs, r.errors);
                     ZipEntry entry = new ZipEntry(id + "_" + page + ".jpg");
                     zos.putNextEntry(entry);
                     try (BufferedInputStream fis = new BufferedInputStream(new FileInputStream(whiteFile))) {
                         IOUtils.copy(fis, zos, 1000);
                     }
+                    running = false;
                 }
-                running = false;
 //                FileUtils.deleteDirectory(tempDir);
             }
         });

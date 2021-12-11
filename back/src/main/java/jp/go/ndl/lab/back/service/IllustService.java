@@ -38,10 +38,12 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.primitives.Floats;
+
 @Service
 public class IllustService {
 	@Autowired
-    private VectorSearchService vss;
+    private VectorSearchServiceValdImpl vss;
 	
     public final EsDataStore<Illustration> illustStore;
     class Score implements Comparable<Score> {
@@ -123,20 +125,20 @@ public class IllustService {
     public EsSearchResult<Illustration> searcheachimage(EsSearchQuery q) {
         SearchSourceBuilder ssb = new SearchSourceBuilder();
         BoolQueryBuilder base = QueryBuilders.boolQuery();
-        Map<String, Double> featureDistanceMap=new HashMap<>();
+        Map<String, Float> featureDistanceMap=new HashMap<>();
         ssb.from(0);
         ssb.size(200);
         //画像検索
+        //Arrays.stream(feature.split(",")).map(s -> Float.parseFloat(s)).collect(Collectors.toList());
         if(!CollectionUtils.isEmpty(q.image)||q.imagefeature!=null) {
-	        if(q.imagefeature!=null) {
-	        	featureDistanceMap = vss.searchbyfeature(q.imagefeature, 200);
-	        }else if (!CollectionUtils.isEmpty(q.image)) {
+        	VectorSearchRequest req=new VectorSearchRequest();
+	         if (!CollectionUtils.isEmpty(q.image)) {
 	            Illustration i = get(q.image.get(0));
-	            try {
-	            	featureDistanceMap = vss.searchbyid(i.id, 200);
-	            }catch(Exception e) {
-	            	featureDistanceMap = vss.searchbyfeature(q.imagefeature, 200);
-	            }
+            	req.vector=Floats.asList(i.feature);req.size=200;
+	        	featureDistanceMap = vss.search(req);
+	        }else if(q.imagefeature!=null) {
+	        	req.vector=Floats.asList(q.imagefeature);req.size=200;
+	        	featureDistanceMap = vss.search(req);
 	        }
 	        List<String> imageids = featureDistanceMap.keySet().stream().map(key -> key).distinct().collect(Collectors.toList());
 	        IdsQueryBuilder idq = QueryBuilders.idsQuery();
@@ -268,3 +270,4 @@ public class IllustService {
     }
 
 }
+

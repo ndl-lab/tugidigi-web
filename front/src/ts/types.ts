@@ -685,44 +685,48 @@ const globalLangResource = {
     en: "{} has been uploaded"
   },
   "tag-graphic":{
-    ja: "絵",
-    en: "Graphic"
+    ja: "非写真",
+    en: "not Photo"
   },
   "tag-graphic_illust":{
-    ja: "スケッチ",
-    en: "Sketch"
-  },
-  "tag-graphic_nishikie":{
-    ja: "錦絵",
-    en: "Nishiki-e"
-  },
-  "tag-graphic_map":{
-    ja: "地図",
-    en: "Map"
-  },
-  "tag-graphic_graph":{
-    ja: "グラフ",
-    en: "Graph"
+    ja: "イラスト",
+    en: "Graphic"
   },
   "tag-picture":{
     ja: "写真",
     en: "Photo"
   },
-  "tag-picture_view":{
-    ja: "写真(風景)",
-    en: "Photo(View)"
+  "tag-graphic_graph":{
+    ja: "グラフ",
+    en: "Graph"
+  },
+  "tag-graphic_map":{
+    ja: "地図",
+    en: "Map"
+  },
+  "tag-graphic_illustcolor":{
+    ja: "カラーイラスト",
+    en: "Graphic color"
+  },
+  "tag-picture_indoor":{
+    ja: "屋内写真",
+    en: "Photo(Indoor)"
   },
   "tag-picture_object":{
-    ja: "写真(物体)",
+    ja: "写真(美術品等)",
     en: "Photo(Object)"
   },
   "tag-picture_person":{
     ja: "写真(人物)",
     en: "Photo(Person)"
   },
-  "tag-other":{
-    ja: "その他",
-    en: "Other"
+  "tag-picture_outdoor":{
+    ja: "屋外写真",
+    en: "Photo(Outdoor)"
+  },
+  "tag-picture_landmark":{
+    ja: "写真(建造物等)",
+    en: "Photo(Landmark)"
   },
   "tag-stamp":{
     ja: "印影",

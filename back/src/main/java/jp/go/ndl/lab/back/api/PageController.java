@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
 @RestController
-@RequestMapping("api/page")
+@RequestMapping("/api/page")
 @Slf4j
 @Profile(Application.MODE_WEB)
 public class PageController {

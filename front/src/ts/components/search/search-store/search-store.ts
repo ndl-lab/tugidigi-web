@@ -41,6 +41,7 @@ export default class SearchStore<T> {
   }
 
   keywords: string[] = [];
+  searchfield:string[] = [];
   keywordType: "AND" | "OR" = "AND";
 
   query: { [key: string]: string[] } = {};
@@ -61,6 +62,7 @@ export default class SearchStore<T> {
   clearQuery() {
     this.keywords = [];
     this.keywordType = "AND";
+    this.searchfield=[];
     this.query = {};
     this.image = [];
     this.range = {};
@@ -174,6 +176,7 @@ export default class SearchStore<T> {
     if (this.keywordType === "OR") q.keywordOR = true;
 
     if (!isEmpty(this.keywords)) q.keyword = clone(this.keywords);
+    if (!isEmpty(this.searchfield)) q.searchfield = clone(this.searchfield);
     if (!isEmpty(this.query)) q.query = clone(this.query);
     if (!isEmpty(this.range)) q.range = clone(this.range);
     if (!isEmpty(this.facet)) q.facet = clone(this.facet);
@@ -195,6 +198,7 @@ export default class SearchStore<T> {
     if (this.keywordType === "OR") q.keywordOR = true;
 
     q.keyword = clone(this.keywords);
+    q.searchfield = clone(this.searchfield);
     q.query = clone(this.query);
     q.range = clone(this.range);
     q.facet = clone(this.facet);
@@ -243,6 +247,7 @@ export default class SearchStore<T> {
     this.from = q.from || 0;
     this.size = q.size || 10;
     this.sort = q.sort || [];
+    this.searchfield = q.searchfield || [];
     this.keywords = q.keyword || [];
     this.image = q.image || [];
     this.query = q.query || {};

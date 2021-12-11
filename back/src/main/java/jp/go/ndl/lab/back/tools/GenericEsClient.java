@@ -1,14 +1,21 @@
 package jp.go.ndl.lab.back.tools;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +32,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -46,9 +54,25 @@ public class GenericEsClient {
 	
     public RestClient restClient;
     public RestHighLevelClient highClient;
-
-    public GenericEsClient(@Value("${es.host}") String host, @Value("${es.port}") int port, @Value("${es.path}") String path) {
-        RestClientBuilder builder = RestClient.builder(new HttpHost(host, port, "http")).setMaxRetryTimeoutMillis(100000).setRequestConfigCallback(c -> {
+    private RestClientBuilder createClient(String endPoint) throws URISyntaxException {
+        URI uri = new URI(endPoint);
+        RestClientBuilder builder = RestClient.builder(new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme())).setRequestConfigCallback(c -> c.setConnectTimeout(5000).setSocketTimeout((int) TimeUnit.MINUTES.toMillis(5)));
+        if (StringUtils.isNotBlank(uri.getPath())) {
+            builder.setPathPrefix(uri.getPath());
+        }
+        return builder;
+    }
+    public GenericEsClient(@Value("${es.endPoint}")String endPoint) {
+    	try {
+    		RestClientBuilder builder= createClient(endPoint);
+    		restClient = builder.build();
+            highClient = new RestHighLevelClient(builder);
+        } catch (URISyntaxException e) {
+            log.error("ElasticsearchのURLに誤りがあります", e);
+        }
+    }
+    /*public GenericEsClient(@Value("${es.host}") String host, @Value("${es.port}") int port, @Value("${es.path}") String path) {
+        RestClientBuilder builder = RestClient.builder(new HttpHost(host, port, "http")).setRequestConfigCallback(c -> {
             return c.setConnectTimeout(5000).setSocketTimeout(60000);
         });
         if (StringUtils.isNotBlank(path)) {
@@ -56,13 +80,13 @@ public class GenericEsClient {
         }
         restClient = builder.build();
         highClient = new RestHighLevelClient(builder);
-    }
+    }*/
 
     public String issueGet(String command) throws Exception {
         log.info("GET {}", command);
-        Response r = restClient.performRequest(
+        Response r = restClient.performRequest(new Request(
                 "GET",
-                "/" + command);
+                "/" + command));
         String content = null;
         try (InputStream is = r.getEntity().getContent()) {
             content = IOUtils.toString(is, StandardCharsets.UTF_8);
@@ -72,9 +96,9 @@ public class GenericEsClient {
 
     public String issuePut(String command) throws Exception {
         log.info("PUT {}", command);
-        Response r = restClient.performRequest(
+        Response r = restClient.performRequest(new Request(
                 "PUT",
-                "/" + command);
+                "/" + command));
         String content = null;
         try (InputStream is = r.getEntity().getContent()) {
             content = IOUtils.toString(is, StandardCharsets.UTF_8);
@@ -84,9 +108,9 @@ public class GenericEsClient {
 
     public String issueDelete(String command) throws Exception {
         log.info("DELETE {}", command);
-        Response r = restClient.performRequest(
+        Response r = restClient.performRequest(new Request(
                 "DELETE",
-                "/" + command);
+                "/" + command));
         String content = null;
         try (InputStream is = r.getEntity().getContent()) {
             content = IOUtils.toString(is, StandardCharsets.UTF_8);
@@ -98,11 +122,10 @@ public class GenericEsClient {
     1行目にパスとメソッド、二行目以降にJSONを記入した命令ファイルでコマンドを実行する
      */
     public String issue(String method, String path, String json) throws Exception {
+    	Request req=new Request( method,"/" + path);
         HttpEntity entity = new NStringEntity(json, ContentType.APPLICATION_JSON);
-        Response r = restClient.performRequest(
-                method,
-                "/" + path,
-                Collections.<String, String>emptyMap(), entity);
+        req.setEntity(entity);
+        Response r = restClient.performRequest(req);
         String content = null;
         try (InputStream is = r.getEntity().getContent()) {
             content = IOUtils.toString(is, StandardCharsets.UTF_8);
@@ -115,11 +138,10 @@ public class GenericEsClient {
      */
     public String issue(String method, String path, Path commandFile) throws Exception {
         List<String> file = Files.readAllLines(commandFile, StandardCharsets.UTF_8);
+        Request req=new Request( method,"/" + path);
         HttpEntity entity = new NStringEntity(String.join("", file), ContentType.APPLICATION_JSON);
-        Response r = restClient.performRequest(
-                method,
-                "/" + path,
-                Collections.<String, String>emptyMap(), entity);
+        req.setEntity(entity);
+        Response r = restClient.performRequest(req);
         String content = null;
         try (InputStream is = r.getEntity().getContent()) {
             content = IOUtils.toString(is, StandardCharsets.UTF_8);
@@ -136,15 +158,15 @@ public class GenericEsClient {
         Response r = null;
         if (file.size() > 1) {
             file.remove(0);
-            HttpEntity entity = new NStringEntity(String.join("", file), ContentType.APPLICATION_JSON);
-            r = restClient.performRequest(
-                    order[0],
-                    "/" + order[1],
-                    Collections.<String, String>emptyMap(), entity);
-        } else {
-            r = restClient.performRequest(
-                    order[0],
+            Request req=new Request(order[0],
                     "/" + order[1]);
+            HttpEntity entity = new NStringEntity(String.join("", file), ContentType.APPLICATION_JSON);
+            req.setEntity(entity);
+            r = restClient.performRequest(req);
+        } else {
+        	Request req=new Request(order[0],
+                    "/" + order[1]);
+            r = restClient.performRequest(req);
         }
         String content = null;
         try (InputStream is = r.getEntity().getContent()) {
@@ -158,11 +180,10 @@ public class GenericEsClient {
             String query = "{\"query\":" + org.elasticsearch.common.Strings.toString(queryBuilder, false, false) + "}";
             log.info("delete query: {}", query);
             HttpEntity entity = new NStringEntity(query, ContentType.APPLICATION_JSON);
-            restClient.performRequest(
-                    "POST",
-                    "/" + index + "/_delete_by_query",
-                    Collections.<String, String>emptyMap(),
-                    entity);
+            Request req=new Request("POST",
+                    "/" + index + "/_delete_by_query");
+            req.setEntity(entity);
+            restClient.performRequest(req);
         } catch (JsonProcessingException ex) {
             log.error("", ex);
         } catch (IOException ex) {
@@ -173,7 +194,8 @@ public class GenericEsClient {
     public void bulkIndex(String index, Map<String, String> idJsonMap) {
         BulkRequest bulkRequest = new BulkRequest();
         idJsonMap.forEach((k, v) -> {
-            IndexRequest ir = new IndexRequest(index, "_doc", k);
+            IndexRequest ir = new IndexRequest(index);
+            ir.id(k);
             ir.source(v, XContentType.JSON);
             bulkRequest.add(ir);
         });

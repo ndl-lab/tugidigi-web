@@ -23,6 +23,6 @@ export function searchmetaBook(
   q: SearchQuery
 ): Axios.AxiosPromise<SearchResult<Book>> {
   return Axios.default.get<SearchResult<Book>>(
-    BASE_URL + "searchmeta" + toSearchQueryString(q)
+    BASE_URL + "search?searchfield=metaonly&" + toSearchQueryString(q)
   );
 }

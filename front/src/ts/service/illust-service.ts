@@ -55,15 +55,15 @@ export function getRandomIllustrations(): Axios.AxiosPromise<Illustration[]> {
 
 export function getRandomIllustrationsWithFacet(facettype:string): Axios.AxiosPromise<Illustration[]> {
   if(facettype=="imgonly"){
-    return Axios.default.get<Illustration[]>(BASE_URL + "randomwithfacet?size=10&f-graphictags.tagname=-other");
+    return Axios.default.get<Illustration[]>(BASE_URL + "randomwithfacet?size=10");
   }else if(facettype=="graphic"){
-    return Axios.default.get<Illustration[]>(BASE_URL + "randomwithfacet?size=10&f-graphictags.tagname=graphic&f-graphictags.tagname=-picture&f-graphictags.tagname=-other");
+    return Axios.default.get<Illustration[]>(BASE_URL + "randomwithfacet?size=10&f-graphictags.tagname=graphic&f-graphictags.tagname=-picture");
   }else if(facettype=="picture"){
-    return Axios.default.get<Illustration[]>(BASE_URL + "randomwithfacet?size=10&f-graphictags.tagname=picture&f-graphictags.tagname=-graphic&f-graphictags.tagname=-other");
+    return Axios.default.get<Illustration[]>(BASE_URL + "randomwithfacet?size=10&f-graphictags.tagname=picture&f-graphictags.tagname=-graphic");
   }else if(facettype=="map"){
     return Axios.default.get<Illustration[]>(BASE_URL + "randomwithfacet?size=10&f-graphictags.tagname=graphic_map");
-  }else if(facettype=="nishikie"){
-    return Axios.default.get<Illustration[]>(BASE_URL + "randomwithfacet?size=10&f-graphictags.tagname=graphic_nishikie");
+  }else if(facettype=="picture_landmark"){
+    return Axios.default.get<Illustration[]>(BASE_URL + "randomwithfacet?size=10&f-graphictags.tagname=picture_landmark&f-graphictags.tagname=-graphic_map&f-graphictags.tagname=-graphic_illust&f-graphictags.tagname=-graphic_graph");
   }else{
     getRandomIllustrations();
   }

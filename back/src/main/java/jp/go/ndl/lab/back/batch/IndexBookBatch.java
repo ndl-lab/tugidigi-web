@@ -97,7 +97,7 @@ public class IndexBookBatch extends AbstractBatch {
                 settings.setMaxCharsPerColumn(1000000);
                 settings.getFormat().setLineSeparator("\n");  // 改行コードは CR+LF
                 settings.setHeaderExtractionEnabled(true);      // 1行目はヘッダ行としてスキップする
-                settings.setInputBufferSize(1000000000);
+                settings.setInputBufferSize(100000000);
                 settings.setNullValue("");
 //                        settings.setNumberOfRecordsToRead(1);
                 CsvParser parser = new CsvParser(settings);

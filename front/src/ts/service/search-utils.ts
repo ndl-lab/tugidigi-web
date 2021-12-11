@@ -16,6 +16,7 @@ export class SearchQuery {
   from: number;
   size: number;
   keyword: string[];
+  searchfield:string[];
   keywordOR: boolean;
   query: { [key: string]: string[] };
   range: { [key: string]: Range[] };
@@ -51,6 +52,9 @@ export function fromQueryString(query: string): SearchQuery {
     q.sort = map["sort"];
   }
 
+  if (map["searchfield"]) {
+    q.searchfield  = map["searchfield"];
+  }
   if (map["keyword"]) {
     q.keyword = map["keyword"];
   }
@@ -107,6 +111,7 @@ export function toSeqrchQueryUrlMap(sq: SearchQuery) {
   if (sq.sort) q["sort"] = filter(sq.sort);
   if (sq.keyword) q["keyword"] = filter(sq.keyword);
   if (sq.image) q["image"] = filter(sq.image);
+  if (sq.searchfield) q["searchfield"] = [sq.searchfield];
   if (sq.keywordOR) q["keywordOr"] = [true];
   if (sq.exists) q["exists"] = filter(sq.exists);
   if (sq.query) {

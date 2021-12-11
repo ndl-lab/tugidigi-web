@@ -2,6 +2,10 @@ package jp.go.ndl.lab.back.infra;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jp.go.ndl.lab.common.utils.LabException;
+import jp.go.ndl.lab.common.utils.LabUtils;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,6 +37,7 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.action.support.WriteRequest;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -61,11 +66,11 @@ public class EsDataStore<E extends EsData> {
     private UriComponentsBuilder uriBuilder;
     private RestHighLevelClient client;
 
-    public EsDataStore(String host, int port, String path, String index, Class<E> clazz) {
-        RestClientBuilder builder = RestClient.builder(new HttpHost(host, port, "http")).setMaxRetryTimeoutMillis(100000).setRequestConfigCallback(c -> {
+    public EsDataStore(String host, int port, String path,String scheme, String index, Class<E> clazz) {
+        RestClientBuilder builder = RestClient.builder(new HttpHost(host, port, scheme)).setRequestConfigCallback(c -> {
             return c.setConnectTimeout(5000).setSocketTimeout((int) TimeUnit.MINUTES.toMillis(5));
         });
-        uriBuilder = UriComponentsBuilder.newInstance().scheme("http").host(host).port(port);
+        uriBuilder = UriComponentsBuilder.newInstance().scheme(scheme).host(host).port(port);
         if (StringUtils.isNotBlank(path)) {
             builder.setPathPrefix(path);
             uriBuilder.path(path);
@@ -80,7 +85,8 @@ public class EsDataStore<E extends EsData> {
     public void bulkIndex(Map<String, String> idJsonMap) {
         BulkRequest bulkRequest = new BulkRequest();
         idJsonMap.forEach((k, v) -> {
-            IndexRequest ir = new IndexRequest(index, TYPE, k);
+            IndexRequest ir = new IndexRequest(index);
+            ir.id(k);
             ir.source(v, XContentType.JSON);
             bulkRequest.add(ir);
         });
@@ -100,7 +106,7 @@ public class EsDataStore<E extends EsData> {
     public void bulkDelete(Collection<String> ids) {
         BulkRequest bulkRequest = new BulkRequest();
         ids.forEach((k) -> {
-            DeleteRequest delete = new DeleteRequest(index, TYPE, k);
+            DeleteRequest delete = new DeleteRequest(index,k);
             bulkRequest.add(delete);
         });
 //        log.info("bulk request {}", bulkRequest.requests().size());
@@ -120,12 +126,11 @@ public class EsDataStore<E extends EsData> {
         try {
             String query = "{\"query\":" + org.elasticsearch.common.Strings.toString(queryBuilder, false, false) + "}";
             log.info("delete query: {}", query);
+            Request req=new Request("POST","/" + index + "/_delete_by_query");
             HttpEntity entity = new NStringEntity(query, ContentType.APPLICATION_JSON);
+            req.setEntity(entity);
             Response r = restClient.performRequest(
-                    "POST",
-                    "/" + index + "/_delete_by_query",
-                    Collections.<String, String>emptyMap(),
-                    entity);
+                    req);
             log.info("delete {}", r);
         } catch (JsonProcessingException ex) {
             log.error("", ex);
@@ -139,7 +144,7 @@ public class EsDataStore<E extends EsData> {
             return null;
         }
         try {
-            GetRequest getRequest = new GetRequest(index, TYPE, id);
+            GetRequest getRequest = new GetRequest(index, id);
             getRequest.fetchSourceContext(new FetchSourceContext(true, null, new String[]{"contents"}));
             GetResponse g = client.get(getRequest, RequestOptions.DEFAULT);
             if (g.isExists()) {
@@ -172,7 +177,7 @@ public class EsDataStore<E extends EsData> {
             MultiGetRequest mgr = new MultiGetRequest();
             FetchSourceContext fsc = new FetchSourceContext(true, null, new String[]{"feature"});
             for (String id : ids) {
-                Item item = new Item(index, TYPE, id);
+                Item item = new Item(index,id);
                 item.fetchSourceContext(fsc);
                 mgr.add(item);
             }
@@ -195,7 +200,7 @@ public class EsDataStore<E extends EsData> {
 
     public boolean exists(String id) {
         try {
-            GetRequest getRequest = new GetRequest(index, TYPE, id);
+            GetRequest getRequest = new GetRequest(index,id);
             return client.exists(getRequest, RequestOptions.DEFAULT);
         } catch (IOException ex) {
             log.error("", ex);
@@ -241,7 +246,8 @@ public class EsDataStore<E extends EsData> {
 
     public E update(E e, boolean waitForUpdate) {
         try {
-            IndexRequest indexRequest = new IndexRequest(index, TYPE, e.getId());
+            IndexRequest indexRequest = new IndexRequest(index);
+            indexRequest.id(e.getId());
             if (e.getVersion() != null) {
                 indexRequest.version(e.getVersion());
             }
@@ -265,7 +271,7 @@ public class EsDataStore<E extends EsData> {
 
     public E create(E e, boolean waitForUpdate) {
         try {
-            IndexRequest indexRequest = new IndexRequest(index, TYPE);
+            IndexRequest indexRequest = new IndexRequest(index);
             if (waitForUpdate) {
                 indexRequest.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL);
             }
@@ -286,10 +292,32 @@ public class EsDataStore<E extends EsData> {
         }
         return null;
     }
-
+    public E create(String id, E e, boolean waitForUpdate) {
+        if (LabUtils.hasNullByte(id) || id == null) {
+            throw LabException.nullInputException();
+        }
+        try {
+            if (exists(id)) throw LabException.idDuplicateException();
+            IndexRequest indexRequest = new IndexRequest(index).id(id);
+            if (waitForUpdate) {
+                indexRequest.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL);
+            }
+            e.setId(null);
+            indexRequest.source(mapper.writeValueAsString(e), XContentType.JSON);
+            IndexResponse response = client.index(indexRequest, RequestOptions.DEFAULT);
+            e.setId(id);
+            e.setVersion(response.getVersion());
+            return e;
+        } catch (JsonProcessingException ex) {
+            log.error("", ex);
+        } catch (IOException ex) {
+            log.error("", ex);
+        }
+        return null;
+    }
     public void delete(String id) {
         try {
-            DeleteRequest deleteRequest = new DeleteRequest(index, TYPE, id);
+            DeleteRequest deleteRequest = new DeleteRequest(index,id);
             deleteRequest.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL);
             client.delete(deleteRequest, RequestOptions.DEFAULT);
         } catch (IOException ex) {
@@ -323,6 +351,7 @@ public class EsDataStore<E extends EsData> {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.version(true);
         searchSourceBuilder.query(query);
+        searchSourceBuilder.sort("_doc"); 
         FetchSourceContext fsc = new FetchSourceContext(true, null, new String[]{"contents"});
         searchSourceBuilder.fetchSource(fsc);
         searchRequest.source(searchSourceBuilder);
@@ -371,6 +400,7 @@ public class EsDataStore<E extends EsData> {
         searchRequest.scroll(scroll);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(query);
+        searchSourceBuilder.sort("_doc"); 
         searchRequest.source(searchSourceBuilder);
 
         SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -416,7 +446,7 @@ public class EsDataStore<E extends EsData> {
             search.source(src);
             SearchResponse sr = client.search(search, RequestOptions.DEFAULT);
             SearchHits hits = sr.getHits();
-            result.hit = hits.getTotalHits();
+            result.hit =hits.getTotalHits().value;
             result.from = src.from();
             result.searchResponse = sr;
             for (SearchHit hit : hits.getHits()) {

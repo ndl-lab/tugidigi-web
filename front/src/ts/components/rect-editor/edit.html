@@ -1,0 +1,22 @@
+<div class="edit">
+  <div class="field has-addons">
+    <div class="control">
+      <input type="range" v-model="size" @change="draw()" min="1" max="200" />
+    </div>
+    <div class="control">
+      <b-field>
+        <p class="control">
+          <button class="button is-success" type="button" @click="save()">
+            OK
+          </button>
+        </p>
+        <p class="control">
+          <button class="button is-warning" type="button" @click="cancel()">
+            キャンセル
+          </button>
+        </p>
+      </b-field>
+    </div>
+  </div>
+  <canvas ref="canvas" class="drawing" width="0" height="0"> </canvas>
+</div>

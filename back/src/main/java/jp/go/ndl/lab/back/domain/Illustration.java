@@ -39,6 +39,6 @@ public class Illustration implements EsData {
     }
     
     
-    public double[] feature;
+    public float[] feature;
 
 }

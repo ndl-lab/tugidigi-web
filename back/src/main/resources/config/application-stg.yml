@@ -1,0 +1,9 @@
+es:
+  endPoint: http://localhost:9200
+ngtEndPoint: 
+valdEndPoint: localhost:8081
+whiteshell: /data/dms/
+featureLen: 512
+
+server:
+  port: 19998   
