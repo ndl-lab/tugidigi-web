@@ -21,7 +21,13 @@
     @include is-mobile() {
       width: 100%;
     }
-
+    .filterform{
+      text-align: left;
+      width: 50%;
+      .filterbutton{
+        text-align: right;
+      }
+    }
     .search-button {
       width: 4rem;
     }

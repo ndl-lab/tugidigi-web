@@ -1,0 +1,306 @@
+#
+# Copyright (C) 2019-2020 Vdaas.org Vald team ( kpango, rinx, kmrmt )
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+defaults:
+  # @schema {"name": "defaults.time_zone", "type": "string"}
+  # defaults.time_zone -- Time zone
+  time_zone: JST
+  logging:
+    # @schema {"name": "defaults.logging.logger", "type": "string", "enum": ["glg"]}
+    # defaults.logging.logger -- logger name.
+    # currently logger must be `glg`.
+    logger: glg
+    # @schema {"name": "defaults.logging.level", "type": "string", "enum": ["debug", "info", "warn", "error", "fatal"]}
+    # defaults.logging.level -- logging level.
+    # logging level must be `debug`, `info`, `warn`, `error` or `fatal`.
+    level: warn
+    # @schema {"name": "defaults.logging.format", "type": "string", "enum": ["raw", "json"]}
+    # defaults.logging.format -- logging format.
+    # logging format must be `raw` or `json`
+    format: raw
+  server_config:
+    healths:
+      # @schema {"name": "defaults.server_config.healths.liveness", "type": "object"}
+      liveness:
+        enabled: true
+        host: 0.0.0.0
+        # @schema {"name": "defaults.server_config.healths.liveness.port", "type": "integer", "minimum": 0, "maximum": 65535}
+        # defaults.server_config.healths.liveness.port -- liveness server port
+        port: 3000
+        livenessProbe:
+          # @schema {"name": "defaults.server_config.healths.liveness.livenessProbe.httpGet", "type": "object"}
+          httpGet:
+            # @schema {"name": "defaults.server_config.healths.liveness.livenessProbe.httpGet.path", "type": "string"}
+            # defaults.server_config.healths.liveness.livenessProbe.httpGet.path -- liveness probe path
+            path: /liveness
+            # @schema {"name": "defaults.server_config.healths.liveness.livenessProbe.httpGet.port", "type": "string"}
+            # defaults.server_config.healths.liveness.livenessProbe.httpGet.port -- liveness probe port
+            port: liveness
+            # @schema {"name": "defaults.server_config.healths.liveness.livenessProbe.httpGet.scheme", "type": "string"}
+            # defaults.server_config.healths.liveness.livenessProbe.httpGet.scheme -- liveness probe scheme
+            scheme: HTTP
+          # @schema {"name": "defaults.server_config.healths.liveness.livenessProbe.initialDelaySeconds", "type": "integer"}
+          # defaults.server_config.healths.liveness.livenessProbe.initialDelaySeconds -- liveness probe initial delay seconds
+          initialDelaySeconds: 10
+      readiness:
+        # @schema {"name": "defaults.server_config.healths.readiness.enabled", "type": "boolean"}
+        # defaults.server_config.healths.readiness.enabled -- readiness server enabled
+        enabled: true
+        # @schema {"name": "defaults.server_config.healths.readiness.host", "type": "string"}
+        # defaults.server_config.healths.readiness.host -- readiness server host
+        host: 0.0.0.0
+        # @schema {"name": "defaults.server_config.healths.readiness.port", "type": "integer", "minimum": 0, "maximum": 65535}
+        # defaults.server_config.healths.readiness.port -- readiness server port
+        port: 3001
+        # @schema {"name": "defaults.server_config.healths.readiness.servicePort", "type": "integer", "minimum": 0, "maximum": 65535}
+        # defaults.server_config.healths.readiness.servicePort -- readiness server service port
+        servicePort: 3001
+        # @schema {"name": "defaults.server_config.healths.readiness.readinessProbe", "type": "object"}
+        readinessProbe:
+          initialDelaySeconds: 10
+
+# @schema {"name": "gateway", "type": "object"}
+gateway:
+  # @schema {"name": "gateway.vald", "type": "object"}
+  vald:
+    # @schema {"name": "gateway.vald.enabled", "type": "boolean"}
+    # gateway.vald.enabled -- gateway enabled
+    enabled: false
+  # @schema {"name": "gateway.backup", "type": "object"}
+  backup:
+    # @schema {"name": "gateway.backup.enabled", "type": "boolean"}
+    # gateway.backup.enabled -- gateway enabled
+    enabled: false
+  # @schema {"name": "gateway.lb", "type": "object"}
+  lb:
+    # @schema {"name": "gateway.lb.enabled", "type": "boolean"}
+    # gateway.lb.enabled -- gateway enabled
+    enabled: true
+    minReplicas: 1
+   # @schema {"name": "gateway.lb.podPriority", "type": "object", "anchor": "podPriority"}
+    podPriority:
+      # @schema {"name": "gateway.lb.podPriority.enabled", "type": "boolean"}
+      # gateway.lb.podPriority.enabled -- gateway pod PriorityClass enabled
+      enabled: false
+    hpa:
+      # @schema {"name": "gateway.lb.hpa.enabled", "type": "boolean"}
+      # gateway.lb.hpa.enabled -- HPA enabled
+      enabled: false
+    ingress:
+      # @schema {"name": "gateway.lb.ingress.pathType", "type": "string"}
+      # gateway.lb.ingress.pathType -- gateway ingress pathType
+      pathType: ImplementationSpecific
+      # @schema {"name": "gateway.lb.ingress.enabled", "type": "boolean"}
+      # gateway.lb.ingress.enabled -- gateway ingress enabled
+      enabled: false
+      # @schema {"name": "gateway.lb.ingress.annotations", "type": "object"}
+      # gateway.lb.ingress.annotations -- annotations for ingress
+      annotations:
+        nginx.ingress.kubernetes.io/grpc-backend: "true"
+      # @schema {"name": "gateway.lb.ingress.host", "type": "string"}
+      # gateway.lb.ingress.host -- ingress hostname
+      host: lb.gateway.vald.vdaas.org
+      # @schema {"name": "gateway.lb.ingress.servicePort", "type": "string"}
+      # gateway.lb.ingress.servicePort -- service port to be exposed by ingress
+      servicePort: grpc
+    gateway_config:
+      index_replica: 1
+  # @schema {"name": "gateway.meta", "type": "object"}
+  meta:
+    # @schema {"name": "gateway.meta.enabled", "type": "boolean"}
+    # gateway.meta.enabled -- gateway enabled
+    enabled: false
+  # @schema {"name": "gateway.filter", "type": "object"}
+  filter:
+    # @schema {"name": "gateway.filter.enabled", "type": "boolean"}
+    # gateway.filter.enabled -- gateway enabled
+    enabled: false
+
+# @schema {"name": "agent", "type": "object"}
+agent:
+  # @schema {"name": "agent.enabled", "type": "boolean"}
+  # agent.enabled -- agent enabled
+  enabled: true
+  minReplicas: 1
+  hpa:
+    # agent.hpa.enabled -- HPA enabled
+    enabled: false
+    # agent.hpa.targetCPUUtilizationPercentage -- HPA CPU utilization percentage
+  resources:
+    requests:
+      cpu: 400m
+      memory: 8Gi
+  ngt:
+    # @schema {"name": "agent.ngt.auto_index_duration_limit", "type": "string"}
+    # agent.ngt.auto_index_duration_limit -- limit duration of automatic indexing
+    auto_index_duration_limit: 24000h
+    dimension: 512
+    enable_in_memory_mode: false
+    index_path:  /var/ngt/
+    # @schema {"name": "agent.ngt.creation_edge_size", "type": "integer"}
+    # agent.ngt.creation_edge_size -- creation edge size
+    creation_edge_size: 10
+    # @schema {"name": "agent.ngt.search_edge_size", "type": "integer"}
+    # agent.ngt.search_edge_size -- search edge size
+    search_edge_size: 100
+  persistentVolume:
+    enabled: true
+    accessMode: ReadWriteOnce
+    storageClass: local-vald-prod-backup-efs-sc
+    size: 100Gi
+  podPriority:
+    enabled: false
+  sidecar:
+    # @schema {"name": "agent.sidecar.enabled", "type": "boolean"}
+    # agent.sidecar.enabled -- sidecar enabled
+    enabled: false
+    # @schema {"name": "agent.sidecar.initContainerEnabled", "type": "boolean"}
+    # agent.sidecar.initContainerEnabled -- sidecar on initContainer mode enabled.
+    initContainerEnabled: false
+    # @schema {"name": "agent.sidecar.service", "type": "object"}
+    service:
+      # @schema {"name": "agent.sidecar.service.enabled", "type": "boolean"}
+      # agent.sidecar.service.enabled -- agent sidecar service enabled
+      enabled: false
+    # @schema {"name": "agent.sidecar.env", "alias": "env"}
+    # agent.sidecar.env -- environment variables
+    env:
+      - name: MY_POD_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+      - name: AWS_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: aws-secret
+            key: access-key
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: aws-secret
+            key: secret-access-key
+    # @schema {"name": "agent.sidecar.observability", "alias": "observability"}
+    # agent.sidecar.observability -- observability config (overrides defaults.observability)
+    observability:
+      jaeger:
+        service_name: vald-agent-sidecar
+      stackdriver:
+        profiler:
+          service: vald-agent-sidecar
+    # @schema {"name": "agent.sidecar.resources", "alias": "resources"}
+    # agent.sidecar.resources -- compute resources.
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+    # @schema {"name": "agent.sidecar.config", "type": "object"}
+    config:
+      # @schema {"name": "agent.sidecar.config.blob_storage", "type": "object"}
+      blob_storage:
+        # @schema {"name": "agent.sidecar.config.blob_storage.storage_type", "type": "string", "enum": ["s3"]}
+        # agent.sidecar.config.blob_storage.storage_type -- storage type
+        storage_type: "s3"
+        # @schema {"name": "agent.sidecar.config.blob_storage.bucket", "type": "string"}
+        # agent.sidecar.config.blob_storage.bucket -- bucket name
+        bucket: ""
+        # @schema {"name": "agent.sidecar.config.blob_storage.s3", "type": "object"}
+        s3:
+          # @schema {"name": "agent.sidecar.config.blob_storage.s3.endpoint", "type": "string"}
+          # agent.sidecar.config.blob_storage.s3.endpoint -- s3 endpoint
+          endpoint: ""
+          # @schema {"name": "agent.sidecar.config.blob_storage.s3.region", "type": "string"}
+          # agent.sidecar.config.blob_storage.s3.region -- s3 region
+          region: ""
+          # @schema {"name": "agent.sidecar.config.blob_storage.s3.access_key", "type": "string"}
+          # agent.sidecar.config.blob_storage.s3.access_key -- s3 access key
+          access_key: _AWS_ACCESS_KEY_
+          # @schema {"name": "agent.sidecar.config.blob_storage.s3.secret_access_key", "type": "string"}
+          # agent.sidecar.config.blob_storage.s3.secret_access_key -- s3 secret access key
+          secret_access_key: _AWS_SECRET_ACCESS_KEY_
+          # @schema {"name": "agent.sidecar.config.blob_storage.s3.token", "type": "string"}
+          # agent.sidecar.config.blob_storage.s3.token -- s3 token
+          token: ""
+      # agent.sidecar.config.restore_backoff_enabled -- restore backoff enabled
+      restore_backoff_enabled: false
+
+# @schema {"name": "discoverer", "type": "object"}
+discoverer:
+  # @schema {"name": "discoverer.enabled", "type": "boolean"}
+  # discoverer.enabled -- discoverer enabled
+  enabled: true
+  minReplicas: 1
+  hpa:
+    # discoverer.hpa.enabled -- HPA enabled
+    enabled: false
+  clusterRole:
+    # @schema {"name": "discoverer.clusterRole.enabled", "type": "boolean"}
+    # discoverer.clusterRole.enabled -- creates clusterRole resource
+    enabled: true
+    name: jisedigi-discoverer
+  clusterRoleBinding:
+    # @schema {"name": "discoverer.clusterRoleBinding.enabled", "type": "boolean"}
+    # discoverer.clusterRoleBinding.enabled -- creates clusterRoleBinding resource
+    enabled: true
+    name: jisedigi-discoverer
+  serviceAccount:
+    # @schema {"name": "discoverer.serviceAccount.enabled", "type": "boolean"}
+    # discoverer.serviceAccount.enabled -- creates service account
+    enabled: true
+    # @schema {"name": "discoverer.serviceAccount.name", "type": "string"}
+    # discoverer.serviceAccount.name -- name of service account
+    name: vald
+  podPriority:
+    enabled: false
+  resources:
+    requests:
+      cpu: 200m
+      memory: 65Mi
+    limits:
+      cpu: 600m
+      memory: 500Mi
+# @schema {"name": "manager", "type": "object"}
+manager:
+  # @schema {"name": "manager.compressor", "type": "object"}
+  compressor:
+    # @schema {"name": "manager.compressor.enabled", "type": "boolean"}
+    # manager.compressor.enabled -- compressor enabled
+    enabled: false
+  # @schema {"name": "manager.backup", "type": "object"}
+  backup:
+    # @schema {"name": "manager.backup.enabled", "type": "boolean"}
+    # manager.backup.enabled -- backup manager enabled
+    enabled: false
+  # @schema {"name": "manager.index", "type": "object"}
+  index:
+    # @schema {"name": "manager.index.enabled", "type": "boolean"}
+    # manager.index.enabled -- index manager enabled
+    enabled: true
+     # @schema {"name": "manager.index.podPriority", "alias": "podPriority"}
+    podPriority:
+      # manager.index.podPriority.enabled -- index manager pod PriorityClass enabled
+      enabled: false
+    # @schema {"name": "manager.index.indexer", "type": "object"}
+    indexer:
+      # @schema {"name": "manager.index.indexer.creation_pool_size", "type": "integer"}
+      # manager.index.indexer.creation_pool_size -- number of pool size of create index processing
+      creation_pool_size: 1000
+    
+
+
+# @schema {"name": "meta", "type": "object"}
+meta:
+  # @schema {"name": "meta.enabled", "type": "boolean"}
+  # meta.enabled -- meta enabled
+  enabled: false

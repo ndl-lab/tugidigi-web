@@ -62,8 +62,6 @@ export function getRandomIllustrationsWithFacet(facettype:string): Axios.AxiosPr
     return Axios.default.get<Illustration[]>(BASE_URL + "randomwithfacet?size=10&f-graphictags.tagname=picture&f-graphictags.tagname=-graphic");
   }else if(facettype=="map"){
     return Axios.default.get<Illustration[]>(BASE_URL + "randomwithfacet?size=10&f-graphictags.tagname=graphic_map");
-  }else if(facettype=="picture_landmark"){
-    return Axios.default.get<Illustration[]>(BASE_URL + "randomwithfacet?size=10&f-graphictags.tagname=picture_landmark&f-graphictags.tagname=-graphic_map&f-graphictags.tagname=-graphic_illust&f-graphictags.tagname=-graphic_graph");
   }else{
     getRandomIllustrations();
   }

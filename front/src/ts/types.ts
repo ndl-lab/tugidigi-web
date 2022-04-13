@@ -600,8 +600,9 @@ const globalLangResource = {
     en: "Input search keywords"
   },
   "l-whiten":{ja: "ページを白色化する", en: "whitening and download" },
+  "l-fulltextdownload":{ja:"この資料の全文テキストデータ",en:"Full text of this book"},
   "l-divide":{ja: "見開きで自動分割する", en: "auto divide page" },
-  "l-analyze":{ja:"解析する",en:"Analyze"},
+  "l-analyze":{ja:"この画像で検索する",en:"Search"},
   "l-news": { ja: "お知らせ", en: "News" },
   "dialog-yes": { ja: "はい", en: "Yes" },
   "dialog-no": { ja: "いいえ", en: "No" },
@@ -688,13 +689,17 @@ const globalLangResource = {
     ja: "非写真",
     en: "not Photo"
   },
+  "tag-picture":{
+    ja: "写真",
+    en: "Photo"
+  },
   "tag-graphic_illust":{
     ja: "イラスト",
     en: "Graphic"
   },
-  "tag-picture":{
-    ja: "写真",
-    en: "Photo"
+  "tag-graphic_illustcolor":{
+    ja: "カラーイラスト",
+    en: "Graphic color"
   },
   "tag-graphic_graph":{
     ja: "グラフ",
@@ -703,10 +708,6 @@ const globalLangResource = {
   "tag-graphic_map":{
     ja: "地図",
     en: "Map"
-  },
-  "tag-graphic_illustcolor":{
-    ja: "カラーイラスト",
-    en: "Graphic color"
   },
   "tag-picture_indoor":{
     ja: "屋内写真",

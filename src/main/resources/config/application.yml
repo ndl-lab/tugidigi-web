@@ -1,0 +1,30 @@
+es:
+  endPoint: localhost:9200
+valdEndPoint: vald-lb-gateway.jisedigi-vald-prod:8081
+DLEndPoint: https://lab.ndl.go.jp/dl/api/imagefeatures
+whiteshell: /work/
+featureLen: 512
+
+server:
+  port: 19998
+  servlet:
+    contextPath: /dl/
+  max-http-header-size : 80000
+  compression:
+    enabled: true
+    mime-types: application/json,text/html
+spring:
+  http:
+    encoding:
+      enable: false
+  servlet:
+    multipart:
+        max-file-size: 2000MB
+        max-request-size: 2001MB
+  main:
+    banner-mode: "off"
+management:
+    add-application-context-header: false
+
+  
+   

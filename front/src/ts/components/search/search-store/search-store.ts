@@ -254,6 +254,7 @@ export default class SearchStore<T> {
     this.facet = q.facet || {};
     this.filter = q.filter || {};
     this.exists = q.exists || [];
+    this.range = q.range||{};
     this.keywordType = q.keywordOR ? "OR" : "AND";
     this.syncQuery();
     return q;

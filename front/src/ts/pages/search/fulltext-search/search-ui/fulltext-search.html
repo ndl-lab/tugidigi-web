@@ -5,34 +5,68 @@
         <a class="title">{{$l2('全文から検索する', 'Keyword fulltext search')}}</a>
       </p>
     </nav>
-        <p class="guide" :class="keyword?'is-invisible':''">
-          {{
-            $l2(
-              "キーワードを入れて下さい。本文にキーワードを含む資料を検索します。",
-              "Input keywords for full-text search"
-            )
-          }}
-        </p>
-        <form class="text-search-form" @submit.prevent="keywordSearch()">
-          <div class="field has-addons">
-            <div class="control is-expanded">
-              <input
-                v-model="keyword"
-                class="input"
-                v-on:keyup.prevent.esc="keyword=null"
-                type="text"
-              />
-            </div>
-            <div class="control">
-              <button class="button search-button is-primary">
-                <b-icon icon="magnify"></b-icon>
-              </button>
-              <label>
-                <input type="checkbox" v-model="fulltextflag" />
-                {{ $l2("本文のみを検索する", "Searching for the body only") }}
-              </label>
-            </div>
+    <p class="guide" :class="keyword?'is-invisible':''">
+      {{
+        $l2(
+          "2文字以上のキーワードを入れて下さい。目次と本文にキーワードを含む資料を検索します。（注意）1文字のキーワードでは検索できません。",
+          "Enter a keyword of at least two characters. It will search for materials that contain the keyword in the text or table of contents."
+        )
+      }}
+    </p>
+    <form class="text-search-form" @submit.prevent="keywordSearch()">
+      <div class="field has-addons">
+        <div class="control is-expanded">
+          <input
+            v-model="keyword"
+            class="input"
+            v-on:keyup.prevent.esc="keyword=null"
+            type="text"
+          />
+        </div>
+        <div class="control">
+          <button class="button search-button is-primary">
+            <b-icon icon="magnify"></b-icon>
+          </button>
+          <label>
+            <input type="checkbox" v-model="fulltextflag" />
+            {{ $l2("本文のみを検索する", "Searching for the body only") }}
+          </label>
+        </div>
+      </div>
+      <!--label>
+        <input type="checkbox" v-model="withouthighlightflag" />
+        {{ $l2("スニペット表示をしない（ヒット件数が増える可能性があります）", "No snippet display (may increase search results)") }}
+      </label-->
+    </form>
+    <div class="text-search-form field has-addons">
+      <b-collapse :open="filteropen" aria-id="metasearch">
+        <template #trigger>
+            <b-button type="is-secondary" aria-controls="metasearch" size="is-small">
+              {{ $l2("書誌情報で絞り込む", "Filter by bibliographic information") }}
+            </b-button>
+        </template>
+        <div class="filterform">
+          <b-field vertical>
+            {{ $l2("タイトル", "Title") }}
+            <b-input v-model="title"></b-input>
+          </b-field>
+          <b-field vertical>
+            {{ $l2("著者", "Author") }}
+            <b-input v-model="author"></b-input>
+          </b-field>
+          <b-field vertical>
+            {{ $l2("刊行年(範囲で指定)", "Publication year(Range)") }}
+            <b-field horizontal>
+              <b-input v-model="since" placeholder="Number" pattern="[0-9]*"></b-input>
+              <b-input v-model="until" placeholder="Number" pattern="[0-9]*"></b-input>
+            </b-field>
+          </b-field>
+          <div class="filterbutton">
+            <b-button class="is-primary" @click="filterSearch()">{{ $l2("絞込検索", "Filter Search") }}</b-button>
           </div>
-        </form>
+        </div>
+      </b-collapse>
+    </div>
   </div>
+  <fulltext-results></fulltext-results>
 </div>

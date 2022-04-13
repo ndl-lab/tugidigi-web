@@ -14,17 +14,17 @@
       </button>
     </div>
     <div v-else>
-      <button class="button is-small iiif-next leftbutton" @click="next()" v-shortkey="['arrowleft']" @shortkey="next()">
-        <b-icon icon="chevron-left" size="is-large"></b-icon>
-        <b-icon icon="chevron-left" size="is-large"></b-icon>
-      </button>
+        <button class="button is-small iiif-next leftbutton" @click="next()" v-shortkey="['arrowleft']" @shortkey="next()">
+          <b-icon icon="chevron-left" size="is-large"></b-icon>
+          <b-icon icon="chevron-left" size="is-large"></b-icon>
+        </button>
       <div class="viewer-contrast" :class="{'blackwhite':bwflag}">
         <div class="viewer" ref="leaflet"></div>
       </div>
-      <button class="button is-small iiif-next rightbutton" @click="previous()" v-shortkey="['arrowright']" @shortkey="previous()">
-        <b-icon icon="chevron-right" size="is-large"></b-icon>
-        <b-icon icon="chevron-right" size="is-large"></b-icon>
-      </button>
+        <button class="button is-small iiif-next rightbutton" @click="previous()" v-shortkey="['arrowright']" @shortkey="previous()">
+          <b-icon icon="chevron-right" size="is-large"></b-icon>
+          <b-icon icon="chevron-right" size="is-large"></b-icon>
+        </button>
     </div>
     <div class="iiif-control-zoom buttons has-addons">
         
@@ -148,7 +148,6 @@
         <b-icon icon="download"></b-icon>
         <span class="is-hidden-mobile">{{ $l("l-whiten") }}</span>
       </button>
-      
     </div>
     
     <nav class="panel">
@@ -190,6 +189,12 @@
         </filter>
       </svg>
     </nav>
+    <div class="iiif-control-download buttons has-addons">
+      <a class="button is-small" :href="fulltextLink">
+        <b-icon icon="download"></b-icon>
+        <span class="is-hidden-mobile">{{ $l("l-fulltextdownload") }}</span>
+      </a>
+    </div>
   </div>
 
   <b-modal :active.sync="isModalActive">

@@ -10,7 +10,7 @@ module.exports = merge(common, {
   },
   devServer: {
     contentBase: __dirname + "/public",
-	inline: true,
+    inline: false,
     hot: true,
     host: "0.0.0.0",
     disableHostCheck: true,

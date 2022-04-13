@@ -19,6 +19,14 @@ export function searchBook(
   );
 }
 
+export function searchNgramBook(
+  q: SearchQuery
+): Axios.AxiosPromise<SearchResult<Book>> {
+  return Axios.default.get<SearchResult<Book>>(
+    BASE_URL + "ngram-search" + toSearchQueryString(q)
+  );
+}
+
 export function searchmetaBook(
   q: SearchQuery
 ): Axios.AxiosPromise<SearchResult<Book>> {
@@ -26,3 +34,4 @@ export function searchmetaBook(
     BASE_URL + "search?searchfield=metaonly&" + toSearchQueryString(q)
   );
 }
+

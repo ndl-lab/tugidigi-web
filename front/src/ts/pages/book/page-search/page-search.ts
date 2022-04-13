@@ -6,7 +6,7 @@ import { searchPage } from "service/page-service";
 import Vue from "vue";
 import Component from "vue-class-component";
 import "./page-search.scss";
-import { Prop } from "vue-property-decorator";
+import { Watch, Prop } from "vue-property-decorator";
 import { Book } from "domain/book";
 
 @Component({
@@ -36,11 +36,16 @@ export default class PageSearch extends Vue {
     if (this.keywords) this.keyword = this.keywords.join(" ");
     this.keywordSearch();
   }
-
   keywordSearch() {
     if (this.keyword) {
       this.ss.query = { contents: this.keyword.split(/[\s　]+/) };
+      var query = Object.assign({}, this.$route.query);
       this.ss.execute();
+      if (query["keyword"]!=this.keyword) {
+        query["keyword"]=this.keyword;
+        this.$router.replace({ query: query});
+        this.$router.go(0);
+      }     
     }
   }
 }

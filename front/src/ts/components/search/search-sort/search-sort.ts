@@ -50,6 +50,6 @@ export default class SearchSort extends Vue {
 const localLangResource = {
   "label-sort": { ja: "並び替え", en: "Sort" },
   "l-sort-default": { ja: "類似度順", en: "Score" },
-  "l-sort-confidence": { ja: "ラベルの確信度順", en: "Label Confidence" }
+  "l-sort-confidence": { ja: "ラベルの確信度順", en: "Label Relevance" }
 };
 //Lang Resource End

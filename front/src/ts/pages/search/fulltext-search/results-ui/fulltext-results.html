@@ -1,6 +1,4 @@
 <div class="search">
-  <fulltext-search :keyword="keyword" :fulltextflag="fulltextflag" @keyword-search="keywordSearch($event)" v-if="keyword"></fulltext-search>
-  
   <div class="section item-search-result" v-if="ss.result">
     <div class="container">
       <template v-if="ss.result.hit==0">
@@ -11,37 +9,37 @@
         </div>
       </template>
       <template v-else>
-        <nav class="search-nav level">
-          <div class="level-left">
+        <div class="level-left">
             <!-- ヒット件数 -->
-            <div class="level-item is-size-7-touch">
-              {{ $lt("l-num-found", $num(ss.result.hit)) }}
-            </div>
-            <search-pagination :ss="ss"></search-pagination>
+            <b-collapse :open="false" aria-id="ngramview" @open="ngramsearch()">
+              <template #trigger>
+                <div v-if="ss.result.hit!=10000" class="level-item is-size-7-touch">
+                  {{ $lt("l-num-found", $num(ss.result.hit)) }}
+                </div>
+                <div v-else class="level-item is-size-7-touch">
+                  {{ $lt("l-num-found", "10,000+",) }}
+                </div>
+              </template>
+              <div>
+                <b-field vertical>
+                  <ngram-viewer :ss="ssngram"></ngram-viewer>
+                </b-field>
+              </div>
+            </b-collapse>
+            
           </div>
+        <nav class="search-nav level level-right">
           <div class="level-right">
+            <search-pagination :ss="ss" ></search-pagination>
             {{ $l2("表示件数", "Number of records shown") }}
             <div class="search-pagesize-listbox">
               <search-pagesize :ss="ss"></search-pagesize>
             </div>
-            <b-switch class="img-toggle" v-model="imageOnly">
-              {{ $l2("図表だけ表示", "Show illustrations only") }}
-            </b-switch>
+            {{ $l2("ソート", "Sort") }}
+            <search-sort-fulltext :ss="ss"></search-sort-fulltext>
           </div>
         </nav>
         <div class="columns">
-          <!-- ファセット -->
-          <div class="column is-3 left-side is-open-facet" v-if="showFacet">
-            <div class="facets">
-              <div>{{ $l("l-facet") }}</div>
-              <search-facet
-                v-for="facet in ss.result.facets"
-                :facet="facet"
-                :key="facet.key"
-                :ss="ss"
-              ></search-facet>
-            </div>
-          </div>
           <!-- 検索結果 -->
           <div
             class="column search-result-body"

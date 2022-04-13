@@ -3,7 +3,6 @@ import Footer from "components/footer/footer";
 import Header from "components/header/header";
 import Book from "pages/book/book";
 //import SearchPage from "pages/search/search";
-import SearchPage from "pages/search/search";
 import Top from "pages/top/top";
 import FulltextSearch from "pages/search/fulltext-search/search-ui/fulltext-search";
 import IllustSearch from "pages/search/illust-search/search-ui/illust-search";
@@ -44,7 +43,11 @@ let router: VueRouter = new VueRouter({
   base: "/dl/",
   scrollBehavior: (to, from, savedPosition: { x: number; y: number }) => {
     if (savedPosition) {
-      return savedPosition;
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(savedPosition)
+        })
+      });
     } else {
       // new navigation.
       let position = { x: undefined, y: undefined, selector: undefined };
@@ -64,9 +67,9 @@ let router: VueRouter = new VueRouter({
     { path: "/", name: "top", component: Top, meta: { scrollToTop: true } },
     { path: "/fulltext", name: "fulltextsearch", component: FulltextSearch, meta: { scrollToTop: true } },
     { path: "/illust", name: "illustsearch", component: IllustSearch, meta: { scrollToTop: true } },
-    { path: "/fulltext/search", name: "fulltextsearchres", component: FullTextSearchResultsPage },
+//    { path: "/fulltext/search", name: "fulltextsearchres", component: FullTextSearchResultsPage },
     { path: "/illust/search", name: "illustsearchres", component: IllustSearchResultsPage },
-    { path: "/search", name: "search", component: SearchPage },
+    //{ path: "/search", name: "search", component: SearchPage },
     { path: "/book/:id", name: "book", component: Book },
     { path: "*", redirect: { name: "top" } }
   ]

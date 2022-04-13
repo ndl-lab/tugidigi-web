@@ -36,9 +36,12 @@ export default class BookView extends Vue {
   async mounted() {
     this.viwer.setManifest(
       `https://www.dl.ndl.go.jp/api/iiif/${this.id}/manifest.json`,
-      this.page
+      this.page,this.keywords
     );
     this.b = await getBook(this.id);
+    if(this.$route.query["keyword"]!=null){
+      this.activeTab=2;
+    }
   }
 
   get viwer(): IiifViewer {

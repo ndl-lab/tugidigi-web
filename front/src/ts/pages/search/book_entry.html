@@ -8,16 +8,14 @@
     <div class="content">
       <p>
         <strong>
-          <router-link
-            :to='{ name: "book", params:{id:book.id }, query:{keyword:keywords}}'
-          >
+          <a :href="$router.resolve({name:'book', params:{id:book.id}, query:{keyword:keywords}}).href">
             {{ book.title }} {{ book.volume }}
-          </router-link>
+          </a>
         </strong>
         <br />
         <small
           >{{ book.responsibility }}{{ book.publisher }}
-          {{ book.published }}</small
+          <span v-if="book.publishyear!=0">{{ book.publishyear }}</span></small
         ><br />
       </p>
     </div>

@@ -18,9 +18,12 @@
                 <p class="menu-label">
                   {{ $l2("出版年", "Published") }}
                 </p>
-                <ul class="menu-list">
-                  <li>{{ b.published }}</li>
+                <ul class="menu-list" v-if="b.publishyear!=0">
+                  <li>{{ b.publishyear }}</li>
                 </ul>
+                <!--ul class="menu-list">
+                  <li>{{ b.published }}</li>
+                </ul-->
                 <p class="menu-label">
                   {{ $l2("出版者", "Publisher") }}
                 </p>

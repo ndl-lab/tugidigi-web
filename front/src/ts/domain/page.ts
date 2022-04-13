@@ -8,4 +8,5 @@ export class Page {
   rectY: number;
   rectW: number;
   rectH: number;
+  coordjson: string;
 }

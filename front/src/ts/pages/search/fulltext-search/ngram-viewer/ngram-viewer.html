@@ -1,0 +1,6 @@
+<div class="ngramviewer">
+  <div class="contents">
+    <b-button @click="clickbutton">出版年代の分布を見る</b-button>
+    <line-chart v-if="dataload" :chart-data="datacollection"></line-chart>
+  </div>
+</div>

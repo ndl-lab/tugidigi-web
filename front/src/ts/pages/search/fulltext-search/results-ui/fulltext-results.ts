@@ -1,10 +1,11 @@
 import SearchPagesize from "components/search/search-pagesize/search-pagesize";
 import SearchPagination from "components/search/search-pagination/search-pagination";
-import SearchSort from "components/search/search-sort/search-sort";
+import SearchSortFulltext from "components/search/search-sort/search-sort-fulltext";
 import SearchStore from "components/search/search-store/search-store";
+import NgramViewer from "pages/search/fulltext-search/ngram-viewer/ngram-viewer";
 import { Book } from "domain/book";
 import { Illustration } from "domain/illustration";
-import { searchBook} from "service/book-service";
+import { searchBook,searchNgramBook} from "service/book-service";
 import {
   getIllustrationsByBook,
   getIllustration,
@@ -14,9 +15,6 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import BookEntry from "../../book_entry";
 import IllustImage from "../../illust-image/illust-image";
-//import SearchControl from "./search-control/search-control";
-import FulltextSearch from "pages/search/fulltext-search/search-ui/fulltext-search";
-import IllustSearch from "pages/search/illust-search/search-ui/illust-search";
 import "./fulltext-results.scss";
 
 var VueScrollTo = require("vue-scrollto");
@@ -24,17 +22,17 @@ var VueScrollTo = require("vue-scrollto");
 @Component({
   template: require("./fulltext-results.html"),
   components: {
-    FulltextSearch,
-    IllustSearch,
     BookEntry,
     IllustImage,
     SearchPagination,
     SearchPagesize,
-    SearchSort
+    SearchSortFulltext,
+    NgramViewer
   }
 })
 export default class FullTextSearchResultsPage extends Vue {
   ss: SearchStore<Book> = null;
+  ssngram: SearchStore<Book> = null;
   
   activeTab: number = 0;
   showFacet: boolean = false;
@@ -51,6 +49,7 @@ export default class FullTextSearchResultsPage extends Vue {
 
   beforeMount() {
     this.ss = new SearchStore(searchBook, true);
+    this.ssngram = new SearchStore(searchNgramBook, true);
     this.ss.addAfterSearchListener(result => {
       result.list.forEach(async book => {
         if (book.illustrations) {
@@ -86,7 +85,9 @@ export default class FullTextSearchResultsPage extends Vue {
     this.ss.result.list.forEach(b => i.push(...b.illusts));
     return i;
   }
-
+  async ngramsearch(){
+    this.ssngram.restoreQuery();  
+  }
   async mounted() {
     this.ss.restoreQuery();
     if (this.ss.image && this.ss.image.length > 0) {
@@ -99,13 +100,5 @@ export default class FullTextSearchResultsPage extends Vue {
     this.ss.image = [i.id];
     this.ss.execute();
     this.qillust = i;
-  }
-
-  keywordSearch(keywords: string[],searchfield:string) {
-    console.log(keywords);
-    this.ss.image = [];
-    this.ss.keywords = keywords;
-    this.ss.searchfield = [searchfield];
-    this.ss.execute();
   }
 }
