@@ -2,7 +2,7 @@
 
 ## back
 
-Backend of Next Generation Digital Library is spring-boot-based Single Jar Application.
+Backend of Next Digital Library is spring-boot-based Single Jar Application.
 
 ### required
 
