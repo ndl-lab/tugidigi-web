@@ -1,4 +1,4 @@
-# Next Generation Digital Library
+# Next Digital Library
 
 ## back
 
@@ -43,7 +43,7 @@ API is running on [http://localhost:19998/dl/](http://localhost:19998/dl/) by de
 
 ## build front only (for developer)
 
-Frontend of Next Generation Digital Library is SPA powered by vue & vue-router.
+Frontend of Next Digital Library is SPA powered by vue & vue-router.
 
 ### required
 
