@@ -1,18 +1,10 @@
-// Vue とかより先に読み込む必要がある
-import Component from "vue-class-component";
-Component.registerHooks([
-  'metaInfo'
-])
-
 import SearchPagesize from "components/search/search-pagesize/search-pagesize";
 import SearchPagination from "components/search/search-pagination/search-pagination";
 import SearchSortFulltext from "components/search/search-sort/search-sort-fulltext";
-import SearchFacet from "components/search/search-facet/search-facet";
 import SearchStore from "components/search/search-store/search-store";
 import NgramViewer from "pages/search/fulltext-search/ngram-viewer/ngram-viewer";
 import { Book } from "domain/book";
 import { Illustration } from "domain/illustration";
-import { Prop } from "vue-property-decorator";
 import { searchBook,searchNgramBook} from "service/book-service";
 import {
   getIllustrationsByBook,
@@ -20,10 +12,10 @@ import {
   getIllustrations
 } from "service/illust-service";
 import Vue from "vue";
+import Component from "vue-class-component";
 import BookEntry from "../../book_entry";
 import IllustImage from "../../illust-image/illust-image";
 import "./fulltext-results.scss";
-import { generateTitle } from "utils/url";
 
 var VueScrollTo = require("vue-scrollto");
 
@@ -35,8 +27,7 @@ var VueScrollTo = require("vue-scrollto");
     SearchPagination,
     SearchPagesize,
     SearchSortFulltext,
-    NgramViewer,
-    SearchFacet
+    NgramViewer
   }
 })
 export default class FullTextSearchResultsPage extends Vue {
@@ -47,8 +38,7 @@ export default class FullTextSearchResultsPage extends Vue {
   showFacet: boolean = false;
   imageOnly: boolean = false;
   imageSelect: string = null;
-  @Prop()
-  withoutimgflag:boolean;
+
   show(i: Illustration) {
     this.$router.push({
       name: "book",
@@ -61,7 +51,7 @@ export default class FullTextSearchResultsPage extends Vue {
     this.ss = new SearchStore(searchBook, true);
     this.ssngram = new SearchStore(searchNgramBook, true);
     this.ss.addAfterSearchListener(result => {
-      if(!this.withoutimgflag)result.list.forEach(async book => {
+      result.list.forEach(async book => {
         if (book.illustrations) {
           this.$set(
             book,
@@ -100,7 +90,7 @@ export default class FullTextSearchResultsPage extends Vue {
   }
   async mounted() {
     this.ss.restoreQuery();
-    if (this.ss.image && this.ss.image.length > 0&&!this.withoutimgflag) {
+    if (this.ss.image && this.ss.image.length > 0) {
       this.qillust = (await getIllustration(this.ss.image[0])).data;
     }
   }
@@ -110,16 +100,5 @@ export default class FullTextSearchResultsPage extends Vue {
     this.ss.image = [i.id];
     this.ss.execute();
     this.qillust = i;
-  }
-
-  metaInfo() {
-    return this.ss.keywords.length !== 0 ? {
-      title: generateTitle({
-        subTitle: this.$l2(
-          `「${this.ss.keywords.join(" ")}」の検索結果` ,
-          `Result for "${this.ss.keywords.join(" ")}"`
-        )
-      })
-    } : {}
   }
 }

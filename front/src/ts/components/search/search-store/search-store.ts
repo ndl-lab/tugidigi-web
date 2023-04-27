@@ -46,8 +46,6 @@ export default class SearchStore<T> {
 
   query: { [key: string]: string[] } = {};
   image: string[] = [];
-  imageurl: string="";
-  keyword2vec: string="";
   range: { [key: string]: Range[] } = {};
   geoDistance: {
     [key: string]: GeoDistance[];
@@ -67,8 +65,6 @@ export default class SearchStore<T> {
     this.searchfield=[];
     this.query = {};
     this.image = [];
-    this.imageurl ="";
-    this.keyword2vec="";
     this.range = {};
     this.geoDistance = {};
     this.filter = {};
@@ -175,7 +171,6 @@ export default class SearchStore<T> {
     let q: SearchQuery = new SearchQuery();
     if (this.from != null) q.from = this.from;
     if (this.size != null) q.size = this.size;
-    
     if (!isEmpty(this.sort)) q.sort = this.sort;
     if (this.permission != null) q.permission = this.permission;
     if (this.keywordType === "OR") q.keywordOR = true;
@@ -186,8 +181,6 @@ export default class SearchStore<T> {
     if (!isEmpty(this.range)) q.range = clone(this.range);
     if (!isEmpty(this.facet)) q.facet = clone(this.facet);
     if (!isEmpty(this.image)) q.image = clone(this.image);
-    if (this.imageurl!=null)q.imageurl=this.imageurl;
-    if (this.keyword2vec!=null)q.keyword2vec=this.keyword2vec;
     if (!isEmpty(this.filter)) q.filter = clone(this.filter);
     if (!isEmpty(this.exists)) q.exists = clone(this.exists);
     if (!isEmpty(this.geoDistance)) q.geoDistance = clone(this.geoDistance);
@@ -257,8 +250,6 @@ export default class SearchStore<T> {
     this.searchfield = q.searchfield || [];
     this.keywords = q.keyword || [];
     this.image = q.image || [];
-    this.imageurl = q.imageurl || "";
-    this.keyword2vec=q.keyword2vec || "";
     this.query = q.query || {};
     this.facet = q.facet || {};
     this.filter = q.filter || {};

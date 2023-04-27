@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import jp.go.ndl.lab.back.Application;
 import jp.go.ndl.lab.back.service.BookService;
-import jp.go.ndl.lab.back.service.CLIPTextService;
 import jp.go.ndl.lab.back.service.IllustService;
 import jp.go.ndl.lab.back.service.PageService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +22,6 @@ public class DeleteBookBatch extends AbstractBatch {
 
     @Autowired
     private IllustService is;
-    
 
     @Autowired
     private BookService bs;

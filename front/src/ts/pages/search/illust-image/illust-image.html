@@ -15,8 +15,7 @@
       <b-icon icon="magnify"></b-icon>
       <span>Search</span>
     </a-->
-    <!--router-link :to="{name:'illustsearchres',query: { image: i.id,'fc-graphictags.tagname':i.graphictags.map(function( value ) {return value.tagname;}) }}"-->
-    <router-link :to="{name:'illustsearchres',query: { image: i.id }}">
+    <router-link :to="{name:'illustsearchres',query: { image: i.id,'fc-graphictags.tagname':i.graphictags.map(function( value ) {return value.tagname;}) }}">
       <a @click.stop="search()">
         <b-icon icon="magnify"></b-icon>
         <span>Search</span>

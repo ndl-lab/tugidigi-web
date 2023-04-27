@@ -58,14 +58,14 @@ public class IndexIllustrationBatch extends AbstractBatch {
         //Set<String> ids = new HashSet<>();
     	HashMap<String, String>ids=new HashMap<String, String>();
     	
-        /*try {
+        try {
             bs.bookStore.scroll(QueryBuilders.matchAllQuery(), (book) -> {
                 //ids.add(book.id);
             	ids.put(book.id, book.title);
             });
         } catch (Exception ex) {
             log.error("", ex);
-        }*/
+        }
         
         log.info("book size {}", ids.size());
 
@@ -73,7 +73,6 @@ public class IndexIllustrationBatch extends AbstractBatch {
         File featureDir=new File(params[0]);
         Boolean bookupdateflag=(params.length >= 2)?Boolean.parseBoolean(params[1]):false;
         Boolean cleanindexflag=(params.length >= 3)?Boolean.parseBoolean(params[2]):false;
-        Boolean expmodeflag=(params.length >= 4)?Boolean.parseBoolean(params[3]):false;
         if(cleanindexflag) {
         	is.illustStore.deleteByQuery(QueryBuilders.matchAllQuery());
         }
@@ -94,8 +93,7 @@ public class IndexIllustrationBatch extends AbstractBatch {
 		            	String jsonstr;
 		                while ((jsonstr = br.readLine()) != null) {
 		                	JSONObject json = new JSONObject(jsonstr);
-		                    //if (ids.containsKey(pid)) {
-		                	if (true) {
+		                    if (ids.containsKey(pid)) {
 		                        Illustration ii = new Illustration();
 		                        String illustid=json.getString("id");
 		                        ii.pid = pid;
@@ -107,10 +105,6 @@ public class IndexIllustrationBatch extends AbstractBatch {
 		                        ii.h = json.getDouble("h");
 		                        double dfeatures[] = Arrays.stream(json.getString("feature").replaceAll("\\[|\\]", "").split(",")).mapToDouble(s -> Double.parseDouble(s)).toArray();
 		                        ii.feature=Floats.toArray(Doubles.asList(dfeatures));
-		                        if(expmodeflag) {
-		                        	double dfeatures_txt2vec[] = Arrays.stream(json.getString("feature_txtvec").replaceAll("\\[|\\]", "").split(",")).mapToDouble(s -> Double.parseDouble(s)).toArray();
-			                        ii.feature_txt2vec=Floats.toArray(Doubles.asList(dfeatures_txt2vec));
-		                        }
 		                        JSONArray graphictagArray=(JSONArray) json.get("graphictags");
 		                        for(int ai=0; ai < graphictagArray.length(); ai++) {
 		                        	String tag=graphictagArray.getJSONObject(ai).getString("tag");

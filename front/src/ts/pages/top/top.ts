@@ -1,16 +1,11 @@
-// Vue とかより先に読み込む必要がある
-import Component from "vue-class-component";
-Component.registerHooks([
-  'metaInfo'
-])
 import * as Config from "config";
 //import SearchControl from "pages/search/search-control/search-control";
 import FulltextSearch from "pages/search/fulltext-search/search-ui/fulltext-search";
 import IllustSearch from "pages/search/illust-search/search-ui/illust-search";
 import Vue from "vue";
+import Component from "vue-class-component";
 import "./top.scss";
 import { Illustration } from "domain/illustration";
-import { generateTitle } from "utils/url";
 
 @Component({
   components: {
@@ -21,11 +16,6 @@ import { generateTitle } from "utils/url";
 })
 export default class Top extends Vue {
   serviceName: string = Config.SERVICE_NAME;
-  metaInfo() {
-    return {
-      title: generateTitle()
-    }
-  }
 
   /*beforeMount() {}
   imageSearch(i: Illustration) {

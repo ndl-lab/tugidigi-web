@@ -1,6 +1,5 @@
 {
     "settings": {
-        "index.codec":"best_compression",
         "analysis": {
             "analyzer": {
                 "ngram_analyzer": {
@@ -19,8 +18,7 @@
                     "max_gram": 2,
                     "token_chars": [
                         "letter",
-                        "digit",
-			"symbol"
+                        "digit"
                     ]
                 }
             },
@@ -5806,30 +5804,6 @@
                 "contents": {
                     "type": "text",
                     "analyzer": "ngram_analyzer"
-                },
-                "divide":{
-                    "type": "float",
-                    "index": false
-                },
-                "rectX":{
-                    "type": "float",
-                    "index": false
-                },
-                "rectY":{
-                    "type": "float",
-                    "index": false
-                },
-                "rectW":{
-                    "type": "float",
-                    "index": false
-                },
-                "rectH":{
-                    "type": "float",
-                    "index": false
-                },
-                "coordjson": {
-                    "type": "object",
-                    "enabled": false
                 }
             }
     }

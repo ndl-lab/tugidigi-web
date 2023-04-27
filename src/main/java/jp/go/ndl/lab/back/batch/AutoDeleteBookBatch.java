@@ -14,7 +14,6 @@ import jp.go.ndl.lab.back.Application;
 import jp.go.ndl.lab.back.service.BookService;
 import jp.go.ndl.lab.back.service.IllustService;
 import jp.go.ndl.lab.back.service.PageService;
-import jp.go.ndl.lab.common.utils.AccessIIIFEndpoints;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,17 +48,31 @@ public class AutoDeleteBookBatch extends AbstractBatch {
             log.error("", ex);
         }
         ids.forEach((pid, title) -> {
-        	AccessIIIFEndpoints ae=new AccessIIIFEndpoints();
-			if(!ae.PDMChecker(pid)) {
-				System.out.println("削除対象:"+title+":pid:"+pid);
-				try {
-			        bs.bookStore.delete(pid);
-			        ps.pageStore.deleteByQuery(QueryBuilders.termQuery("book", pid));
-			        is.illustStore.deleteByQuery(QueryBuilders.termQuery("pid", pid));
-			    } catch (Exception e) {
-			        log.error(pid, e);
-			    }
-			}
+        	HttpURLConnection  urlConn = null;
+        	try {
+        		String strUrl="https://www.dl.ndl.go.jp/api/iiif/"+pid+"/F0000001/full/full/0/default.jpg";
+        		URL url = new URL(strUrl);
+        		//コネクションを取得する
+        		urlConn = (HttpURLConnection) url.openConnection();
+        		int status = urlConn.getResponseCode();
+        		System.out.println(title+" HTTPステータス:" + status);
+        		if(status==404) {
+        			System.out.println("削除対象:"+title+":pid:"+pid);
+        			try {
+                        bs.bookStore.delete(pid);
+                        ps.pageStore.deleteByQuery(QueryBuilders.termQuery("book", pid));
+                        is.illustStore.deleteByQuery(QueryBuilders.termQuery("pid", pid));
+                    } catch (Exception e) {
+                        log.error(pid, e);
+                    }
+        		}
+        	}catch (IOException e) {
+        		e.printStackTrace();
+        	} finally {
+				if (urlConn != null) {
+					urlConn.disconnect();
+				}
+        	}
         });
     }
 }
