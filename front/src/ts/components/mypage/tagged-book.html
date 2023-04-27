@@ -1,0 +1,141 @@
+<div class="tag-content">
+  <div class="search-result-body" v-if="isLocalStorageAvailable === false">
+    <p>
+      {{ $l2(
+      "このブラウザではタグ付け機能が使用できません。localstorage機能を有効にしてください",
+      "Tagging is unavailable on this browser. Please make sure 'localstorage'is enabled" ) }}
+    </p>
+  </div>
+  <template v-else>
+    <b-field :label="$l2('タグを管理する', 'Tag Management')">
+      <div class="tag-menu buttons">
+        <b-button type="is-success" outlined @click="changeCurrentTagName"
+          >{{ $l2( "選択中のタグの名称を変更する", "rename selected tag" )
+          }}</b-button
+        >
+        <b-button type="is-danger is-light" outlined @click="deleteCurrentTag"
+          >{{ $l2( "選択中のタグを削除する", "delete selected tag" ) }}</b-button
+        >
+        <b-button type="is-primary is-light" outlined @click="exportCurrentTag"
+          >{{ $l2( "エクスポートする", "export tag" )
+          }}</b-button
+        >
+        <b-button outlined @click="isImportModalActive = true"
+          >{{ $l2( "インポートする", "import tag" )
+          }}</b-button
+        >
+      </div>
+    </b-field>
+    <form class="text-search-form" @submit.prevent="searchBooksByKeyowrd()">
+      <b-field :label="$l2('選択したタグの資料を全文検索する（スニペット表示には対応していません）', 'Search among books tagged with (Snippet is not supported)')">
+        <div class="field has-addons">
+          <div class="control is-expanded">
+            <input
+              v-model="keywordBuffer"
+              class="input"
+              type="text"
+              placeholder="二文字以上で入力してください"
+            />
+          </div>
+          <div class="control">
+            <button class="button search-button is-primary" type="submit">
+              <b-icon icon="magnify"></b-icon>
+            </button>
+          </div>
+        </div>
+      </b-field>
+    </form>
+
+    <div class="tag-select">
+      <b-button
+        v-for="tagName in allTagNames"
+        :key="tagName"
+        :focused="tagName === currentTagName"
+        @click="changeCurrentTag(tagName)"
+        rounded
+        >{{ tagName }}</b-button
+      >
+    </div>
+
+    <div class="search-result-body" v-if="taggedBookIds.length === 0">
+      <p v-if="$state.lang === 'ja'">
+        <router-link to="/fulltext">こちらのページ</router-link>
+        から資料を検索できます
+      </p>
+      <p v-else>
+        search book from <router-link to="/fulltext">here</router-link>.
+      </p>
+    </div>
+    <div class="search-result-body" v-else-if="sortedBookList.length === 0">
+      <p v-if="$state.lang === 'ja'">
+        該当する資料がありませんでした
+      </p>
+      <p v-else>
+        No result found.
+      </p>
+    </div>
+    <div v-else class="columns search-result-body">
+      <div class="column is-12">
+        <book-entry
+          v-for="(b,index) in sortedBookList"
+          :book="b"
+          :key="b.id"
+          :keywords="ss.keywords"
+        ></book-entry>
+      </div>
+    </div>
+    <b-pagination
+      v-if="sortedBookList.length > 0"
+      :total="ss.result?.hit || 0"
+      :current="current"
+      :per-page="5"
+      @change="(v) => changePage(v)"
+    ></b-pagination>
+
+    <b-modal :active.sync="isExportModalActive">
+      <div class="card">
+        <div class="card-content">
+          <h1 :style="{ marginBottom: '12px', fontSize: '20px' }">
+            {{ $l2( "CSV 形式でエクスポート", "export via CSV" ) }}
+          </h1>
+          <p
+            :style="{
+              marginBottom: '12px'
+            }"
+          >
+            {{ $l2( "下記のデータをコピーすることで、インポートしたいブラウザのインポートボタンからこのタグに紐づいた資料の一覧をインポート可能です。",
+            "By copying the following data, you can import your tags to your new browser." ) }}
+          </p>
+          <p
+            :style="{
+              wordBreak: 'break-all',
+              border: '1px black solid',
+              padding: '8px'
+            }"
+            >{{ exportCSV }}</p
+          >
+        </div>
+      </div>
+    </b-modal>
+    <b-modal :active.sync="isImportModalActive">
+      <div class="card">
+        <div class="card-content">
+          <h1 :style="{ marginBottom: '12px', fontSize: '20px' }">
+            {{ $l2( "CSV 形式でインポート", "import via CSV" ) }}
+          </h1>
+          <b-field label="タグ名">
+            <b-input v-model="tagNameToImport" placeholder="お気に入り" type="text"></b-input>
+          </b-field>
+          <b-field label="タグデータ（CSV形式）">
+            <b-input v-model="dataToImport" placeholder="969145,969142,1879454,969144" type="textarea"></b-input>
+          </b-field>
+          <b-field>
+            <b-button type="is-primary is-light" outlined @click="importTag">
+              {{ $l2( "インポート", "import" )}}
+            </b-button>
+          </b-field>
+        </div>
+      </div>
+    </b-modal>
+  </template>
+</div>

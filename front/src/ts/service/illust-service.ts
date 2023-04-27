@@ -27,6 +27,10 @@ export function putImageFeature(feature: number[]): Axios.AxiosPromise<SearchRes
       return Axios.default.post<SearchResult<Illustration>>(BASE_URL + "searchbyfeature", feature);
 }
 
+export function putTextFeature(feature: number[]): Axios.AxiosPromise<SearchResult<Illustration>> {
+      return Axios.default.post<SearchResult<Illustration>>(BASE_URL + "searchbytxtfeature", feature);
+}
+
 export function getIllustration(id: string): Axios.AxiosPromise<Illustration> {
   return Axios.default.get<Illustration>(BASE_URL + "/" + id);
 }

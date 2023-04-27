@@ -86,11 +86,13 @@ public class EsSearchQuery {
     public Integer size;
     public String searchfield;
     public String withouthighlight;
+    public String keyword2vec;
 
     public List<String> keyword;
     public List<String> image;
     
     public float[] imagefeature;
+    public float[] imagefeature_txt2vec;
     public boolean keywordOR = false;
 
     public Map<String, List<String>> query;
@@ -148,11 +150,12 @@ public class EsSearchQuery {
         if (esq.size == 0) esq.size = 20;
         esq.sort = query.get("sort");
         esq.keyword = query.get("keyword");
+        esq.keyword2vec=query.getFirst("keyword2vec");
         esq.searchfield = query.getFirst("searchfield");
         esq.withouthighlight = query.getFirst("withouthighlight");
         esq.image = query.get("image");
         esq.exists = query.get("exists");
-
+        
         esq.keywordOR = getBoolean(query, "keywordOr");
 
         esq.range = new LinkedHashMap<>();

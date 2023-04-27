@@ -13,7 +13,7 @@
         )
       }}
     </p>
-    <form class="text-search-form" @submit.prevent="keywordSearch()">
+    <form class="text-search-form" @submit.prevent="search()">
       <div class="field has-addons">
         <div class="control is-expanded">
           <input
@@ -27,46 +27,134 @@
           <button class="button search-button is-primary">
             <b-icon icon="magnify"></b-icon>
           </button>
-          <label>
-            <input type="checkbox" v-model="fulltextflag" />
-            {{ $l2("本文のみを検索する", "Searching for the body only") }}
-          </label>
         </div>
       </div>
+      <label>
+        <input type="checkbox" v-model="fulltextflag" />
+        {{ $l2("本文のみを検索する", "Searching for the body only") }}
+      </label>
+      <label>
+        <input type="checkbox" v-model="withoutimgflag" />
+        {{ $l2("検索結果に図版を表示しない", "Do not display illustrations in search results") }}
+      </label>
       <!--label>
         <input type="checkbox" v-model="withouthighlightflag" />
         {{ $l2("スニペット表示をしない（ヒット件数が増える可能性があります）", "No snippet display (may increase search results)") }}
       </label-->
     </form>
-    <div class="text-search-form field has-addons">
-      <b-collapse :open="filteropen" aria-id="metasearch">
-        <template #trigger>
-            <b-button type="is-secondary" aria-controls="metasearch" size="is-small">
-              {{ $l2("書誌情報で絞り込む", "Filter by bibliographic information") }}
-            </b-button>
-        </template>
-        <div class="filterform">
-          <b-field vertical>
-            {{ $l2("タイトル", "Title") }}
-            <b-input v-model="title"></b-input>
-          </b-field>
-          <b-field vertical>
-            {{ $l2("著者", "Author") }}
-            <b-input v-model="author"></b-input>
-          </b-field>
-          <b-field vertical>
-            {{ $l2("刊行年(範囲で指定)", "Publication year(Range)") }}
-            <b-field horizontal>
-              <b-input v-model="since" placeholder="Number" pattern="[0-9]*"></b-input>
-              <b-input v-model="until" placeholder="Number" pattern="[0-9]*"></b-input>
-            </b-field>
-          </b-field>
-          <div class="filterbutton">
-            <b-button class="is-primary" @click="filterSearch()">{{ $l2("絞込検索", "Filter Search") }}</b-button>
+    <b-collapse :open="filteropen" class="filter-search" animation="none">
+      <template #trigger="props">
+        <b-field class="detail-search-button" :class="props.open ? 'detail-search-button-open' : 'detail-search-button-close'">
+          <b-icon :icon="props.open ? 'menu-down' : 'menu-up'"> </b-icon>
+          <p class="detail-search-button-text">
+            {{ $l2("詳細検索", "Advanced Search") }}
+          </p>
+      </b-field>
+    </template>
+
+    <div class="filter-search-form field has-addons">
+      <div class="filterform">
+        <b-field vertical>
+          {{ $l2("タイトル", "Title") }}
+          <b-input v-model="title"></b-input>
+        </b-field>
+        <b-field vertical>
+          {{ $l2("著者", "Author") }}
+          <b-input v-model="author"></b-input>
+        </b-field>
+        <b-field vertical>
+          {{ $l2("刊行年(範囲で指定)", "Publication year(Range)") }}
+          <div class="year-range">
+            <b-input v-model="since" placeholder="Number" pattern="[0-9]*"></b-input>
+            <div class="year-range-tilde">~</div>
+            <b-input v-model="until" placeholder="Number" pattern="[0-9]*"></b-input>
           </div>
+        </b-field>
+        <b-field vertical>
+          {{ $l2("古典籍", "Classical books") }}
+          <div>
+            <b-select v-model="isClassic">
+                <option value="" :selected="isClassic === ''"> - </option>
+                <option value="true" :selected="isClassic === 'true'"> {{ $l2('古典籍', 'classical books only') }} </option>
+                <option value="false" :selected="isClassic !== 'true' || isClassic === ''"> {{ $l2('図書', 'non-classical books') }} </option>
+            </b-select>
+          </div>
+      </b-field>
+        <p>{{ $l2("NDC", "NDC") }}</p>
+        <b-collapse 
+          class="card ndc-filter"
+          animation="slide"
+          :open="false"
+          @open="ndcOpenedItems.push(primaryItem.title + primaryItem.key)"
+          v-for="(primaryItem, index) in ndcData"
+          :key="primaryItem.title + primaryItem.key"
+          :aria-id="'contentIdForA11y5-' + index"
+        >
+          <template #trigger="primaryProps">
+            <div
+              class="card-header ndc-header"
+              :class="hasActiveChild(primaryItem.key, 'primary') && 'semi-active'"
+              role="button"
+              :aria-controls="'contentIdForA11y5-' + index"
+              :aria-expanded="primaryProps.open"
+            >
+              <div class="ndc-header-checkbox-wrapper">
+                <b-checkbox v-model="ndcPrimaryKeys" :native-value="primaryItem.key" @click.native="(event) => event.stopPropagation()">{{ $l2(primaryItem.title, primaryItem.titleEn) }}</b-checkbox>
+              </div>
+              <a class="card-header-icon">
+                <b-icon
+                    :icon="primaryProps.open ? 'menu-down' : 'menu-up'">
+                </b-icon>
+              </a>
+            </div>
+          </template>
+          <div class="card-content" v-if="ndcOpenedItems.includes(primaryItem.title + primaryItem.key)">
+            <div class="content">
+              <b-collapse 
+              class="card ndc-filter"
+              :open="false"
+              @open="ndcOpenedItems.push(primaryItem.title + secondaryItem.title + secondaryItem.key)"
+              animation="slide" 
+              v-for="(secondaryItem, index) in primaryItem.children"
+              :key="primaryItem.title + secondaryItem.title + secondaryItem.key"
+              :aria-id="'contentIdForA11y5-' + index"
+            >
+              <template #trigger="secondaryProps">
+                <div
+                  class="card-header ndc-header"
+                  :class="hasActiveChild(secondaryItem.key, 'secondary') && 'semi-active'"
+                  role="button"
+                  :aria-controls="'contentIdForA11y5-' + index"
+                  :aria-expanded="secondaryProps.open"
+                >
+                  <div class="ndc-header-checkbox-wrapper">
+                    <b-checkbox v-model="ndcSecondaryKeys" :native-value="secondaryItem.key" @click.native="(event) => event.stopPropagation()">{{$l2(secondaryItem.title, secondaryItem.titleEn) }}</b-checkbox>
+                  </div>
+                  <a class="card-header-icon">
+                    <b-icon
+                      :icon="secondaryProps.open ? 'menu-down' : 'menu-up'">
+                    </b-icon>
+                  </a>
+                </div>
+              </template>
+              <div class="card-content" v-if="ndcOpenedItems.includes(primaryItem.title + secondaryItem.title + secondaryItem.key)">
+                <div class="content">
+                  <b-field v-for="tertiaryItem in secondaryItem.children" :key="secondaryItem.title + tertiaryItem.title + tertiaryItem.key">
+                    <b-checkbox v-model="ndcTertiaryKeys" :native-value="tertiaryItem.key">{{$l2(tertiaryItem.title, tertiaryItem.titleEn) }}</b-checkbox>
+                  </b-field>
+                </div>
+              </div>
+            </b-collapse>
+    
+            </div>
+          </div>
+        </b-collapse>
+        <div class="filterbutton">
+          <b-button class="is-primary" @click="search()">{{ $l2("絞込検索", "Filter Search") }}</b-button>
         </div>
-      </b-collapse>
+      </div>
     </div>
+  </b-collapse>
   </div>
-  <fulltext-results></fulltext-results>
+  <fulltext-results :withoutimgflag="withoutimgflag"></fulltext-results>
 </div>

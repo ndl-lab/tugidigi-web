@@ -26,6 +26,14 @@
       top: 0%;
       right: 0%;
     }
+    .iiif-control-right-bottom {
+      opacity: 0.8;
+      z-index: 800;
+      position:absolute;
+      bottom: 10%;
+      right: 5%;
+      width: 300px;
+    }
   }
   .modal {
     z-index: 999;

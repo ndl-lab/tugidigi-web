@@ -8,6 +8,7 @@ import FulltextSearch from "pages/search/fulltext-search/search-ui/fulltext-sear
 import IllustSearch from "pages/search/illust-search/search-ui/illust-search";
 import FullTextSearchResultsPage from "pages/search/fulltext-search/results-ui/fulltext-results";
 import IllustSearchResultsPage from "pages/search/illust-search/results-ui/illust-results";
+import Mypage from "pages/mypage/mypage"
 import "swiper/dist/css/swiper.css";
 import "tslib";
 import Vue from "vue";
@@ -16,16 +17,26 @@ import VueMasonry from "vue-masonry-css";
 import VueRouter from "vue-router";
 import VueKonva from 'vue-konva';
 import VueShortkey from 'vue-shortkey';
+
+import VueClipboard from 'vue-clipboard2'
+import VueMeta from 'vue-meta'
+import VueHead from 'vue-head'
+
 import "./styles/main.scss";
+import * as Config from "config";
 
 require("utils/polyfills");
 
-if (process.env.NODE_ENV !== "production") {
+/*if (process.env.NODE_ENV !== "production") {
   Vue.config.devtools = true;
   Vue.config.performance = true;
-}
+}*/
+
 Vue.use(VueShortkey);
+Vue.use(VueClipboard)
 Vue.use(Buefy);
+Vue.use(VueHead);
+
 
 Vue.use(VueMasonry);
 
@@ -34,13 +45,14 @@ Vue.use(VueAwesomeSwiper);
 require("types");
 
 Vue.use(VueRouter);
+Vue.use(VueMeta)
 
 Vue.use(VueKonva);
 
 //
 let router: VueRouter = new VueRouter({
   mode: "history",
-  base: "/dl/",
+  base: Config.BASE_PATH,
   scrollBehavior: (to, from, savedPosition: { x: number; y: number }) => {
     if (savedPosition) {
       return new Promise((resolve, reject) => {
@@ -71,6 +83,7 @@ let router: VueRouter = new VueRouter({
     { path: "/illust/search", name: "illustsearchres", component: IllustSearchResultsPage },
     //{ path: "/search", name: "search", component: SearchPage },
     { path: "/book/:id", name: "book", component: Book },
+    { path: "/mypage", name: "mypage", component: Mypage },
     { path: "*", redirect: { name: "top" } }
   ]
 });

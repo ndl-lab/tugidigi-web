@@ -13,6 +13,7 @@ import jp.go.ndl.lab.back.service.IllustService;
 import jp.go.ndl.lab.back.service.ImageFeatureService;
 import jp.go.ndl.lab.back.service.VectorSearchService;
 import jp.go.ndl.lab.back.service.VectorSearchServiceValdImpl;
+import jp.go.ndl.lab.back.service.VectorSearchServiceValdTxtvecImpl;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -41,6 +42,9 @@ public class ImageFeatureFullIndexBatch extends AbstractBatch {
 
     @Autowired
     private VectorSearchServiceValdImpl vectorSearchService;
+    
+    @Autowired
+    private VectorSearchServiceValdTxtvecImpl vectorSearchServiceTxtvec;
 
     long count = 0;
     long skipcount=0;
@@ -49,13 +53,24 @@ public class ImageFeatureFullIndexBatch extends AbstractBatch {
         //checkParamLen(params, 3);
         int num = NumberUtils.toInt(params[0]);
         long wait = NumberUtils.toLong(params[1], 0);
-    	foolProof(params[2]);
+        Boolean addtxtvecflag=(params.length >= 3)?Boolean.parseBoolean(params[2]):false;
+        
         try (VectorSearchServiceValdImpl.VectorSearchIndexer indexer = vectorSearchService.getIndexer(wait)) {
         	is.illustStore.limitedscroll(QueryBuilders.matchAllQuery(), (imageFeature -> {
                 indexer.upsert(imageFeature.id, Floats.asList(imageFeature.feature));
             }),num);
         } catch (Exception e) {
             log.error("unknown", e);
+        }
+        log.error("indexing main vector  is done");
+        if(addtxtvecflag) {
+	        try (VectorSearchServiceValdTxtvecImpl.VectorSearchIndexer indexer = vectorSearchServiceTxtvec.getIndexer(wait)) {
+	        	is.illustStore.limitedscroll(QueryBuilders.matchAllQuery(), (imageFeature -> {
+	                indexer.upsert(imageFeature.id, Floats.asList(imageFeature.feature_txt2vec));
+	            }),num);
+	        } catch (Exception e) {
+	            log.error("unknown", e);
+	        }
         }
     }
 }
