@@ -26,8 +26,9 @@
           <b-icon icon="chevron-right" size="is-large"></b-icon>
         </button>
     </div>
-    <div class="iiif-control-zoom buttons has-addons"> 
-        <!--div v-show="modelLoadingFlag&!modelLoadedFlag">
+    <div class="iiif-control-zoom buttons has-addons">
+        
+        <div v-show="modelLoadingFlag&!modelLoadedFlag">
           <b-button class="button is-large iiif-autocrop" loading>
           </b-button>
         </div>
@@ -40,47 +41,19 @@
           <button class="button is-large iiif-autocrop" @click="loadModel()" >
             <span>AI</span><b-icon icon="crop"></b-icon>
           </button>
-        </div-->
-      <b-tooltip label="タグ" position="is-left">
-        <button v-show="!div" class="button is-large iiif-clip" @click="tagButtonHandler">
-          <b-icon icon="tag"></b-icon>
-        </button>
-      </b-tooltip>
-      <b-tooltip label="矩形ごとにテキスト表示（クリックでコピー）" position="is-left">
-        <button v-show="!div" class="button is-large iiif-clip" @click="changeTextDisplayMode()">
-          <b-icon icon="format-text" :type="{ 'is-danger': textDisplay }" ></b-icon>
-        </button>
-      </b-tooltip>
-      <b-tooltip label="縮小" position="is-left">
+        </div>
         <button class="button is-large iiif-remove" @click="map.zoomOut()">
           <b-icon icon="magnify-minus"></b-icon>
         </button>
-      </b-tooltip>
-      <b-tooltip label="初期位置に戻す" position="is-left">
         <button class="button is-large iiif-fit" @click="fitBounds()">
           <b-icon icon="arrow-collapse-all"></b-icon>
         </button>
-      </b-tooltip>
-      <b-tooltip label="拡大" position="is-left">
         <button class="button is-large iiif-zoom" @click="map.zoomIn()">
           <b-icon icon="magnify-plus"></b-icon>
         </button>
-      </b-tooltip>
-      <b-tooltip :label="full?'全画面表示終了':'全画面表示'" position="is-left">
         <button class="button is-large iiif-full" @click="changeFull()">
           <b-icon :icon="full?'fullscreen-exit':'fullscreen'"></b-icon>
         </button>
-      </b-tooltip>
-      <b-tooltip label="テキスト表示" position="is-left">
-        <button v-show="!div" class="button is-large iiif-clip" @click="changeCopyMode()">
-          <b-icon icon="clipboard-text" :type="{ 'is-danger': copy }" ></b-icon>
-        </button>
-      </b-tooltip>
-    </div>
-    <div class="iiif-control-right-bottom">
-      <b-field v-show="shouldIgnoreRuby && copy" label="ルビのサイズ">
-        <b-slider type="is-primary" v-model="rubySize" :step="10" :max="1000"></b-slider>
-      </b-field>
     </div>
   </div>
   <div class="iiif-control-group">
@@ -216,27 +189,12 @@
         </filter>
       </svg>
     </nav>
-      <div style="display:block;">
-        <a class="button is-small" :href="fulltextLink">
-          <b-icon icon="download"></b-icon>
-          <span class="is-hidden-mobile">{{ $l("l-fulltextdownload") }}</span>
-        </a>
-        <div>
-          <b-dropdown aria-role="list">
-              <template #trigger="{ active }">
-                  <b-button
-                      type="is-small"
-                  :icon-right="active ? 'menu-up' : 'menu-down'" >
-                  <b-icon icon="download"></b-icon>
-                    <span class="is-hidden-mobile">{{ $l("l-imagedownload") }}</span>
-                  </b-button>
-              </template>
-              <b-dropdown-item v-for="item of koma10array" aria-role="listitem">
-                <a :href="item.url" target="_blank">{{item.page+1}} page-</a>
-              </b-dropdown-item>
-          </b-dropdown>
-        </div>
-      </div>
+    <div class="iiif-control-download buttons has-addons">
+      <a class="button is-small" :href="fulltextLink">
+        <b-icon icon="download"></b-icon>
+        <span class="is-hidden-mobile">{{ $l("l-fulltextdownload") }}</span>
+      </a>
+    </div>
   </div>
 
   <b-modal :active.sync="isModalActive">
@@ -256,100 +214,6 @@
             {{ $l2("ダウンロード", "Start") }}
           </a>
         </div>
-      </div>
-    </article>
-  </b-modal>
-  <b-modal :active.sync="isCopyModalActive" @close="exitCopyMode">
-    <div class="card">
-      <div class="card-content">
-        <p v-html="textInSelectedArea"></p>
-        <div class="buttons">
-          <b-button @click="copySelectedText(textInSelectedArea)">コピー</b-button>
-          <b-button @click="initializeSelectMode">範囲選択</b-button>
-          <b-button type="is-danger" @click="exitCopyMode">閉じる</b-butto>
-        </div>
-        <b-field>
-          <b-switch v-model="shouldInsertSpace">矩形間に空白を挿入</b-swith>
-          <b-switch v-model="shouldIgnoreRuby">ルビを消す</b-swith>
-          <b-switch v-model="shouldDivideByCenter">見開きで区切る</b-swith>
-        </b-field>
-        <b-field>
-          <b-field v-show="shouldIgnoreRuby && copy" label="ルビのサイズ">
-            <b-slider type="is-primary" v-model="rubySize" :step="10" :max="1000"></b-slider>
-          </b-field>
-        </b-field>
-      </div>
-    </div>
-  </b-modal>
-  <b-modal :active.sync="isTaggingModalActive">
-    <article class="message" v-if="book">
-      <div class="message-header">
-        <p>{{ $l2("タグ選択", "Tag") }}</p>
-      </div>
-      <div class="message-body">
-        <section :style="{ marginBottom: '1rem' }">
-          <p>{{
-            $l2(
-              `「${book.title}」にタグを追加します。`,
-              `Attach tags to "${book.title}".`
-              )
-            }}
-          </p>
-        </section>
-        <section :style="{ marginBottom: '2rem' }">
-          <b-field>
-            <b-autocomplete
-              rounded
-              v-model="tagAddInput"
-              :data="filteredTagNameArray"
-              clearable
-              @select="option => selected = option"
-            >
-              <template #empty>No results found</template>
-            </b-autocomplete>
-            <b-button @click="tagAddHandler" type="is-primary">{{ $l2("追加", "Attach") }}</b-button>
-          </b-field>
-        </section>
-        <section :style="{ marginBottom: '2rem' }">
-          <b-field grouped group-multiline>
-            <div
-              v-for="tagName in attachedTagNames"
-              :key="tagName"
-              class="control"
-              @click="tagClickedHandler(tagName)"
-            >
-              <b-tag type="is-success"
-                size="is-medium"
-                attached
-                aria-close-label="Close tag"
-                :style="{ cursor: 'pointer' }"
-                :closable="attachedTagNames.includes(tagName)"
-                >
-                {{ tagName }}
-              </b-tag>
-            </div>
-          </b-field>
-        </section>
-        <section>
-          <b-field grouped group-multiline>
-            <div
-              v-for="tagName in unattacedTags"
-              :key="tagName"
-              class="control"
-              @click="tagClickedHandler(tagName)"
-            >
-              <b-tag type="is-dark" 
-                size="is-medium"
-                attached
-                aria-close-label="Close tag"
-                :style="{ cursor: 'pointer' }"
-                :closable="attachedTagNames.includes(tagName)"
-                >
-                {{ tagName }}
-              </b-tag>
-            </div>
-          </b-field>
-        </section>
       </div>
     </article>
   </b-modal>

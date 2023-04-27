@@ -7,7 +7,7 @@
     </nav>
       
     <b-tabs v-model="activeTab" expanded>
-      <b-tab-item :label="$l2('サンプル画像から', 'By sample')" icon="image" @click="tabchange(0)">
+      <b-tab-item :label="$l2('サンプル画像から', 'Illustration search from sample')" icon="image" @click="tabchange(0)">
         <p class="guide" :class="qillust?'is-invisible':''">
           {{
             $l2(
@@ -50,7 +50,7 @@
         </div>
       </b-tab-item>
 
-      <b-tab-item :label="$l2('資料のタイトルや目次から', 'By metadata')" icon="image" @click="tabchange(1)">
+      <b-tab-item :label="$l2('資料のタイトルや目次から', 'Illustration search from the metadata')" icon="image" @click="tabchange(1)">
         <p class="guide" :class="qillust?'is-invisible':''">
           {{
             $l2(
@@ -85,7 +85,7 @@
           </div>
         </form>
       </b-tab-item>
-      <b-tab-item :label="$l2('手元の画像から', 'By local image')" icon="image" @click="tabchange(2)">
+      <b-tab-item :label="$l2('手元の画像から', 'Illustration search from local image')" icon="image" @click="tabchange(2)">
         <section class="upload-modal-content">
           <!--div class="model-loading" v-if="loadingModel">
             <p>{{ $l("m-loading-model") }}</p>
@@ -143,91 +143,6 @@
         <b-modal :active.sync="isRectModalActive">
           <rect-editor ref="recteditor" @close="cropSearch"></rect-editor>
         </b-modal>
-      </b-tab-item>
-      <b-tab-item :label="$l2('URLから', 'By URL')" icon="image" @click="tabchange(3)">
-        <p class="guide">
-          {{
-            $l2(
-              "探したい画像のURLを入力してください。",
-              "Enter the URL of the image to find."
-            )
-          }}
-        </p>
-        <form class="url-search-form" @submit.prevent="urlSearch()">
-          <div class="field has-addons">
-            <div class="control is-expanded">
-              <input
-                v-model="targeturl"
-                class="input"
-                v-on:keyup.prevent.esc="targeturl=null"
-                type="url"
-              />
-            </div>
-            <div class="control">
-              <button class="button search-button is-primary">
-                <b-icon icon="magnify"></b-icon>
-              </button>
-            </div>
-          </div>
-        </form>
-        <masonry
-          class="masonry"
-          :cols="{default: 5, 1000: 4, 700: 3, 400: 2}"
-          :gutter="{default: '30px', 700: '15px'}">
-          <illust-image
-            v-for="(i, index) in illustURLresarray"
-            @click="show(i)"
-            @search="imageSearch"
-            :width="150"
-            :key="index"
-            :i="i"></illust-image>
-        </masonry>
-        <div class="has-text-centered" v-if="urlSearchErrorMessage !== ''">
-          {{urlSearchErrorMessage}}
-        </div>
-      </b-tab-item>
-      <b-tab-item :label="$l2('単語や文章から', 'By words')" icon="image" @click="tabchange(4)">
-        <p class="guide">
-          {{
-            $l2(
-              "探したい画像をイメージして単語や文章を入力してください。（例：「議事堂の建物」「二羽のウサギ」「夕焼けの描かれた絵葉書」）",
-              "Enter keywords with the image you want to find  (such as 'two rabbits','Peinture à la pomme','พระอาทิตย์ตก',...)"
-            )
-          }}
-          <br>
-          {{
-            $l2("","Try searching in your native language! (using machine translation)")
-          }}
-        </p>
-        <form class="url-search-form" @submit.prevent="freekeywordSearch()">
-          <div class="field has-addons">
-            <div class="control is-expanded">
-              <input
-                v-model="keyword2vec"
-                class="input"
-                v-on:keyup.prevent.esc="keyword2vec=null"
-                type="text"
-              />
-            </div>
-            <div class="control">
-              <button class="button search-button is-primary">
-                <b-icon icon="magnify"></b-icon>
-              </button>
-            </div>
-          </div>
-        </form>
-        <!--masonry
-          class="masonry"
-          :cols="{default: 5, 1000: 4, 700: 3, 400: 2}"
-          :gutter="{default: '30px', 700: '15px'}">
-          <illust-image
-            v-for="(i, index) in illustresarray"
-            @click="show(i)"
-            @search="imageSearch"
-            :width="150"
-            :key="index"
-            :i="i"></illust-image>
-        </masonry-->
       </b-tab-item>
       <!--b-tab-item :label="$l2('おえかきから', 'Illustration search from  your illustration')" icon="image" @click="tabchange(3)">
         <p class="guide">{{

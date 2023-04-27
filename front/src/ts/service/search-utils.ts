@@ -22,8 +22,6 @@ export class SearchQuery {
   query: { [key: string]: string[] };
   range: { [key: string]: Range[] };
   image: string[];
-  imageurl: string;
-  keyword2vec: string;
   geoDistance: { [key: string]: GeoDistance[] };
   exists: string[];
   filter: { [key: string]: string[] };
@@ -66,12 +64,6 @@ export function fromQueryString(query: string): SearchQuery {
   }
   if (map["image"]) {
     q.image = map["image"];
-  }
-  if (map["imageurl"]) {
-    q.imageurl = map["imageurl"][0];
-  }
-  if (map["keyword2vec"]) {
-    q.keyword2vec = map["keyword2vec"][0];
   }
 
   if (map["keywordOr"]) {
@@ -123,8 +115,6 @@ export function toSeqrchQueryUrlMap(sq: SearchQuery) {
   if (sq.sort) q["sort"] = filter(sq.sort);
   if (sq.keyword) q["keyword"] = filter(sq.keyword);
   if (sq.image) q["image"] = filter(sq.image);
-  if (sq.imageurl) q["imageurl"] =[sq.imageurl];
-  if (sq.keyword2vec) q["keyword2vec"] =[sq.keyword2vec];
   if (sq.searchfield) q["searchfield"] = [sq.searchfield];
   if (sq.withouthighlight) q["withouthighlight"] = [sq.withouthighlight];
   if (sq.keywordOR) q["keywordOr"] = [true];

@@ -1,5 +1,5 @@
 <div class="search">
-  <illust-search :qillust="qillust" @image-search="imageSearch($event)" @change-tab="changeTab" :keyword="keyword" :targeturl="targeturl" :keyword2vec="keyword2vec" ref="searchtab"></illust-search>
+  <illust-search :qillust="qillust" @image-search="imageSearch($event)" @change-tab="changeTab" :keyword="keyword" ref="searchtab"></illust-search>
   <div class="section has-text-centered" v-if="!ss.result">
     {{$l2(
               "検索中……お待ちください……",
@@ -7,7 +7,7 @@
             )
             }}
   </div>
-  <div class="section item-search-result" v-if="ss.result&&(activetab==0||activetab==4)">
+  <div class="section item-search-result" v-if="activetab==0&&ss.result">
     <div class="container">
       <template v-if="ss.result.hit==0">
         <div
@@ -41,13 +41,14 @@
           <!-- 検索結果 -->
           <!--div v-if="showResults"-->
             <div
-              class="search-result-body column is-10"
+              class="search-result-body"
+              :class="showFacet?'is-8':'is-12'"
             >
                 <div class="result-list">
                   <!-- 図表だけ -->
                     <masonry
                       class="masonry"
-                      :cols="{default:4,1400: 3, 1000: 3, 800: 2, 500: 1}"
+                      :cols="{default:5,1400: 4, 1000: 3, 800: 2, 500: 1}"
                       :gutter="{default: '15px'}">
                       <illust-image
                         v-for="(i, index) in illusts"
@@ -84,25 +85,25 @@
           </div>
         </div>
     </nav>
-    <!-- ファセット -->
-    <!--div class="column is-2 left-side is-open-facet">
-      <search-facet v-for="facet in ssBook.result.facets" :facet="facet" :key="facet.key" :ss="ss"></search-facet>
-    </div-->
-    <template v-if="ssBook.result.hit==0">
-        <div
-          class="item-search-nohit is-size-6-desktop is-size-7-touch has-text-centered"
-        >
-          {{ $l("zero-hit") }}
-        </div>
-    </template>
-    <template v-else>
-        <book-entry
-            v-for="(b,index) in ssBook.result.list"
-            @search="imageSearch"
-            :keywords="ssBook.keywords"
-            :book="b"
-            :key="b.id"
-        ></book-entry>
-    </template>
-  </div>
+      <!-- ファセット -->
+      <!--div class="column is-2 left-side is-open-facet">
+        <search-facet v-for="facet in ssBook.result.facets" :facet="facet" :key="facet.key" :ss="ss"></search-facet>
+      </div-->
+        <template v-if="ssBook.result.hit==0">
+            <div
+              class="item-search-nohit is-size-6-desktop is-size-7-touch has-text-centered"
+            >
+              {{ $l("zero-hit") }}
+            </div>
+        </template>
+        <template v-else>
+            <book-entry
+                v-for="(b,index) in ssBook.result.list"
+                @search="imageSearch"
+                :keywords="ssBook.keywords"
+                :book="b"
+                :key="b.id"
+            ></book-entry>
+        </template>
+      </div>
 </div>

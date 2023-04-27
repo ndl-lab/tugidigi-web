@@ -15,7 +15,6 @@ import jp.go.ndl.lab.back.domain.Illustration;
 import jp.go.ndl.lab.back.infra.EsSearchQuery;
 import jp.go.ndl.lab.back.infra.EsSearchResult;
 import jp.go.ndl.lab.back.service.IllustService;
-import jp.go.ndl.lab.common.utils.IDUtils;
 import jp.go.ndl.lab.common.utils.LabException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -100,77 +99,49 @@ public class IllustController {
     	esq.from=0;
         return filter(illustService.searcheachimage(esq));
     }
-  //検索クエリはprompt(txt2vec)の特徴量。類似した画像のIDなどが返る。
-    @PostMapping("/searchbytxtfeature")
-    public EsSearchResult<Illustration> searchbyfeature_txt2vec(@RequestBody float[] query) {
-    	//System.out.println(Arrays.toString(query));
-    	EsSearchQuery esq = new EsSearchQuery();
-    	esq.imagefeature_txt2vec=query;
-    	esq.size=200;
-    	esq.from=0;
-        return filter(illustService.searcheachimage(esq));
-    }
   //検索クエリは画像のURL。類似した画像のIDなどが返る。
-    @Autowired
-    private jp.go.ndl.lab.back.service.ImageFeatureService ifs;
-
-    @PostMapping("/create-image-feature")
-    @CrossOrigin
-    public String createImageFeature(@RequestBody float[] feature) {
-        return ifs.putExternalFeatureRand(feature);
-    }
-    
-    public String createImageFeatureWithHash(float[] feature,String hash) {
-        return ifs.putExternalFeature(feature,hash);
-    }
-    
     @GetMapping("/searchbyimgurl")
     public EsSearchResult<Illustration> searchbyurl(@RequestParam MultiValueMap<String, String> query,@Value("${DLEndPoint}") String DLEndPoint) {
-    	System.out.println(query);
-    	String queryurl=query.getFirst("imageurl");
+    	String queryurl=query.getFirst("queryurl");
     	if(queryurl==null) {
     		throw LabException.nullInputException();
     	}
-    	String queryhash=IDUtils.md5HashId(queryurl);
-    	System.out.println("Query URL is "+queryurl);
     	EsSearchQuery esq = new EsSearchQuery();
-    	esq.size=200;
-    	esq.from=0;
-    	if(ifs.existsurlhash(queryhash)) {
-    		esq.imagefeature=ifs.getfeatureurlhash(queryhash);
-    	}else {
-	    	HttpResponse res = null;
-	    	try {
-	    		res = fac.buildRequest(
-	        			  "POST", new GenericUrl(DLEndPoint),
-	        			  ByteArrayContent.fromString(
-	        			    "application/json",
-	        			    "{"+"\"img_url\":\""+queryurl+"\"}" // JSON文字列
-	        			  )).execute(); 
-	  	        System.out.println(
-	  	          "Get response. [status=" + res.getStatusCode() + "]"
-	  	        );
-	  	        System.out.println(res.parseAsString());
-	  	        Type type = new TypeToken<float[]>() {}.getType();
-	  	        esq.imagefeature=(float[]) res.parseAs(type);
-	  	        this.createImageFeatureWithHash(esq.imagefeature,queryhash);
-	        }
-	        catch (HttpResponseException e) {
-	          System.err.println( "Error. [staus=" + e.getStatusCode() + "]");
-	          throw new RuntimeException(e);
-	        }
-	        catch (IOException e) {
-	          throw new RuntimeException(e);
-	        }
-	        finally {
-			  try {
-				  if (res != null) res.disconnect(); 
-			  }catch (IOException e) {
-				  throw new RuntimeException(e);
-			  }
-	        }
-    	}
-    	return filter(illustService.searcheachimage(esq));
+    	HttpResponse res = null;
+        try {
+        	System.out.println("Query URL is "+queryurl);
+        	res = fac.buildRequest(
+        			  "POST", new GenericUrl(DLEndPoint),
+        			  ByteArrayContent.fromString(
+        			    "application/json",
+        			    "{"+"\"img_url\":\""+queryurl+"\"}" // JSON文字列
+        			  )).execute(); 
+          System.out.println(
+            "Get response. [status=" + res.getStatusCode() + "]"
+          );
+          System.out.println(res.parseAsString());
+          Type type = new TypeToken<float[]>() {}.getType();
+          esq.imagefeature=(float[]) res.parseAs(type);
+          esq.size=200;
+      	  esq.from=0;
+          return filter(illustService.searcheachimage(esq));
+        }
+        catch (HttpResponseException e) {
+          System.err.println( "Error. [staus=" + e.getStatusCode() + "]");
+          throw new RuntimeException(e);
+        }
+        catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+        finally {
+		  try {
+			  if (res != null) res.disconnect(); 
+		  }catch (IOException e) {
+			  throw new RuntimeException(e);
+		  }
+        }
+    	
+    	
     }
 
     //ランダムな挿絵が返る

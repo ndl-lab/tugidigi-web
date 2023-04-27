@@ -14,25 +14,6 @@
           alt="次世代デジタルライブラリー"
         />
       </router-link>
-      <a 
-        role="button"
-        class="navbar-burger"
-        aria-label="menu"
-        aria-expanded="false"
-        :class="{ 'is-active': isHamburgerActive }"
-        @click="isHamburgerActive = !isHamburgerActive"
-      >
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-      </a>
-    </div>
-    <div class="navbar-menu" :class="{ 'is-active': isHamburgerActive }">
-      <div class="navbar-end">
-        <router-link to="/fulltext" class="navbar-item" >{{ $l2("全文検索", "Keyword search") }}</router-link>
-        <router-link to="/illust" class="navbar-item" >{{ $l2("画像検索", "Illustration search") }}</router-link>
-        <router-link to="/mypage" class="navbar-item" >{{ $l2("マイページ", "Mypage") }}</router-link>
-      </div>
     </div>
   </nav>
 </header>

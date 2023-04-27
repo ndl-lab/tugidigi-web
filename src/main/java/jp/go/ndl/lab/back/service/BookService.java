@@ -75,11 +75,8 @@ public class BookService {
         highlightBuilder.fragmentSize(100);
         highlightBuilder.boundaryScannerLocale("ja-JP");
         highlightBuilder.numOfFragments(3);
-        char[]boundaryChars={'.', '!',',','?',' ','\t','\n','、','。'};
-        highlightBuilder.boundaryChars(boundaryChars);
         ssb.highlighter(highlightBuilder);
         EsSearchResult<Book> result = bookStore.search(ssb);
-        //log.info("resultsize:{}",result.list.size());
         //ハイライト処理
         int index = 0;
         if(result!=null&&result.searchResponse!=null)for (SearchHit hit : result.searchResponse.getHits()) {
@@ -91,6 +88,7 @@ public class BookService {
 	            if (hf == null) {
 	                if(book.highlights==null)book.highlights = Collections.EMPTY_LIST;
 	            } else {
+	                log.info("{}", hf);
 	                book.highlights = Arrays.stream(hf.fragments()).map(text -> text.string()).collect(Collectors.toList());
 	            }
             }
@@ -144,21 +142,19 @@ public class BookService {
                 }
             }
         }
-      //フィルター関連
-    	if (!MapUtils.isEmpty(q.filter)) {
+        if (!MapUtils.isEmpty(q.filter)) {
             for (String field : q.filter.keySet()) {
                 List<String> values = q.filter.get(field);
                 BoolQueryBuilder bq = QueryBuilders.boolQuery();
                 for (String value : values) {
                     if (StringUtils.isNotBlank(value)) {
-                    	if(field.equals("ndc"))bq.should(QueryBuilders.wildcardQuery(field, value));
-                    	else bq.should(QueryBuilders.matchPhraseQuery(field, value));
+                        bq.should(QueryBuilders.termQuery(field, value));
                     }
                 }
                 base.filter(bq);
             }
         }
-        //log.info("contentonly");
+        log.info("contentonly");
     	if (!CollectionUtils.isEmpty(q.keyword)) {
             BoolQueryBuilder kwq = EsSearchQuery.createKeywordBoolQuery(q.keyword, Arrays.asList("contents"), q.keywordOR);
             IdsQueryBuilder idq = QueryBuilders.idsQuery();//IDクエリー
@@ -207,11 +203,9 @@ public class BookService {
     }
     public EsSearchResult<Book> search(EsSearchQuery q) {
         SearchSourceBuilder ssb = new SearchSourceBuilder();
-        ssb.fetchSource(null, new String[]{"index", "contents"});
         ssb.from(q.from == null ? 0 : q.from);
         ssb.size(q.size == null ? 20 : q.size);
-        //for (String field : new String[]{"graphictagmetrics.tagname","isClassic"}) {
-        for (String field : new String[]{"isClassic"}) {
+        for (String field : new String[]{"graphictagmetrics.tagname"}) {
             TermsAggregationBuilder termFacetAgg = AggregationBuilders.terms(field);
             termFacetAgg.size(10);
             termFacetAgg.field(field);
@@ -256,6 +250,7 @@ public class BookService {
                 base.filter(bq);
             }
         }
+        
         EsSearchResult<Book> baseResult;
         //画像検索
         if (!CollectionUtils.isEmpty(q.image)) {
@@ -295,41 +290,42 @@ public class BookService {
             baseResult.list.forEach(book -> {
                 book.illustrations = map.keySet().stream().filter(id -> id.startsWith(book.id)).collect(Collectors.toList());
             });
+            Map<String,ItemFacet> facets = new LinkedHashMap<>();
+            baseResult.searchResponse.getAggregations().forEach(agg -> {
+            	Terms terms = (Terms) agg;
+            	String field = agg.getName();
+            	ItemFacet facet = facets.get(field);
+            	if (facet == null) {
+                    facet = new ItemFacet();
+                    facet.field= field;
+                    facets.put(field, facet);
+            	}
+            	for (Terms.Bucket b : terms.getBuckets()) {
+            		String key = b.getKeyAsString();
+            		long count = b.getDocCount();
+            		facet.addCount(key, count);
+            	}
+            });
+            baseResult.facets = new ArrayList<>(facets.values());
             
         }else {//キーワード検索
-        	//フィルター関連
-        	boolean wohighlightflag=false;
-        	if(Objects.equals(q.withouthighlight,"true"))wohighlightflag=true;
         	if (!MapUtils.isEmpty(q.filter)) {
-        		BoolQueryBuilder bq = QueryBuilders.boolQuery();
-        		IdsQueryBuilder idq = QueryBuilders.idsQuery();
 	            for (String field : q.filter.keySet()) {
-	            	if(!field.equals("id")) {
-		                List<String> values = q.filter.get(field);
-		                for (String value : values) {
-		                    if (StringUtils.isNotBlank(value)) {
-		                    	if(field.equals("ndc"))bq.should(QueryBuilders.wildcardQuery(field, value));
-		                    	else bq.should(QueryBuilders.matchPhraseQuery(field, value));
-		                    }
-		                }
-	            	}else {
-	            		wohighlightflag=true;
-	            		List<String> values = q.filter.get(field);
-		                for (String value : values) {
-		                    if (StringUtils.isNotBlank(value)) {
-		                    	idq.addIds(value);
-		                    }
-		                }
-		                base.filter(idq);
-	            	}
+	                List<String> values = q.filter.get(field);
+	                BoolQueryBuilder bq = QueryBuilders.boolQuery();
+	                for (String value : values) {
+	                    if (StringUtils.isNotBlank(value)) {
+	                        bq.should(QueryBuilders.termQuery(field, value));
+	                    }
+	                }
+	                base.filter(bq);
 	            }
-	            base.filter(bq);
 	        }
 	        if(Objects.equals(q.searchfield,"contentonly")) {
-	        	//log.info("contentonly");
+	        	log.info("contentonly");
 	        	if (!CollectionUtils.isEmpty(q.keyword)) {
 		            BoolQueryBuilder kwq = EsSearchQuery.createKeywordBoolQuery(q.keyword, Arrays.asList("contents"), q.keywordOR);
-		            /*IdsQueryBuilder idq = QueryBuilders.idsQuery();//IDクエリー
+		            IdsQueryBuilder idq = QueryBuilders.idsQuery();//IDクエリー
 		            idq.boost(10);
 		            for (String value : q.keyword) {
 		                idq.addIds(value);
@@ -337,20 +333,20 @@ public class BookService {
 		            BoolQueryBuilder keywordsOrId = QueryBuilders.boolQuery();
 		            if (kwq.hasClauses()) {
 		                keywordsOrId.should(kwq);
-		            }*/
-		           // keywordsOrId.should(idq);
-		            base.must(kwq);
+		            }
+		            keywordsOrId.should(idq);
+		            base.must(keywordsOrId);
 	        	}
 		        ssb.query(base);
-		        if(wohighlightflag)baseResult = searchwithouthighlights(ssb);
+		        if(Objects.equals(q.withouthighlight,"true"))baseResult = searchwithouthighlights(ssb);
 		        else baseResult = searchwithhighlights(ssb, Arrays.asList("contents"));
 	        }else if(Objects.equals(q.searchfield,"metaonly")){
 	        	//メタデータに対するキーワード検索
-	        	//log.info("metaonly");
+	        	log.info("metaonly");
 	        	if (!CollectionUtils.isEmpty(q.keyword)) {
 		            BoolQueryBuilder kwq = EsSearchQuery.createKeywordBoolQuery(q.keyword, Arrays.asList("title", "index", "responsibility"), q.keywordOR);
 		
-		            /*IdsQueryBuilder idq = QueryBuilders.idsQuery();//IDクエリー
+		            IdsQueryBuilder idq = QueryBuilders.idsQuery();//IDクエリー
 		            idq.boost(10);
 		            for (String value : q.keyword) {
 		                idq.addIds(value);
@@ -359,19 +355,19 @@ public class BookService {
 		            BoolQueryBuilder keywordsOrId = QueryBuilders.boolQuery();
 		            if (kwq.hasClauses()) {
 		                keywordsOrId.should(kwq);
-		            }*/
-		            //keywordsOrId.should(idq);
-		            base.must(kwq);
+		            }
+		            keywordsOrId.should(idq);
+		            base.must(keywordsOrId);
 		        }
 		        ssb.query(base);
-		        if(wohighlightflag)baseResult = searchwithouthighlights(ssb);
+		        if(Objects.equals(q.withouthighlight,"true"))baseResult = searchwithouthighlights(ssb);
 		        else baseResult = searchwithhighlights(ssb, Arrays.asList("index"));
 	        }else {
-	        	//log.info("content and meta");
+	        	log.info("content and meta");
 	        	//本文+メタデータに対するキーワード検索
 		        if (!CollectionUtils.isEmpty(q.keyword)) {
 		            BoolQueryBuilder kwq = EsSearchQuery.createKeywordBoolQuery(q.keyword, Arrays.asList("title", "contents", "responsibility","index"), q.keywordOR);
-		            /*IdsQueryBuilder idq = QueryBuilders.idsQuery();//IDクエリー
+		            IdsQueryBuilder idq = QueryBuilders.idsQuery();//IDクエリー
 		            idq.boost(10);
 		            for (String value : q.keyword) {
 		                idq.addIds(value);
@@ -380,34 +376,21 @@ public class BookService {
 		            if (kwq.hasClauses()) {
 		                keywordsOrId.should(kwq);
 		            }
-		            //keywordsOrId.should(idq);*/
+		            keywordsOrId.should(idq);
 		
-		            base.must(kwq);
+		            base.must(keywordsOrId);
 		        }
-		        //log.info("raw query:{}",base.toString());
 		        ssb.query(base);
-		        if(wohighlightflag)baseResult = searchwithouthighlights(ssb);
+		        if(Objects.equals(q.withouthighlight,"true"))baseResult = searchwithouthighlights(ssb);
 		        else baseResult = searchwithhighlights(ssb, Arrays.asList("contents","index"));
 	        }
         }
+        
         baseResult.from = q.from;
-        Map<String,ItemFacet> facets = new LinkedHashMap<>();
-        baseResult.searchResponse.getAggregations().forEach(agg -> {
-        	Terms terms = (Terms) agg;
-        	String field = agg.getName();
-        	ItemFacet facet = facets.get(field);
-        	if (facet == null) {
-                facet = new ItemFacet();
-                facet.field= field;
-                facets.put(field, facet);
-        	}
-        	for (Terms.Bucket b : terms.getBuckets()) {
-        		String key = b.getKeyAsString();
-        		long count = b.getDocCount();
-        		facet.addCount(key, count);
-        	}
+        baseResult.list.forEach(res->{       
+        	res.contents=null;
+        	res.index=null;
         });
-        baseResult.facets = new ArrayList<>(facets.values());
         return baseResult;
     }
     class IntegerMapComparator implements Comparator<String> {

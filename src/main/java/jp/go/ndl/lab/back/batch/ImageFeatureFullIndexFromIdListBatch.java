@@ -14,7 +14,6 @@ import jp.go.ndl.lab.back.service.IllustService;
 import jp.go.ndl.lab.back.service.ImageFeatureService;
 import jp.go.ndl.lab.back.service.VectorSearchService;
 import jp.go.ndl.lab.back.service.VectorSearchServiceValdImpl;
-import jp.go.ndl.lab.back.service.VectorSearchServiceValdTxtvecImpl;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -40,10 +39,7 @@ public class ImageFeatureFullIndexFromIdListBatch extends AbstractBatch {
 
     @Autowired
     private VectorSearchServiceValdImpl vectorSearchService;
-    
-    @Autowired
-    private VectorSearchServiceValdTxtvecImpl vectorSearchServiceTxtvec;
-    
+
     long count = 0;
     long skipcount=0;
     @Override
@@ -59,25 +55,12 @@ public class ImageFeatureFullIndexFromIdListBatch extends AbstractBatch {
                 while ((idstr = br.readLine()) != null) {
                 	Illustration imageFeature=is.get(idstr);
                 	if(imageFeature==null)continue;
-                	//List<taginfo> graphictags= imageFeature.getGraphictags();
+                	List<taginfo> graphictags= imageFeature.getGraphictags();
                 	indexer.upsert(imageFeature.id, Floats.asList(imageFeature.feature));
                 }
     		 }
         } catch (Exception e) {
             log.error("unknown", e);
         }
-    	try (VectorSearchServiceValdTxtvecImpl.VectorSearchIndexer indexer = vectorSearchServiceTxtvec.getIndexer(wait)) {
-   		 try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filepath), StandardCharsets.UTF_8));) {
-   			String idstr="";
-               while ((idstr = br.readLine()) != null) {
-               	Illustration imageFeature=is.get(idstr);
-               	if(imageFeature==null)continue;
-               	//List<taginfo> graphictags= imageFeature.getGraphictags();
-               	indexer.upsert(imageFeature.id, Floats.asList(imageFeature.feature_txt2vec));
-               }
-   		 }
-       } catch (Exception e) {
-           log.error("unknown", e);
-       }
     }
 }

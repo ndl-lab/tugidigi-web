@@ -38,8 +38,8 @@ export default class IllustImage extends Vue {
     //this.$emit("search", this.i);
     this.$router.push({
       name: "illustsearchres",
-      query: { image: [this.i.id]}
-      //          'fc-graphictags.tagname':this.i.graphictags.map(function( value ) {return value.tagname}) }
+      query: { image: [this.i.id],
+                'fc-graphictags.tagname':this.i.graphictags.map(function( value ) {return value.tagname}) }
     });
     this.$router.go(0);
   }

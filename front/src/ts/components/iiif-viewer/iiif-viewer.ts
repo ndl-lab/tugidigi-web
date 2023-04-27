@@ -14,20 +14,8 @@ import { iiifUrl, iiifUrlRaw } from "service/illust-utils";
 import VueShortkey from 'vue-shortkey';
 import { CrdPoint } from "./crd-helper";
 require("./leaflet-iiif.js");
-//import TinyYoloV3 from '../../3rdparty/tfjs-tiny-yolov3/index.js';
-import { BuefyNamespace } from "buefy";
-import * as Config from "config";
-import {setTagPermission,checkTagPermission} from "utils/localstorage";
-import { pushBookIdByTagName, retrieveAllTagNames, retrieveAllObjectByBookId, deleteBookIdByTagName, putTagObject } from "utils/indexedDB";
+import TinyYoloV3 from '../../3rdparty/tfjs-tiny-yolov3/index.js';
 
-interface coordjsonContent {
-  id: number,
-  contenttext: string,
-  xmin: number,
-  ymin: number,
-  xmax: number,
-  ymax: number
-}
 export default interface IiifViewer extends MyVue {}
 
 @Component({
@@ -39,21 +27,14 @@ export default interface IiifViewer extends MyVue {}
 export default class IiifViewer extends Vue {
   full: boolean = false;
   div: boolean = false;
-  copy: boolean = false;
-  textDisplay: boolean = false;
   leftOpen: boolean =false;
   isModalActive: boolean = false;
   isestDirection: boolean=null;
-  //yolomodel:any=null;
+  yolomodel:any=null;
   modelLoadingFlag:boolean=false;
   modelLoadedFlag:boolean=false;
   initialZoom:number=null;
   crdpoints:CrdPoint[];
-  isCopyModalActive: Boolean = false;
-  isTaggingModalActive: boolean = false
-  allTagNames: string[] = []
-  attachedTagNames: string[] = []
-  tagAddInput: string = ""
   @Prop()
   book: Book;
   
@@ -85,19 +66,6 @@ export default class IiifViewer extends Vue {
     }
   }
 
-  
-  changeCopyMode() {
-    this.copy ? this.exitCopyMode() : this.initializeCopyMode()
-  }
-
-  async changeTextDisplayMode() {
-    this.copy && this.exitCopyMode()
-
-    this.textDisplay ?
-      this.exitTextDisplayMode() :
-      this.initializeTextDisplayMode()
-  }
-
   setPage(n) {
     if (!this.div) {
       this.currentPage = n;
@@ -105,7 +73,7 @@ export default class IiifViewer extends Vue {
       this.currentPage = n * 2 - 1;
     }
   }
-  /*async loadModel(){
+  async loadModel(){
     this.modelLoadingFlag=true;
     this.yolomodel = new TinyYoloV3();
     await this.yolomodel.load("/dl/assets/yolomodeloverall/model.json");
@@ -114,33 +82,19 @@ export default class IiifViewer extends Vue {
   async detachModel(){
     this.modelLoadedFlag=false;
     this.setIIIFPage(this.currentPage);
-  }*/
+  }
 
   get downloadLink() {
     let p = this.currentPage;
     if (this.div) {
       p = Math.round(this.currentPage / 2);
     }
-    return `${Config.BASE_PATH}api/book/download/${this.book.id}?page=${p}`;
-  }
-  get koma10array(){
-    var returnobj: { page: number, url: string }[]=[];
-    if(this.book){
-      let totalp= this.totalPage;
-
-      for(var cpage:number=0;cpage<=totalp;cpage+=10){
-        let url=`${Config.BASE_PATH}api/book/downloadimgs/${this.book.id}/${cpage}`;
-        var obj:{ page: number, url: string} ={page:cpage,url:url};
-        returnobj.push(obj);
-      }
-      //console.log()
-    }
-    return returnobj;
+    return `/dl/api/book/download/${this.book.id}?page=${p}`;
   }
   get fulltextLink() {
     if(this.book){
       console.log("!");
-      return `${Config.BASE_PATH}api/book/fulltext/${this.book.id}`;
+      return `/dl/api/book/fulltext/${this.book.id}`;
     }
   }
 
@@ -327,10 +281,10 @@ export default class IiifViewer extends Vue {
     xhr.send();
   }
 
-  /*async predict(imageData) {
+  async predict(imageData) {
     return await this.yolomodel.detectAndBox(imageData, false);
-  }*/
-  /*async setthumbnail(url){
+  }
+  async setthumbnail(url){
     const image:any = new Image();
     image.src = url;
     image.height=320;
@@ -355,7 +309,7 @@ export default class IiifViewer extends Vue {
         this.modelLoadedFlag=true;
       });
     };
-  }*/
+  }
   
   markerLayer: L.LayerGroup;
   point2latLng(pointx:number,pointy:number){
@@ -377,21 +331,15 @@ export default class IiifViewer extends Vue {
         //console.log(pageaz.coordjson);
         let jsoncoord=JSON.parse(page.coordjson);
         let jsoncoordaz=JSON.parse(pageaz.coordjson);
-
         for(var ii=0;ii<this.currentKeywords.length;ii++){
           let querykeyword=this.currentKeywords[ii];
           console.log(querykeyword);
-
           for(var i=0;i<jsoncoord.length;i++){
-            // キーワードに一致している語句があるかを調べる
             let contenttext=jsoncoord[i]["contenttext"];
             let contenttextaz=jsoncoordaz[i]["contenttext"];
             let pos=contenttext.indexOf(querykeyword);
             let posaz=contenttextaz.indexOf(querykeyword);
-
-            // あった場合
             if(pos !== -1){
-              // 文字方向を調べる
               let w=jsoncoord[i]["xmax"]-jsoncoord[i]["xmin"];
               let h=jsoncoord[i]["ymax"]-jsoncoord[i]["ymin"];
               var tmpx=null,tmpy=null;
@@ -467,10 +415,10 @@ export default class IiifViewer extends Vue {
         this.manifest.sequences[0].canvases[n - 1].images[0].resource.service[
           "@id"
         ] + "/info.json";//https://www.dl.ndl.go.jp/api/iiif/1235428/R0000025/info.json
-      //const thumbUrl =
-      //  this.manifest.sequences[0].canvases[n - 1].thumbnail["@id"];
+      const thumbUrl =
+        this.manifest.sequences[0].canvases[n - 1].thumbnail["@id"];
         //https://www.dl.ndl.go.jp/api/iiif/1235428/F0000025/full/full/0/default.jpg
-      //if(this.modelLoadingFlag||this.modelLoadedFlag)this.setthumbnail(thumbUrl);
+      if(this.modelLoadingFlag||this.modelLoadedFlag)this.setthumbnail(thumbUrl);
       this.setInfo(infoUrl).then(()=>{this.getInitialZoom()});
       this.$nextTick(() => {
         this.getQueryKeyword(this.book.id + "_" + n);
@@ -490,7 +438,7 @@ export default class IiifViewer extends Vue {
     }
     return 0;
   }
-  
+
   inputPageModel = 0;
   inputPage(e) {
     debounce(1000, () => {
@@ -524,8 +472,6 @@ export default class IiifViewer extends Vue {
   @Watch("currentPage")
   watchPage(n) {
     this.inputPageModel = n;
-    this.exitCopyMode()
-    this.exitTextDisplayMode()
     if (!this.div) this.setIIIFPage(this.currentPage);
     else this.setDivPage(this.currentPage);
   }
@@ -577,395 +523,4 @@ export default class IiifViewer extends Vue {
       }
   }
 
-  // テキストコピー
-  mousedownLatLng: L.LatLng;
-  mouseupLatLng: L.LatLng;
-  selectedAreaRectangle: L.Rectangle;
-  textAreaRectangles: L.Rectangle[] = [];
-  coordjson: {
-    pageId: string
-    data: coordjsonContent[]
-  } = {
-    pageId: "",
-    data: []
-  };
-  isAreaSelecting: Boolean = false;
-  mouseupedInOutside: Boolean = false;
-  selectedCoordinates: {
-    minX: number,
-    minY: number,
-    maxX: number,
-    maxY: number
-  } = { 
-    minX: 0,
-    minY: 0,
-    maxX: 0,
-    maxY: 0
-  };
-  shouldInsertSpace: Boolean = false
-  shouldDivideByCenter: Boolean = false
-  centerAxisX: number;
-  shouldIgnoreRuby: Boolean = false;
-  rubySize: number = 0;
-
-  // テキストコピーの設定系
-  async initializeCopyMode() {
-    this.copy = true
-    this.exitTextDisplayMode()
-    this.fitBounds()
-
-    const page = await getPage(this.pageId);
-
-    await this.fetchCoordjson(this.pageId)
-    
-    // map内のbounds stateが更新されるのにラグがあるため待つ
-    setTimeout(() => {
-      const mapBounds = this.map.getBounds()
-      
-      const minX = this.latLng2Point(mapBounds.getNorthWest()).x
-      const maxX = this.latLng2Point(mapBounds.getSouthEast()).x
-      this.centerAxisX =  minX + (maxX - minX) * page.divide
-
-      this.setSelectedCoordinates(mapBounds.getNorthEast(), mapBounds.getSouthWest())
-      
-      this.displaySelectedTextModal()
-    }, 300)
-
-  }
-
-  async initializeSelectMode() {
-    this.exitSelectMode()
-    this.isCopyModalActive = false
-    this.map.dragging.disable()
-    this.map.on('mousedown', this.mousedownHandler)
-    this.map.on("mousemove", this.mousemoveHandler)
-    this.map.on("mouseup", this.mouseupHandler)
-
-    const coordjson: coordjsonContent[] = await this.fetchCoordjson(this.pageId)
-
-    this.drawRectangleOnTextArea(coordjson)
-  }
-
-  async initializeTextDisplayMode() {
-    this.textDisplay = true
-    const coordjson: coordjsonContent[] = await this.fetchCoordjson(this.pageId)
-    this.drawRectangleOnTextArea(coordjson, { clickToCopy: true, color: "#ff3300" })
-  }
-
-  exitCopyMode() {
-    this.copy = false
-    this.isCopyModalActive = false
-    this.exitSelectMode()
-  }
-
-  exitSelectMode() {
-    if(this.selectedAreaRectangle) this.selectedAreaRectangle.remove()
-    this.map.dragging.enable()
-    this.map.off('mousedown', this.mousedownHandler)
-    this.map.off("mousemove", this.mousemoveHandler)
-    this.map.off("mouseup", this.mouseupHandler)
-    this.map.off("mouseout", this.mouseoutHandler)
-    this.map.off("mouseover", this.mouseoverHandler)
-    
-    this.cleanUpTextAreaRectangles()
-  }
-
-  exitTextDisplayMode() {
-    this.cleanUpTextAreaRectangles()
-    this.textDisplay = false
-  }
-
-  // テキストコピーのmouseevent系
-  mousedownHandler(e: L.LeafletMouseEvent) {
-    if(this.mouseupedInOutside) {
-      this.mouseupedInOutside = false
-      return
-    }
-
-    this.map.on("mouseout", this.mouseoutHandler)
-
-    this.mousedownLatLng = e.latlng
-    this.isAreaSelecting = true
-  }
-  mousemoveHandler(e: L.LeafletMouseEvent) {
-    if(!this.isAreaSelecting) return
-
-    this.mouseupLatLng = e.latlng
-    this.drawRectangleOnSelectedArea(this.mousedownLatLng, this.mouseupLatLng)
-  }
-  mouseoutHandler(_e: L.LeafletMouseEvent) {
-    this.map.on("mouseover", this.mouseoverHandler)
-  }
-  mouseoverHandler(e: L.LeafletMouseEvent) {
-    // 範囲外でmouseupしていた場合、次のクリックで範囲確定の処理をする
-    if(e.originalEvent.button === 0) this.mouseupedInOutside = true
-    this.map.off("mouseover", this.mouseoverHandler)
-  }
-  async mouseupHandler(e: L.LeafletMouseEvent) {
-    if(!this.isAreaSelecting) return
-
-    // 範囲外でmouseupしてしまった場合に直感的な操作になるように
-    this.map.off("mouseout", this.mouseoutHandler)
-    this.map.off("mouseover", this.mouseoverHandler)
-
-    this.mouseupLatLng = e.latlng
-    this.drawRectangleOnSelectedArea(this.mousedownLatLng, this.mouseupLatLng)
-    this.isAreaSelecting = false
-
-    await this.fetchCoordjson(this.pageId)
-
-    this.setSelectedCoordinates(this.mousedownLatLng, this.mouseupLatLng)
-    this.displaySelectedTextModal()
-  }
-
-  // テキストコピーのleaflet操作系
-  drawRectangleOnSelectedArea(startPoint: L.LatLng, endPoint: L.LatLng) {
-    if(this.selectedAreaRectangle) this.selectedAreaRectangle.remove()
-
-    this.selectedAreaRectangle = L.rectangle([
-      [startPoint.lat,startPoint.lng], [endPoint.lat, endPoint.lng]
-    ], {color: "#ff7800", weight: 1}).addTo(this.map)
-  }
-  latLng2Point(latLng: L.LatLng){
-    return this.map.project(latLng,this.initialZoom);
-  }
-
-  cleanUpTextAreaRectangles() {
-    this.textAreaRectangles
-      .map((rectangle) => rectangle.remove())
-      .splice(0)
-  }
-
-  drawRectangleOnTextArea(
-    coordjson: coordjsonContent[],
-    { clickToCopy = false, color = "#0080ff" } : 
-    { clickToCopy?: boolean, color?: string } = {}
-  ) {
-    this.textAreaRectangles = coordjson.map((
-      { xmax, xmin, ymax, ymin, contenttext }
-    ) => {
-      const startLatLng = this.point2latLng(xmin, ymin)
-      const endLatLng = this.point2latLng(xmax,ymax)
-      const rectAngles = L.rectangle(
-        [
-          [startLatLng.lat, startLatLng.lng],
-          [endLatLng.lat, endLatLng.lng]
-        ],
-        { color }
-      ).bindTooltip(contenttext)
-
-      if (clickToCopy === true) {
-        rectAngles.on("click", (_e) => {
-          this.copySelectedText(contenttext)
-        })
-      }
-      return rectAngles.addTo(this.map)
-    })
-  }
-
-  @Watch("rubySize")
-  onrubySize(_n) {
-    this.cleanUpTextAreaRectangles()
-
-    const targetTextCoordjson = this.shouldIgnoreRuby ? this.coordjson.data.filter(({xmax, xmin, ymax, ymin}) => {
-      return (xmax - xmin) * (ymax - ymin) > this.rubySize * 100
-    }) : this.coordjson.data
-    this.drawRectangleOnTextArea(targetTextCoordjson)
-  }
-
-  // テキストコピーのutil系
-  setSelectedCoordinates(apexLatLngA: L.LatLng, apexLatLngB: L.LatLng) {
-    const apexCoordinatesA = this.latLng2Point(apexLatLngA)
-    const apexCoordinatesB = this.latLng2Point(apexLatLngB)
-
-    if(apexCoordinatesA.x > apexCoordinatesB.x) {
-      [this.selectedCoordinates.maxX, this.selectedCoordinates.minX] 
-        = [apexCoordinatesA.x, apexCoordinatesB.x]
-    } else {
-      [this.selectedCoordinates.maxX, this.selectedCoordinates.minX]
-        = [apexCoordinatesB.x, apexCoordinatesA.x]
-    }
-    if(apexCoordinatesA.y > apexCoordinatesB.y) {
-      [this.selectedCoordinates.maxY, this.selectedCoordinates.minY]
-        = [apexCoordinatesA.y, apexCoordinatesB.y]
-    } else {
-      [this.selectedCoordinates.maxY, this.selectedCoordinates.minY]
-        = [apexCoordinatesB.y, apexCoordinatesA.y]
-    }
-  }
-
-  async fetchCoordjson(pageId: string): Promise<coordjsonContent[]> {
-    if(pageId === this.coordjson.pageId) return this.coordjson.data
-    this.coordjson.data = JSON.parse(
-      (await getPage(pageId)).coordjson
-    );
-    this.coordjson.pageId = pageId
-
-    return this.coordjson.data
-  }
-
-  copySelectedText(targetText: string) {
-    this.$copyText(targetText)
-      .then(() => {
-        this.$buefy.notification.open({
-          message: `コピーしました（${targetText.slice(0, 6)}${targetText.length > 6 ? "..." : ""}）`,
-        })
-      })
-      .catch(() => {
-        this.$buefy.notification.open({
-          message: `コピーに失敗しました（${targetText.slice(0, 6)}${targetText.length > 6 ? "..." : ""}）`,
-          queue: false,
-          type: 'is-danger'
-        })
-      })
-  }
-
-  displaySelectedTextModal() {
-    if(this.textInSelectedArea !== "") this.isCopyModalActive = true
-    else this.$buefy.notification.open({
-      message: "文字列を取得できませんでした",
-      queue: false,
-    })
-  }
-
-  get pageId() {
-    return this.book.id + "_" + this.currentPage
-  }
-
-  escapeHTML(string: string) {
-    if(typeof string !== 'string') {
-      return string;
-    }
-    return string.replace(/[&'`"<>]/g, (match) => {
-      return {
-        '&': '&amp;',
-        "'": '&#x27;',
-        '`': '&#x60;',
-        '"': '&quot;',
-        '<': '&lt;',
-        '>': '&gt;',
-      }[match]
-    });
-  }
-
-  get textInSelectedArea():string {
-    let coordjsonData = this.coordjson.data
-
-    if(this.shouldDivideByCenter) {
-      const leftPageData: coordjsonContent[] = []
-      const rightPageData: coordjsonContent[] = []
-      coordjsonData.forEach((data) => {
-        if(data.xmax < this.centerAxisX) leftPageData.push(data)
-        else rightPageData.push(data)
-      })
-      coordjsonData = leftPageData.concat(rightPageData)
-    }
-
-    if(this.shouldIgnoreRuby) {
-      coordjsonData = coordjsonData.filter(({xmax, xmin, ymax, ymin}) => {
-        return (xmax - xmin) * (ymax - ymin) > this.rubySize * 100
-      })
-    }
-
-    let textInSelectedArea = coordjsonData.filter(({xmin, ymin, xmax, ymax}) => {
-      const isTextInSelectedArea = this.selectedCoordinates.maxX > xmax
-                && this.selectedCoordinates.maxY > ymax
-                && this.selectedCoordinates.minX < xmin
-                && this.selectedCoordinates.minY < ymin
-
-      return isTextInSelectedArea
-    }).map(({contenttext}) => this.shouldInsertSpace ? `${contenttext} ` : contenttext).join("")
-
-    // v-htmlを使ってるので一応エスケープしとく
-    textInSelectedArea = this.escapeHTML(textInSelectedArea)
-
-
-    if(this.currentKeywords !== null) {
-      const keywordsInText = this.currentKeywords.filter((keyword) => textInSelectedArea.indexOf(keyword) !== -1)
-      const keywordsRegExp = new RegExp(`(${keywordsInText.join("|")})`,"g")
-      textInSelectedArea = textInSelectedArea.replace(keywordsRegExp, "<em style='background-color: #f5b12e;'>$1</em>")
-    }
-
-    return textInSelectedArea
-  }
-
-  // tags
-  get unattacedTags(): string[] {
-    return this.allTagNames.filter(tagName => this.attachedTagNames.includes(tagName) === false)
-  }
-
-  async tagButtonHandler() {
-    this.isTaggingModalActive = true
-    if(!checkTagPermission()){
-      const confirmed = confirm(
-        this.$l2(
-          "タグ情報はWebブラウザのIndexedDBに保存されます。共有PC等では、他の利用者にも履歴が表示されますので、その点をご理解のうえご使用ください。",
-          "This function is saved in the IndexedDB of the Web browser. Please understand that the history will be displayed to other users on shared PCs, and so on."
-        )
-      );
-      if (confirmed === false){
-        this.$router.go(0);
-        return;
-      }else{
-        setTagPermission();
-      }
-    }
-    this.allTagNames = await retrieveAllTagNames()
-    this.attachedTagNames = (await retrieveAllObjectByBookId(this.book.id))
-                              .map(tag => tag.tagName)
-  }
-
-  async tagClickedHandler(tagName: string) {
-    // すでにタグがついている場合は、削除処理をする
-    if(this.attachedTagNames.includes(tagName)) {
-      await deleteBookIdByTagName({
-        bookId: this.book.id,
-        tagName: tagName
-      })
-    }
-    // タグがついていない場合は、追加処理をする
-    else {
-      await pushBookIdByTagName({
-        bookId: this.book.id,
-        tagName: tagName
-      })
-    }
-
-    this.attachedTagNames = (await retrieveAllObjectByBookId(this.book.id))
-                              .map(tag => tag.tagName)
-    this.allTagNames = await retrieveAllTagNames()
-  }
-
-  async tagAddHandler(_e: PointerEvent) {
-    const tagName = this.tagAddInput
-    // 他のタブで追加しているかもしれないので、一応最新のものをもってくる
-    const allTagNames = await retrieveAllTagNames()
-    // すでに存在するタグだったらpushするだけ
-    if(allTagNames.includes(tagName)) {
-      await pushBookIdByTagName({
-        bookId: this.book.id,
-        tagName: tagName
-      })
-    } else {
-      // 初めてのタグだったら初期化する
-      await putTagObject({
-        tagName,
-        bookIds: [this.book.id]
-      })
-    }
-    
-    this.tagAddInput = ""
-    this.allTagNames = await retrieveAllTagNames()
-    this.attachedTagNames = (await retrieveAllObjectByBookId(this.book.id))
-                              .map(tag => tag.tagName)
-  }
-
-  get filteredTagNameArray() {
-    return this.allTagNames.filter((option) => {
-      return option
-          .toString()
-          .toLowerCase()
-          .indexOf(this.tagAddInput.toLowerCase()) >= 0
-  })
-  }
 }

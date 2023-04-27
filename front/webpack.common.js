@@ -1,6 +1,6 @@
 var webpack = require("webpack");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
-const path = require('path');
+
 module.exports = {
   context: __dirname + "/src", // `__dirname` is root of project and `src` is source
   entry: {
@@ -20,7 +20,6 @@ module.exports = {
       vue: "vue/dist/vue.common.js",
       "vue-class-component":
         "vue-class-component/dist/vue-class-component.common.js",
-      config: "conf/"+process.env.NODE_ENV+".ts"
     },
     modules: ["./src/ts", "./src/styles/scss", "node_modules"],
   },
