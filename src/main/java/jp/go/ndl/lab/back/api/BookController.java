@@ -2,14 +2,17 @@ package jp.go.ndl.lab.back.api;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import jp.go.ndl.lab.back.Application;
@@ -26,7 +29,7 @@ import jp.go.ndl.lab.common.utils.TempUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.text.StringEscapeUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -48,7 +51,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/book")
-@Slf4j
 @Profile(Application.MODE_WEB)
 public class BookController {
 
@@ -65,6 +67,60 @@ public class BookController {
     	Book b=bookService.get(id);
     	b.contents=null;
         return b;
+    }
+    @GetMapping(path = "/downloadimgs/{id}/{koma}")
+    public ResponseEntity<StreamingResponseBody> getimagesfromiiif(@PathVariable("id") String pid,@PathVariable("koma") int beginpos) throws Exception {
+    	AccessIIIFEndpoints ae=new AccessIIIFEndpoints();
+    	ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+    	ArrayList<String>iiifurllist=ae.getimageList(pid);
+    	if(iiifurllist.size()>0) {
+    		return RESTUtils.streamDownloadResponse(pid+"_"+(beginpos+1)+"-.zip", new StreamingResponseBody() {
+	                @Override
+	                public void writeTo(OutputStream outputStream) throws IOException {
+	                    running = true;
+	                    try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
+	                        for(String targeturlstr :iiifurllist) {
+	                        	String page=targeturlstr.split("/")[6]; 
+	                        	int pagenum=Integer.parseInt(page.substring(1));
+	                        	if(pagenum<=beginpos||pagenum>beginpos+10)continue;
+	                        	//log.info("target url {}", targeturlstr);
+	                        	try{
+	                        		URL targeturl = new URL(targeturlstr);
+	                                HttpURLConnection connection = (HttpURLConnection) targeturl.openConnection();
+	                                connection.setReadTimeout(6 * 10 * 1000);
+	                                connection.setConnectTimeout(6 * 10 * 1000);
+	                                
+	                                connection.setRequestMethod("GET");
+	                                ZipEntry entry = new ZipEntry(pid + "_" + page + ".jpg");
+	                                zos.putNextEntry(entry);
+	                                try(InputStream in = connection.getInputStream()){
+	                                		try (BufferedInputStream fis = new BufferedInputStream(in)) {
+	                                			IOUtils.copy(fis, zos, 1000);
+	                                		}
+	                                		connection.disconnect();
+	                                		Thread.sleep(200);
+	                                }
+	                    		}catch(MalformedURLException e){
+	                    			e.printStackTrace();
+	                    		} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+	                        }
+	                    }
+	//                    FileUtils.deleteDirectory(tempDir);
+	                }
+	    	});
+    	}
+    	return new ResponseEntity<StreamingResponseBody>(new StreamingResponseBody() {
+    		String notallow="This PID is not allowed";
+			@Override
+            public void writeTo(OutputStream outputStream) throws IOException {
+				try (OutputStreamWriter osw = new  OutputStreamWriter(outputStream,"UTF-8")) {
+    				osw.write(notallow);
+    			}
+			}
+		},new HttpHeaders(),HttpStatus.FORBIDDEN);
     }
     @GetMapping(path = "/fulltext/{id}")
     public ResponseEntity<StreamingResponseBody> getfulltext(@PathVariable("id") String pid) throws Exception {
@@ -144,6 +200,7 @@ public class BookController {
 			}
 		},new HttpHeaders(),HttpStatus.FORBIDDEN);
     }
+    
     @GetMapping(path = "/metrics/{id}")
     public Book getMetrics(@PathVariable("id") String id) throws Exception {
         return bookService.GetMetrics(id);
@@ -161,13 +218,16 @@ public class BookController {
     }
 
     boolean running;
+    
+    
+    
 
     @Value("${whiteshell}")
     private String whiteShellPath;
 
     @GetMapping("/download/{id}")
     public ResponseEntity<StreamingResponseBody> download(@PathVariable("id") String id, @RequestParam("page") String page) throws IOException {
-        log.info("download {} {}", id, page);
+        //log.info("download {} {}", id, page);
         //if (running) throw new RuntimeException();
         
         if (running) {
@@ -190,9 +250,9 @@ public class BookController {
                 try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
                     String url = "https://dl.ndl.go.jp/view/jpegOutput?itemId=info%3Andljp%2Fpid%2F" + id + "&contentNo=" + page + "&outputScale=2";
                     File whiteFile = FileUtils.getFile(tempDir, id + "_" + page + ".jpg");
-                    log.info("path {}", whiteFile.getAbsolutePath());
+                    //log.info("path {}", whiteFile.getAbsolutePath());
                     RunOuterProcess.Result r = RunOuterProcess.run(new File(whiteShellPath), "bash", "./whitening/whitening.sh", url, whiteFile.getAbsolutePath());
-                    log.info("{}\n{}", r.outs, r.errors);
+                    //log.info("{}\n{}", r.outs, r.errors);
                     ZipEntry entry = new ZipEntry(id + "_" + page + ".jpg");
                     zos.putNextEntry(entry);
                     try (BufferedInputStream fis = new BufferedInputStream(new FileInputStream(whiteFile))) {

@@ -65,7 +65,7 @@ public class RestoreDataBatch extends AbstractBatch {
                 String json = data[1];
                 idJsonMap.put(id, json);
                 count++;
-                if (idJsonMap.size() == 100) {
+                if (idJsonMap.size() == 10) {
                     esClient.bulkIndex(indexName, idJsonMap);
                     idJsonMap.clear();
                     log.info(" count {}", count);

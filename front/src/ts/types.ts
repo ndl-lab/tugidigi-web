@@ -128,6 +128,12 @@ export interface LangResource {
   [key: string]: LangString;
 }
 
+declare module "vue/types/vue" {
+  interface Vue {
+    $l2(s1: string, s2: string): string;
+  }
+} 
+
 let nnnlist: any[] = [];
 @Component({})
 class JpsGlobalMixin extends Vue {
@@ -139,9 +145,6 @@ class JpsGlobalMixin extends Vue {
     return state;
   }
 
-  mounted() {
-    setTitle(this.$state.lang);
-  }
 
   // /**言語リソース*/
   $l(key: string): string {
@@ -395,11 +398,6 @@ class JpsGlobalMixin extends Vue {
     );
   }
 
-  beforeRouteEnter(to, from, next) {
-    next(vm => {
-      (<any>vm).setTitle();
-    });
-  }
 
   /**
    * レスポンシブでないので注意
@@ -589,7 +587,6 @@ Vue.component("v-hsw", VHashSwitch);
 
 //Lang Resource Start
 const globalLangResource = {
-  "service-name": { ja: "ジャパンサーチ（試験版）", en: "Japan Search (BETA)" },
   "e-system-error": {
     ja:
       "エラーが発生しました。もう一度お試し頂いてもうまく行かない場合にはお問い合わせください。",
@@ -601,6 +598,7 @@ const globalLangResource = {
   },
   "l-whiten":{ja: "ページを白色化する", en: "whitening and download" },
   "l-fulltextdownload":{ja:"この資料の全文テキストデータ",en:"Full text of this book"},
+  "l-imagedownload":{ja:"この資料の画像データ(IIIF API経由)",en:"Image of this book (via IIIF API)"},
   "l-divide":{ja: "見開きで自動分割する", en: "auto divide page" },
   "l-analyze":{ja:"この画像で検索する",en:"Search"},
   "l-news": { ja: "お知らせ", en: "News" },
@@ -672,8 +670,8 @@ const globalLangResource = {
     en:"Now loading..."
   },
   "zero-hit": {
-    ja: "見つかりませんでした",
-    en: "No hit"
+    ja: "見つかりませんでした(例えばAND検索等により、1文字のキーワードが含まれる場合も検索できません)",
+    en: "No hit(For example, if a single keyword is included in an AND search, the search will not work.)"
   },
   "m-delete-success": { ja: "{}を削除しました", en: "{} is deleted" },
   "m-update-success": { ja: "{}を更新しました", en: "{} has been updated" },
@@ -732,6 +730,14 @@ const globalLangResource = {
   "tag-stamp":{
     ja: "印影",
     en: "Stamp"
-  }
+  },
+  "tag-true": {
+    ja: "古典籍",
+    en: "Classic book",
+  },
+  "tag-false": {
+    ja: "図書",
+    en: "Non-classic book",
+  },
 };
 //Lang Resource End

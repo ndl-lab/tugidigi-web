@@ -45,6 +45,12 @@ public class IllustService {
 	@Autowired
     private VectorSearchServiceValdImpl vss;
 	
+	@Autowired
+    private VectorSearchServiceValdTxtvecImpl vsstv;
+	
+    @Autowired
+    private CLIPTextService clipTextService;
+    
     public final EsDataStore<Illustration> illustStore;
     class Score implements Comparable<Score> {
 
@@ -122,7 +128,7 @@ public class IllustService {
         return baseResult;
     }
     
-    //挿絵単位画像検索。画像がない場合はタイトルキーワード検索。どっちもない場合はランダム検索。(ファセットとフィルタとソート)
+    //挿絵単位画像検索。画像やクエリテキストや特徴がない場合はタイトルキーワード検索。どっちもない場合はランダム検索。(ファセットとフィルタとソート)
     public EsSearchResult<Illustration> searcheachimage(EsSearchQuery q) {
         SearchSourceBuilder ssb = new SearchSourceBuilder();
         BoolQueryBuilder base = QueryBuilders.boolQuery();
@@ -131,19 +137,34 @@ public class IllustService {
         ssb.size(200);
         //画像検索
         //Arrays.stream(feature.split(",")).map(s -> Float.parseFloat(s)).collect(Collectors.toList());
-        if(!CollectionUtils.isEmpty(q.image)||q.imagefeature!=null) {
+        if(!CollectionUtils.isEmpty(q.image)||q.keyword2vec!=null) {
         	VectorSearchRequest req=new VectorSearchRequest();
-	         if (!CollectionUtils.isEmpty(q.image)) {
-	            Illustration i = get(q.image.get(0));
-            	req.vector=Floats.asList(i.feature);req.size=200;
-	        	featureDistanceMap = vss.search(req);
-	        }else if(q.imagefeature!=null) {
-	        	req.vector=Floats.asList(q.imagefeature);req.size=200;
-	        	featureDistanceMap = vss.search(req);
-	        }
+        	req.size=200;
+        	if(q.keyword2vec!=null) {
+        		double[] feature = clipTextService.vectorizeString(q.keyword2vec);
+        		req.vector= Arrays.stream(feature).mapToObj(d -> Double.valueOf(d).floatValue()).collect(Collectors.toList());
+        		featureDistanceMap = vsstv.search(req);
+        	}else if(!CollectionUtils.isEmpty(q.image)) {
+        		Illustration i = get(q.image.get(0));
+        		req.vector=Floats.asList(i.feature);
+        		featureDistanceMap = vss.search(req);
+        	}
 	        List<String> imageids = featureDistanceMap.keySet().stream().map(key -> key).distinct().collect(Collectors.toList());
 	        IdsQueryBuilder idq = QueryBuilders.idsQuery();
-	
+	        for (String value : imageids) idq.addIds(value);
+	        base.must(idq);
+        }else if(q.imagefeature_txt2vec!=null||q.imagefeature!=null) {
+        	VectorSearchRequest req=new VectorSearchRequest();
+        	req.size=200;
+        	if(q.imagefeature_txt2vec!=null) {
+        		req.vector=Floats.asList(q.imagefeature_txt2vec);
+        		featureDistanceMap = vsstv.search(req);
+        	}else if(q.imagefeature!=null) {
+        		req.vector=Floats.asList(q.imagefeature);
+        		featureDistanceMap = vss.search(req);
+        	}
+	        List<String> imageids = featureDistanceMap.keySet().stream().map(key -> key).distinct().collect(Collectors.toList());
+	        IdsQueryBuilder idq = QueryBuilders.idsQuery();
 	        for (String value : imageids) idq.addIds(value);
 	        base.must(idq);
         }else if(!CollectionUtils.isEmpty(q.keyword)) {

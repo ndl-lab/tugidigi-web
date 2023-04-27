@@ -1,24 +1,36 @@
+// Vue とかより先に読み込む必要がある
+import Component from "vue-class-component";
+Component.registerHooks([
+  'metaInfo'
+])
+
 import IiifViewer from "components/iiif-viewer/iiif-viewer";
 import { Book } from "domain/book";
 import { getBook } from "service/book-service";
 import Vue from "vue";
-import Component from "vue-class-component";
 import VueSlider from "vue-slider-component";
 import "./book.scss";
 import PageSearch from "./page-search/page-search";
 import { Watch } from "vue-property-decorator";
 import IllustSearch from "./illust-search/illust-search";
+import { generateTitle } from "utils/url";
+import { insertViewdBookHistory, tryLocalStorageAvailable } from "utils/localstorage"
 
 @Component({
   components: {
     IiifViewer,
     PageSearch,
     VueSlider,
-    IllustSearch
+    IllustSearch,
   },
   template: require("./book.html")
 })
 export default class BookView extends Vue {
+  head(){
+    return {
+      title: '商品一覧',
+    }
+  }
   b: Book = null;
   activeTab: number = 0;
 
@@ -42,6 +54,7 @@ export default class BookView extends Vue {
     if(this.$route.query["keyword"]!=null){
       this.activeTab=2;
     }
+    this.storeViewedBookHistory()
   }
 
   get viwer(): IiifViewer {
@@ -150,5 +163,16 @@ export default class BookView extends Vue {
     this.pagesActive = false;
   }
 
+  storeViewedBookHistory() {
+    if(tryLocalStorageAvailable() === false) return
+
+    insertViewdBookHistory(this.id)
+  }
+
   pagesActive: boolean = false;
+  metaInfo() {
+    return {
+      title: generateTitle({subTitle: this.b?.title})
+    }
+  }
 }

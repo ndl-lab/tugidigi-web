@@ -5840,6 +5840,9 @@
                 "autoTOCflag": {
                     "type": "boolean"
                 },
+                "isClassic": {
+                    "type": "boolean"
+                },
                 "index": {
                     "type": "text",
                     "analyzer": "ngram_analyzer"

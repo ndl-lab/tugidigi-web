@@ -1,0 +1,74 @@
+<main>
+  <div class="container mb-4">
+    <section class="hero is-small">
+      <div class="hero-body">
+        <h1 class="title is-3">{{ $l2("マイページ", "Mypage") }}</h1>
+        <p>{{
+          $l2(
+            "設定、記録はすべてブラウザに保存されます", 
+            "Settings and historys are stored in your browser."
+          )  
+        }}</p>
+      </div>
+    </section>
+    <section class="section setting">
+      <!--h2 class="title is-4">{{ $l2( "個人設定", "Setting" ) }}</h2-->
+      <p v-if="isLocalStorageAvailable === false">
+        {{ $l2(
+        "このブラウザでは個人設定が使用できません。localstorage機能を有効にしてください",
+        "Setting is unavailable on this browser. Please make sure 'localstorage' is enabled" ) }}
+      </p>
+      <template v-else>
+        <h2 class="title is-4">{{ $l('field-label-sort') }}</h2>
+        <b-field>
+            <!--span v-if="$state.lang === 'ja'">
+              <router-link to="/fulltext">「全文から検索」</router-link>したときのデフォルトのソート順を設定します。
+            </span>
+            <span v-else>
+              Sets the default sort order when searching from the<router-link to="/fulltext">"Keyword fulltext search"</router-link>
+            </span-->
+          {{ $l2(
+        '「全文から検索」したときのデフォルトのソート順を設定します。',
+        'Sets the default sort order when searching from the"Keyword fulltext search"' ) }}
+          <b-select
+            v-model="fulltextSortOrder"
+            :placeholder="$l('label-sort')"
+            icon="sort"
+          >
+            <option value="">{{ $l("l-sort-default") }}</option>
+            <option value="publishyear:asc"
+              >{{ $l("l-sort-publishyear-asc") }}</option
+            >
+            <option value="publishyear:desc"
+              >{{ $l("l-sort-publishyear-desc") }}</option
+            >
+          </b-select>
+        </b-field>
+        
+      </template>
+    </section>
+    <section id="tagged-books" class="section tagged-book">
+      <h2 class="title is-4">{{ $l2( "タグごとに一覧を表示", "Tag Search" ) }}</h2>
+      <tagged-books></tagged-books>
+    </section>
+    <section id="viewed-book-history" class="section history">
+      <h2 class="title is-4">{{ $l2( "閲覧履歴", "History" ) }}</h2>
+      <p>{{ $l2( "閲覧順に最新100件を保存しています", "Save the latest hundred books in order of view" ) }}</p>
+      <b-field :label="$l('field-label-history')" :addons="false">
+          <p>
+            {{ $l2("無効にするとこれまで履歴がすべてリセットされます", "When you disable, current history is cleared.") }}
+          </p>
+          <b-select
+            v-model="viewedBookHistoryDisabled"
+            @input="viewdBookHistoryDisabledHandler"
+            :placeholder="$l('label-history')"
+            icon="history"
+          >
+            <option value="false">{{ $l2("有効", "Enabled") }}</option>
+            <option value="true">{{ $l2("無効", "Disabled") }}</option>
+          </b-select>
+        </b-field>
+      <history></history>
+    </section>
+  </div>
+</main>
