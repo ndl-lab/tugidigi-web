@@ -9,11 +9,8 @@ module.exports = merge(common, {
 	filename:"[name].bundle.js"
   },
   devServer: {
-    contentBase: __dirname + "/public",
-    inline: false,
     hot: true,
     host: "0.0.0.0",
-    disableHostCheck: true,
     proxy: [
       {
         context: ["/dl/api/**"],

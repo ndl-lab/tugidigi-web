@@ -1,4 +1,6 @@
+import { SERVICE_NAME, SERVICE_NAME_EN } from "config";
 import Vue from "vue";
+import { state } from "model/state";
 import Component from "vue-class-component";
 import { removeFromArray } from "./objects";
 
@@ -93,4 +95,14 @@ export interface IHashRouterMixin {
   setHash(hash: string);
   setState();
   onHashChange(hash: string);
+}
+
+export function generateTitle({
+  subTitle = "", 
+  lang = state.lang
+} : { 
+  subTitle?: string, lang?: string
+} = {}): string {
+  const serviceName = lang === "ja" ? SERVICE_NAME : SERVICE_NAME_EN;
+  return subTitle ? `${subTitle} - ${serviceName}` : serviceName;
 }

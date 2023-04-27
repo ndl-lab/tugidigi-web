@@ -1,9 +1,10 @@
 es:
   endPoint: localhost:9200
 valdEndPoint: vald-lb-gateway.jisedigi-vald-prod:8081
+valdEndPointTxtvec: vald-lb-gateway.jisedigi-vald-txt-prod:8081
 DLEndPoint: https://lab.ndl.go.jp/dl/api/imagefeatures
+clipTextEndPoint: https://lab.ndl.go.jp/cliptext2vec/
 whiteshell: /work/
-featureLen: 512
 
 server:
   port: 19998
@@ -25,6 +26,3 @@ spring:
     banner-mode: "off"
 management:
     add-application-context-header: false
-
-  
-   

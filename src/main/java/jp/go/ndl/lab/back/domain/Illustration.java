@@ -40,5 +40,6 @@ public class Illustration implements EsData {
     
     
     public float[] feature;
+    public float[] feature_txt2vec;
 
 }

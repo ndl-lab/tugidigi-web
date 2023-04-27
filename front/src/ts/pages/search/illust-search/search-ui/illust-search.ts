@@ -1,3 +1,10 @@
+// Vue とかより先に読み込む必要がある
+import Component from "vue-class-component";
+Component.registerHooks([
+  'metaInfo'
+])
+
+
 import RectEditor from "components/rect-editor/edit";
 import { Illustration } from "domain/illustration";
 import SearchSort from "components/search/search-sort/search-sort";
@@ -11,6 +18,7 @@ import {
   getRandomIllustrations,
   getRandomIllustrationsWithFacet,
   putImageFeature,
+  putTextFeature,
   getIllustrationsByBook,
   getIllustration,
   getIllustrations
@@ -25,7 +33,7 @@ import { Book } from "domain/book";
 import { searchmetaBook } from "service/book-service";
 import { SearchResult } from "service/search-utils";
 import Vue from "vue";
-import Component from "vue-class-component";
+//import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
 import IllustImage from "../../illust-image/illust-image";
 import SketchCanvas from "../../sketch-canvas/sketch-canvas";
@@ -34,7 +42,8 @@ import "./illust-search.scss";
 const IMF_FEATURE_CACHE: LsCacheConfig = { type: "imgf", maxCacheSize: 10 };
 const MODEL_IMAGE_SIZE = 224;
 //declare var tf: any;
-import * as tf from '@tensorflow/tfjs';
+
+import { generateTitle } from "utils/url";
 
 @Component({
   template: require("./illust-search.html"),
@@ -56,6 +65,9 @@ export default class IllustSearch extends Vue {
   radius: number = 50;
   metasearchFlag: boolean=false;
   loadingResultsFlag: boolean=false;
+  targetURL: string = "";
+  urlSearchErrorMessage: string = "";
+  mindist:number=0;
   croprect:{
     x?: number;
     y?: number;
@@ -69,12 +81,18 @@ export default class IllustSearch extends Vue {
   @Prop({ default: "" })
   keyword: string;
   
+  @Prop()
+  targeturl: string;
+  
+  @Prop()
+  keyword2vec:string;
+
 
   @Watch("activeTab")
   async watchForTab() {
     if(this.activeTab==0){
       this.illusts = (await getDefaultIllustrations()).data;
-    }else if(this.activeTab==1){
+    }else{
       this.illusts = null;
     }
     this.$emit("change-tab",this.activeTab);
@@ -86,6 +104,7 @@ export default class IllustSearch extends Vue {
 
   illusts: Illustration[] = [];
   illustresarray: Illustration[] = [];
+  illustURLresarray: Illustration[] = [];
 
   swiperOption: any = {
     slidesPerView: 5,
@@ -125,16 +144,7 @@ export default class IllustSearch extends Vue {
     });
     this.$router.go(0);//強制リロード
   }
-  //メタ検索関係
-  /*keywordSearch(keywords: string[]) {
-    //this.ssBook.image = [];
-    if(keywords){
-      this.ssBook.keywords = keywords;
-    }else{
-      this.ssBook.keywords = [this.keyword];
-    }
-    this.ssBook.execute();
-  }*/
+  
   keywordSearch(keywords: string[]) {
     this.loadingResultsFlag=true;
     if(keywords){
@@ -149,6 +159,38 @@ export default class IllustSearch extends Vue {
       });
     }
     this.$router.go(0);//強制リロード
+  }
+
+  async urlSearch() {
+    if(this.targeturl!= undefined){
+      this.flagAnalyzing = true;
+      this.urlSearchErrorMessage = "";
+      this.illustURLresarray=[];
+      const param  = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({'img_url': this.targeturl})
+      };
+      const response = await fetch("https://lab.ndl.go.jp/dl/api/imagefeatures", param)
+      const { body: features } = await response.json()
+      if(features === undefined) {
+        this.flagAnalyzing = false;
+        this.urlSearchErrorMessage = "エラーが発生しました。URLの形式を確認してください";
+        return
+      }
+
+      try {
+        const result = await putImageFeature(features)
+        this.illustURLresarray = result.data.list;
+      } catch(e) {
+        this.urlSearchErrorMessage = "エラーが発生しました。時間をおいて再度お試しください";
+        console.log(e)
+      } finally {
+        this.flagAnalyzing = false;
+      }
+    }
   }
   
   model: any;
@@ -182,6 +224,8 @@ export default class IllustSearch extends Vue {
       });
     },100);
   }
+  
+  
   createResizedCanvasElement (originalImg:any) {
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
@@ -219,45 +263,45 @@ export default class IllustSearch extends Vue {
     this.queryImage = null;
     this.flagAnalyzing=false;
   }
-  searchByFeature(img: any){
-    
-    this.flagAnalyzing = true;
-    /*this.$nextTick(() => {
-      setTimeout(() => {
-          tf.tidy(() => {
-            try {
-              // let tensor: tf.Tensor = tf.browser
-              let tensor: any = tf.browser.fromPixels(img, 3);
-              console.log( Array.from(tensor.dataSync()));
-              tensor = tf.image.resizeBilinear(tensor, [
-                MODEL_IMAGE_SIZE,
-                MODEL_IMAGE_SIZE
-              ]);
-              tensor = tensor.reshape([
-                1,
-                MODEL_IMAGE_SIZE,
-                MODEL_IMAGE_SIZE,
-                3
-              ]);
-              tensor = tf.sub(tf.scalar(255.0),tf.cast(tensor, "float32")).div(tf.scalar(255.0));
-              let output: any = this.model.predict(tensor);
-              let vecsize: any=output.square().sum().sqrt();
-              let feature: number[] = Array.from(output.div(vecsize).dataSync());
-              //特徴量登録
-              putImageFeature(feature)
-                .then(result => {
-                  this.illustresarray = result.data.list;
-                  this.flagAnalyzing = false;
-                })
-                .catch(() => {
-                  this.flagAnalyzing = false;
-                });
-            } catch (e) {
-              this.flagAnalyzing = false;
-            }
-          });
-        });
-    });*/
+  /*sendTxt2VecAPI(keyword: string):any{
+    this.flagAnalyzing =true;
+    const param  = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({'keyword': keyword})
+    };
+    setTimeout(() => {
+      fetch("/cliptext2vec/", param)
+      .then((response)=>response.json()).then((features)=>{
+        putTextFeature(features["body"])
+              .then(result => {
+                this.illustresarray = result.data.list;
+                this.flagAnalyzing = false;
+              })
+              .catch(() => {
+                this.flagAnalyzing = false;
+              });
+      });
+    },100);
+  }
+  async freekeywordSearch(){
+    setTimeout(() => {
+      this.sendTxt2VecAPI(this.keyword2vec)
+    });
+    this.$router.push({
+      name: "illustsearchres",
+      query: { keyword2vec: this.keyword2vec }
+    });
+  }*/
+  freekeywordSearch(){
+    this.loadingResultsFlag=true;
+    this.$router.push({
+      name: "illustsearchres",
+      query: { keyword2vec: this.keyword2vec }
+    });
+    this.$router.go(0);//強制リロード
   }
   selectFile(f: File) {
     let reader = new FileReader();
@@ -266,9 +310,13 @@ export default class IllustSearch extends Vue {
     };
     reader.readAsDataURL(f);
   }
-  sketchmode:string= '';
-  async mounted() {
-    this.sketchmode = 'brush';
+  
+  async created() {
+    if(this.targeturl!==null&&this.targeturl!==""){
+      this.$nextTick(() => {
+        this.urlSearch();
+      });
+    }
   }
   ///////////////////////切り抜いて検索
   isRectModalActive: boolean = false;
@@ -285,6 +333,14 @@ export default class IllustSearch extends Vue {
       this.analyze(rect);
     }
     this.isRectModalActive = false;
+  }
+  
+  metaInfo() {
+    return {
+      title: generateTitle({
+        subTitle: this.$l2("画像検索", "Illustration search")
+      })
+    }
   }
   
 }

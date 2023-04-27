@@ -12,6 +12,8 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.zip.ZipFile;
 import jp.go.ndl.lab.back.Application;
 import jp.go.ndl.lab.back.domain.Book;
@@ -39,7 +41,11 @@ public class AddBookPublishYearBatch extends AbstractBatch {
     public static void main(String[] args) throws Throwable {
         Application.main(Application.MODE_BATCH, IndexBookBatch.BATCH_NAME, "ignore\\data\\books", "ignore\\data\\export20170724174516_tsv.zip", "ignore\\data\\div", "true");
     }
-
+    public static List<String> splitwithsize(String s, int chunkSize) {
+        return IntStream.iterate(0, i -> i < s.length(), i -> i + chunkSize)
+                .mapToObj(i -> s.substring(i, Math.min(s.length(), i + chunkSize)))
+                .collect(Collectors.toList());
+    }
     @Autowired
     private BookService bs;
 
@@ -49,7 +55,8 @@ public class AddBookPublishYearBatch extends AbstractBatch {
     public void run(String[] params) {
     	
         Path meta= Paths.get(params[0]);
-        log.info("bookの出版年代追加");
+        Boolean addsplitterflag=(params.length >= 2)?Boolean.parseBoolean(params[1]):false;
+        log.info("bookの出版年代追加:{}",addsplitterflag);
         try {
             @SuppressWarnings("resource")
 			ZipFile zf = new ZipFile(meta.toFile());
@@ -82,6 +89,10 @@ public class AddBookPublishYearBatch extends AbstractBatch {
 	                        	}catch(Exception e) {
 	                        		log.info("not found publish year PID:{}",pid);
 	                        	}
+	                        	/*String bookcontents=book.contents;
+	                        	if(addsplitterflag&&bookcontents!=null) {
+	                        		book.contents=String.join("\n",splitwithsize(bookcontents.replaceAll("[\r\t\n\ufeff]", ""),5000));
+	                        	}*/
 	                            bookIndexer.add(pid, om.writeValueAsString(book));
 	                        }
 	                    }

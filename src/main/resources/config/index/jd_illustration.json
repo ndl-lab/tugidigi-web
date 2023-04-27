@@ -21,6 +21,14 @@
                                "type":"float"
                           }
                       }
+                },
+                "feature":{
+                    "type":"float",
+                    "index":false
+                },
+                "feature_txt2vec":{
+                    "type":"float",
+                    "index":false
                 }
             }
     }
