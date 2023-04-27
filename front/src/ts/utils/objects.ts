@@ -2,6 +2,10 @@ export function equals(o1: any, o2: any) {
   return JSON.stringify(o1) === JSON.stringify(o2);
 }
 
+export function isEqualArray<T>(arr1: T[], arr2: T[]): boolean {
+  return JSON.stringify(arr1.sort()) === JSON.stringify(arr2.sort());
+}
+
 // export function equalsIgnoreNull(o1: any, o2: any) {
 //     const e1 = normalizeEmpty(o1), e2 = normalizeEmpty(o2);
 //     return equals(e1, e2);
@@ -210,6 +214,21 @@ export function flatArray(array: any) {
 
 export function uniqueArray(array: any) {
   return array.filter((v, i) => array.indexOf(v) === i);
+}
+
+export function diffArray<T>(
+  newer: T[],
+  older: T[]
+): {
+  deleted: T[];
+  added: T[];
+} {
+  const deleted = older.filter((item) => newer.indexOf(item) === -1);
+  const added = newer.filter((item) => older.indexOf(item) === -1);
+  return {
+    deleted,
+    added,
+  };
 }
 
 export function findOrDefault(array: any[], cond: (v) => boolean, def: any) {

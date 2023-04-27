@@ -1,3 +1,8 @@
+// Vue とかより先に読み込む必要がある
+import Component from "vue-class-component";
+Component.registerHooks([
+  'metaInfo'
+])
 import SearchPagesize from "components/search/search-pagesize/search-pagesize";
 import SearchPagination from "components/search/search-pagination/search-pagination";
 import SearchSort from "components/search/search-sort/search-sort";
@@ -15,11 +20,11 @@ import {
   searchEachIllustration
 } from "service/illust-service";
 import Vue from "vue";
-import Component from "vue-class-component";
 import BookEntry from "../../book_entry";
 import IllustImage from "../../illust-image/illust-image";
 import IllustSearch from "pages/search/illust-search/search-ui/illust-search";
 import "./illust-results.scss";
+import { generateTitle } from "utils/url";
 
 var VueScrollTo = require("vue-scrollto");
 
@@ -41,6 +46,8 @@ export default class IllustSearchResultsPage extends Vue {
   showFacet: boolean = false;
   activetab: number=0;
   keywords:string[];
+  targeturl:string="";
+  keyword2vec:string="";
   changeTab(activetab){
     this.activetab=activetab;
   }
@@ -95,13 +102,18 @@ export default class IllustSearchResultsPage extends Vue {
   
   async mounted() {
     this.ss.restoreQuery();
-    this.ssBook.restoreQuery();
+    this.ssBook.restoreQuery();//ここでクエリURLを展開する
     if (this.ss.image && this.ss.image.length > 0) {
       this.qillust = (await getIllustration(this.ss.image[0])).data;
-    }else if(this.ssBook.keywords){
+    }else if(this.ss.imageurl){
+      this.activetab=3;
+      this.targeturl=this.ss.imageurl;
+    }else if(this.ss.keyword2vec){
+      this.activetab=4;
+      this.keyword2vec=this.ss.keyword2vec;
+    }else if(this.ssBook.keywords!==null&&this.ssBook.keywords.length>0){
       this.activetab=1;
     }
-    // ↓　さしあたりの対応
     var searchtab_temp : any = this.$refs.searchtab; 
     searchtab_temp.changeTab(this.activetab);
   }
@@ -116,9 +128,16 @@ export default class IllustSearchResultsPage extends Vue {
     this.ss.keywords = [];
     this.ss.image = [i.id];
     this.ss.facet ={"fc-graphictags.tagname":i.graphictags.map(function( value ) {return value.tagname;})};
-    this.ss.from = 0;//ページネーションをリセット
+    this.ss.from = 0;
     this.ss.execute();
     this.qillust = i;
   }
   
+  metaInfo() {
+    return {
+      title: generateTitle({
+        subTitle: this.$l2("画像検索", "Illustration search")
+      })
+    }
+  }
 }

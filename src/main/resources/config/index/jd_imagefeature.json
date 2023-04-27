@@ -1,0 +1,18 @@
+{
+    "mappings": {
+            "properties": {
+                "database": {
+                    "type": "keyword"
+                },
+                "type": {
+                    "type": "keyword"
+                },
+                "feature":{
+                     "type": "keyword"
+                },
+                "feature_txt2vec":{
+                     "type": "keyword"
+                }
+            }
+    }
+}

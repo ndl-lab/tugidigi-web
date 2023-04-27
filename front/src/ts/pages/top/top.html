@@ -32,8 +32,8 @@
         <p>
           {{
             $l2(
-              " 国立国会図書館デジタルコレクションで提供している資料の中から、著作権の保護期間が満了した図書及び古典籍資料全部（約33万6千点）が検索可能です。",
-              "You can search about 336,000 materials (as of March 2022) in public domain available in the National Diet Library Digital Collections."
+              " 国立国会図書館デジタルコレクションで提供している資料の中から、著作権の保護期間が満了した図書及び古典籍資料全部（約35万点）が検索可能です。",
+              "You can search about 350,000 materials (as of November 2022) in public domain available in the National Diet Library Digital Collections."
             )
           }}
         </p>
@@ -50,12 +50,44 @@
             {{
               $l2(
                 "「全文から検索する」では、OCRにより生成された全文テキストから資料を検索できます。\n\
-                  令和4年3月現在の対象資料は、令和3年度デジタル化資料のOCRテキスト化事業の成果物を利用した図書資料約28万点分です。\n\
-                  ヒットした部分はスニペット形式で表示されるほか、資料画像の上に一致箇所と前後のスニペットがピンで表示されます。",
-                "Keyword Search allows you to search full texts OCR-generated from 280,000 books. "
+                 ヒットした部分はスニペット形式で表示されるほか、資料画像の上に一致箇所がピンで表示されます。令和4年11月1日現在の対象資料は次のとおりです。",
+                "Keyword Search allows you to search full texts OCR-generated from books. "
               )
             }}
           </li>
+          <ul>
+            <li>
+                {{
+                  $l2(
+                    "令和3年度デジタル化資料のOCRテキスト化事業","About 280,000 book materials using text data from the \"OCR Text Conversion Project of Digitized Materials in FY2021\""
+                  )
+                }}
+                <span v-if="$state.lang =='ja'">
+                  <a  href="https://lab.ndl.go.jp/data_set/ocr/r3_text/">（https://lab.ndl.go.jp/data_set/ocr/r3_text/）</a>
+                </span>
+                <span v-else>
+                  <a href="https://lab.ndl.go.jp/data_set/ocr_en/r3_text/">（https://lab.ndl.go.jp/data_set/ocr_en/r3_text/）</a>
+                </span>
+                {{
+                  $l2("の成果物のうち、図書資料約28万点分",""
+                  )
+                }}
+            </li>
+            <li>
+              <div>
+                {{
+                  $l2(
+                    "令和4年度古典籍資料のOCRテキスト化実験","Approximately 60,000 classical materials using text data from the \"OCR Text Conversion Experiment of Classical Materials in FY2022\""
+                  )
+                }}
+                <a href='https://lab.ndl.go.jp/data_set/r4ocr/r4_koten/'>(https://lab.ndl.go.jp/data_set/r4ocr/r4_koten/)</a>
+                {{
+                  $l2("の成果物である古典籍資料約8万点分",""
+                  )
+                }}
+              </div>
+            </li>
+          </ul>
           <li>
             {{
               $l2(
@@ -88,7 +120,7 @@
               )
             }}
           </li>
-          <li v-if="$state.lang =='ja'">
+          <!--li v-if="$state.lang =='ja'">
             {{
               $l2(
                 "ビューワの右上のAIボタン",
@@ -102,8 +134,28 @@
                 ""
               )
             }}
-          </li>
+          </li-->
         </ul>
+        <p>
+          {{
+            $l2(
+              " 収録データの二次利用については、当実験サービス案内ページ",
+              "For secondary use of this data, please refer to \"Terms of Use\" in the information page"
+            )
+            }}
+            <span v-if="$state.lang =='ja'">
+              <a  href="https://lab.ndl.go.jp/service/tsugidigi/">（https://lab.ndl.go.jp/service/tsugidigi/）</a>
+            </span>
+            <span v-else>
+              <a href="https://lab.ndl.go.jp/service/tsugidigi/tsugidigi_en/">（https://lab.ndl.go.jp/service/tsugidigi/tsugidigi_en/）</a>
+            </span>
+            {{
+            $l2(
+              "の「ご利用に当たって」をご覧ください。",
+              "."
+            )
+          }}
+        </p>
         <p>
           {{
             $l2(

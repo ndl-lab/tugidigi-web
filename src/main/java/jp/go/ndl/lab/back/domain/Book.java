@@ -38,7 +38,7 @@ public class Book implements EsData {
     
     public int page;
     public String contents;
-    
+    public Boolean isClassic;
 
     //結果を返す時のみ
     public List<String> illustrations;
