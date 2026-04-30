@@ -17,6 +17,7 @@ require("./leaflet-iiif.js");
 //import TinyYoloV3 from '../../3rdparty/tfjs-tiny-yolov3/index.js';
 import { BuefyNamespace } from "buefy";
 import * as Config from "config";
+
 import {setTagPermission,checkTagPermission} from "utils/localstorage";
 import { pushBookIdByTagName, retrieveAllTagNames, retrieveAllObjectByBookId, deleteBookIdByTagName, putTagObject } from "utils/indexedDB";
 
@@ -47,6 +48,7 @@ export default class IiifViewer extends Vue {
   //yolomodel:any=null;
   modelLoadingFlag:boolean=false;
   modelLoadedFlag:boolean=false;
+  selectAreaFlag:boolean=false;
   initialZoom:number=null;
   crdpoints:CrdPoint[];
   isCopyModalActive: Boolean = false;
@@ -54,6 +56,7 @@ export default class IiifViewer extends Vue {
   allTagNames: string[] = []
   attachedTagNames: string[] = []
   tagAddInput: string = ""
+  tablehtml:string =""
   @Prop()
   book: Book;
   
@@ -85,8 +88,9 @@ export default class IiifViewer extends Vue {
     }
   }
 
-  
-  changeCopyMode() {
+  changeCopyMode(table:Boolean) {
+    this.isTable=table;
+    if(table)this.tablehtml="「範囲選択」で構造化したい表の範囲を指定してください";
     this.copy ? this.exitCopyMode() : this.initializeCopyMode()
   }
 
@@ -105,16 +109,6 @@ export default class IiifViewer extends Vue {
       this.currentPage = n * 2 - 1;
     }
   }
-  /*async loadModel(){
-    this.modelLoadingFlag=true;
-    this.yolomodel = new TinyYoloV3();
-    await this.yolomodel.load("/dl/assets/yolomodeloverall/model.json");
-    this.setIIIFPage(this.currentPage);
-  }
-  async detachModel(){
-    this.modelLoadedFlag=false;
-    this.setIIIFPage(this.currentPage);
-  }*/
 
   get downloadLink() {
     let p = this.currentPage;
@@ -123,14 +117,15 @@ export default class IiifViewer extends Vue {
     }
     return `${Config.BASE_PATH}api/book/download/${this.book.id}?page=${p}`;
   }
-  get koma10array(){
+  get komaarray(){
     var returnobj: { page: number, url: string }[]=[];
     if(this.book){
       let totalp= this.totalPage;
 
-      for(var cpage:number=0;cpage<=totalp;cpage+=10){
-        let url=`${Config.BASE_PATH}api/book/downloadimgs/${this.book.id}/${cpage}`;
-        var obj:{ page: number, url: string} ={page:cpage,url:url};
+      for(var cpage:number=1;cpage<=totalp;cpage++){
+        //let url=`${Config.BASE_PATH}api/book/downloadimgs/${this.book.id}/${cpage}`;
+        let url=`https://dl.ndl.go.jp/api/iiif/${this.book.id}/R${cpage.toString().padStart(7, '0')}/full/full/0/default.jpg`;
+        var obj:{ page: number, url: string,filename:string} ={page:cpage,url:url,filename:cpage+".jpg"};
         returnobj.push(obj);
       }
       //console.log()
@@ -264,7 +259,8 @@ export default class IiifViewer extends Vue {
   ///Info
 
   infoUrl: string = "";
-  
+  imageHeight:number=0;
+  imageWidth:number=0;
   async getInitialZoom(){
     const xhr = new XMLHttpRequest();
     xhr.open("get", this.infoUrl);
@@ -274,8 +270,11 @@ export default class IiifViewer extends Vue {
       let imageSizes=infojson["sizes"];
       let mapSize=infojson["tiles"][0];
       var res = 2;
+      this.imageHeight=infojson["height"];
+      this.imageWidth=infojson["width"];
       for (var i = imageSizes.length - 1; i >= 0; i--) {
           let imageSize = imageSizes[i];
+
           if (imageSize.width * tolerance < mapSize.width && imageSize.height * tolerance < mapSize.height) {
               res=imageSizes.length-i;
               break;
@@ -461,6 +460,7 @@ export default class IiifViewer extends Vue {
     },250);
     
   }
+  
   async setIIIFPage(n: number) {
     if (this.manifest && n > 0) {
       const infoUrl =
@@ -607,6 +607,8 @@ export default class IiifViewer extends Vue {
   centerAxisX: number;
   shouldIgnoreRuby: Boolean = false;
   rubySize: number = 0;
+  isTable:Boolean =false;
+  istableFormat:string="HTML";
 
   // テキストコピーの設定系
   async initializeCopyMode() {
@@ -627,13 +629,14 @@ export default class IiifViewer extends Vue {
       this.centerAxisX =  minX + (maxX - minX) * page.divide
 
       this.setSelectedCoordinates(mapBounds.getNorthEast(), mapBounds.getSouthWest())
-      
       this.displaySelectedTextModal()
     }, 300)
 
   }
 
   async initializeSelectMode() {
+    this.selectAreaFlag=true
+    this.tablehtml=""
     this.exitSelectMode()
     this.isCopyModalActive = false
     this.map.dragging.disable()
@@ -644,6 +647,7 @@ export default class IiifViewer extends Vue {
     const coordjson: coordjsonContent[] = await this.fetchCoordjson(this.pageId)
 
     this.drawRectangleOnTextArea(coordjson)
+    if(this.isTable)this.tablehtml="「テーブル形式に変換」で表の構造化を実行します。下のスイッチでダウンロード形式をHTMLとTSVから選択できます。（既定値はHTML）"
   }
 
   async initializeTextDisplayMode() {
@@ -654,6 +658,7 @@ export default class IiifViewer extends Vue {
 
   exitCopyMode() {
     this.copy = false
+    this.selectAreaFlag=false
     this.isCopyModalActive = false
     this.exitSelectMode()
   }
@@ -666,7 +671,7 @@ export default class IiifViewer extends Vue {
     this.map.off("mouseup", this.mouseupHandler)
     this.map.off("mouseout", this.mouseoutHandler)
     this.map.off("mouseover", this.mouseoverHandler)
-    
+    this.tablehtml="";
     this.cleanUpTextAreaRectangles()
   }
 
@@ -762,6 +767,51 @@ export default class IiifViewer extends Vue {
       return rectAngles.addTo(this.map)
     })
   }
+  sendLambda(dataurl: string):any{
+
+  }
+  tableRecFunc(){
+    //console.log(this.imageWidth,this.imageHeight);
+    //console.log(this.selectedCoordinates.minX/this.imageWidth,this.selectedCoordinates.minY/this.imageHeight,
+    //this.selectedCoordinates.maxX/this.imageWidth,this.selectedCoordinates.maxY/this.imageHeight)
+    this.tablehtml="処理中……お待ちください……";
+    const param  = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        'width':this.imageWidth,
+        'height':this.imageHeight,
+        'minX':this.selectedCoordinates.minX,
+        'minY':this.selectedCoordinates.minY,
+        'maxX':this.selectedCoordinates.maxX,
+        'maxY':this.selectedCoordinates.maxY,
+        'PID':this.book.id,
+        'koma':this.currentPage,
+        'coordjsonstr': this.textInSelectedCoordArea})
+    };
+    setTimeout(() => {
+      fetch("https://lab.ndl.go.jp/tablerec/", param)
+      .then((response)=>response.json()).then((res)=>{
+        this.tablehtml=res["html"];
+        if(this.istableFormat=="TSV"){
+          let blob = new Blob([res["tsv"]], { type: 'text/tsv' })
+          let link = document.createElement('a')
+          link.href = window.URL.createObjectURL(blob)
+          link.download = 'table_'+this.pageId+'.tsv'
+          link.click()
+        }else{
+          let blob = new Blob([res["html"]], { type: 'text/html' })
+          let link = document.createElement('a')
+          link.href = window.URL.createObjectURL(blob)
+          link.download = 'table_'+this.pageId+'.html'
+          link.click()
+        }
+      });
+    },100);
+    
+  }
 
   @Watch("rubySize")
   onrubySize(_n) {
@@ -846,6 +896,33 @@ export default class IiifViewer extends Vue {
         '>': '&gt;',
       }[match]
     });
+  }
+  get textInSelectedCoordArea(): coordjsonContent[]  {
+    let coordjsonData = this.coordjson.data
+    if(this.shouldDivideByCenter) {
+      const leftPageData: coordjsonContent[] = []
+      const rightPageData: coordjsonContent[] = []
+      coordjsonData.forEach((data) => {
+        if(data.xmax < this.centerAxisX) leftPageData.push(data)
+        else rightPageData.push(data)
+      })
+      coordjsonData = leftPageData.concat(rightPageData)
+    }
+    if(this.shouldIgnoreRuby) {
+      coordjsonData = coordjsonData.filter(({xmax, xmin, ymax, ymin}) => {
+        return (xmax - xmin) * (ymax - ymin) > this.rubySize * 100
+      })
+    }
+    let textInSelectedCoordArea = coordjsonData.filter(({xmin, ymin, xmax, ymax}) => {
+      const isTextInSelectedCoordArea = this.selectedCoordinates.maxX > xmax
+                && this.selectedCoordinates.maxY > ymax
+                && this.selectedCoordinates.minX < xmin
+                && this.selectedCoordinates.minY < ymin
+
+      return isTextInSelectedCoordArea
+    })
+    //textInSelectedCoordArea = this.escapeHTML(textInSelectedCoordArea)
+    return textInSelectedCoordArea
   }
 
   get textInSelectedArea():string {
