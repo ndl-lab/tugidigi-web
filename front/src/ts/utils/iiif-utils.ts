@@ -1,6 +1,7 @@
 import * as Axios from "axios";
 import { IIIFInfo, IIIFManifest } from "domain/iiif";
 
+
 export interface IIIFSizeParam {
   w?: number;
   h?: number;

@@ -29,6 +29,7 @@
     </div>
     <div class="navbar-menu" :class="{ 'is-active': isHamburgerActive }">
       <div class="navbar-end">
+        <a v-if="id!==undefined" :href="`https://lab.ndl.go.jp/dl-text/book?pid=${id}&page=${ page!==undefined ? page : '1'}`" class="navbar-item" >{{ $l2( "テキストモード", "textmode") }}</a>
         <router-link to="/fulltext" class="navbar-item" >{{ $l2("全文検索", "Keyword search") }}</router-link>
         <router-link to="/illust" class="navbar-item" >{{ $l2("画像検索", "Illustration search") }}</router-link>
         <router-link to="/mypage" class="navbar-item" >{{ $l2("マイページ", "Mypage") }}</router-link>

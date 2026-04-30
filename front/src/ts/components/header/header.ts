@@ -16,4 +16,12 @@ export default class Header extends Vue {
     currentRouteHandler(_newRoute: string) {
         this.isHamburgerActive = false
     }
+
+    // 以下、テキストモードのリンク生成のために追加
+    get id() {
+        return this.$route.params["id"];
+    }
+    get page() {
+        return this.$route.query["page"];
+    }
 }
